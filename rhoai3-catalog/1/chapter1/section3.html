@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Administration &amp; Configuration (Curating the Showroom) :: Red Hat OpenShift AI (RHOAI) Model Catalog</title>
+    <link rel="prev" href="section2.html">
+    <link rel="next" href="section4.html">
+    <meta name="generator" content="Antora 3.1.3">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">Red Hat OpenShift AI (RHOAI) Model Catalog</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/REPLACEREPONAME/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="rhoai3-catalog" data-version="1">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">Red Hat OpenShift AI (RHOAI) Model Catalog</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Introduction &amp; Value</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="section1.html">Architecture Deep Dive</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="section2.html">The Deployment Wizard</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="1">
+    <a class="nav-link" href="section3.html">Administration &amp; Configuration</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="section4.html">Troubleshooting &amp; Constraints</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Red Hat OpenShift AI (RHOAI) Model Catalog</span>
+    <span class="version">1</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">Red Hat OpenShift AI (RHOAI) Model Catalog</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">Red Hat OpenShift AI (RHOAI) Model Catalog</a></li>
+    <li><a href="section3.html">Administration &amp; Configuration</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Administration &amp; Configuration (Curating the Showroom)</h1>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph lead">
+<p><strong>If users can’t trust what they see, they won’t use it.</strong></p>
+</div>
+<div class="paragraph">
+<p>The Model Catalog is enabled by default, but it is not “set and forget.”</p>
+</div>
+<div class="paragraph">
+<p>As a platform engineer or administrator, you own:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>what sources appear</p>
+</li>
+<li>
+<p>what models are promoted as “deployment-ready”</p>
+</li>
+<li>
+<p>how the catalog behaves after upgrades</p>
+</li>
+<li>
+<p>the boundary between catalog visibility and deployment permissions</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_1_enable_disable_the_model_catalog_in_the_dashboard"><a class="anchor" href="#_1_enable_disable_the_model_catalog_in_the_dashboard"></a>1. Enable / Disable the Model Catalog in the Dashboard</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>If you need to hide the catalog UI (for example, during a migration window), update the <code>OdhDashboardConfig</code> resource.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Hide the catalog menu:</strong> set <code>spec.dashboardConfig.disableModelCatalog</code> to <code>true</code></p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get odhdashboardconfig -n redhat-ods-applications</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc patch odhdashboardconfig odh-dashboard-config -n redhat-ods-applications --type merge -p '{
+  "spec": { "dashboardConfig": { "disableModelCatalog": true } }
+}'</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To re-enable, set it back to <code>false</code>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_2_configure_catalog_sources_what_users_see"><a class="anchor" href="#_2_configure_catalog_sources_what_users_see"></a>2. Configure Catalog Sources (What Users See)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The catalog sources are configured via a ConfigMap (file-based configuration).</p>
+</div>
+<div class="paragraph">
+<p>The key object:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Namespace:</strong> <code>rhoai-model-registries</code></p>
+</li>
+<li>
+<p><strong>ConfigMap:</strong> <code>model-catalog-sources</code></p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get configmap model-catalog-sources -n rhoai-model-registries -o yaml</code></pre>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_source_model_two_logical_files"><a class="anchor" href="#_source_model_two_logical_files"></a>Source Model (Two Logical “Files”)</h3>
+<div class="paragraph">
+<p>Like other RHOAI components, the ConfigMap often contains two logical “files”:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong><code>sources.yaml</code></strong>: defines which catalogs are loaded</p>
+</li>
+<li>
+<p><strong><code>&lt;your-catalog&gt;.yaml</code></strong>: defines models and their artifacts</p>
+</li>
+</ol>
+</div>
+<details>
+<summary class="title">Details</summary>
+<div class="content">
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: model-catalog-sources
+  namespace: rhoai-model-registries
+data:
+  sources.yaml: |
+    catalogs:
+      - name: "Enterprise Catalog"
+        id: "enterprise-catalog"
+        type: "yaml"
+        properties:
+          yamlCatalogPath: "/data/user-sources/enterprise-models.yaml"
+
+  enterprise-models.yaml: |
+    models:
+      - name: "granite-3.x-instruct"
+        description: "Validated Granite family model (ModelCar)"
+        customProperties:
+          model_type:
+            metadataType: MetadataStringValue
+            string_value: "generative"
+          provider:
+            metadataType: MetadataStringValue
+            string_value: "IBM"
+          format:
+            metadataType: MetadataStringValue
+            string_value: "modelcar-oci"
+        artifacts:
+          - name: "model-artifact"
+            uri: "oci://registry.redhat.io/redhat-ai-services/modelcar:granite-3.x-instruct"</code></pre>
+</div>
+</div>
+</div>
+</details>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>If you are using ModelCars, ensure your cluster can pull from <code>registry.redhat.io</code> (credentials/mirroring) as required by your environment.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_apply_changes_and_force_reload"><a class="anchor" href="#_apply_changes_and_force_reload"></a>Apply Changes and Force Reload</h3>
+<div class="paragraph">
+<p>After changes:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc delete pod -l component=model-catalog -n rhoai-model-registries
+oc get pods -l component=model-catalog -n rhoai-model-registries -w</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_3_access_control_visibility_vs_deployment_rights"><a class="anchor" href="#_3_access_control_visibility_vs_deployment_rights"></a>3. Access Control: Visibility vs. Deployment Rights</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The catalog can be visible, but deployments still require:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>project access (RBAC)</p>
+</li>
+<li>
+<p>quotas</p>
+</li>
+<li>
+<p>hardware capacity (matching hardware profiles)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This is intentional: the catalog is for discovery, while deployment is a governed action.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_4_hardware_profiles_integration_the_safety_net"><a class="anchor" href="#_4_hardware_profiles_integration_the_safety_net"></a>4. Hardware Profiles Integration (The Safety Net)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>When users deploy from the catalog, RHOAI attempts to:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>pick a compatible runtime based on the model</p>
+</li>
+<li>
+<p>align deployment settings to the selected hardware profile</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>As a platform engineer, your role is to keep hardware profiles accurate and available so auto-selection works reliably.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><strong>Now that you can curate and govern the showroom, let’s cover the operational failure modes you must plan for.</strong></p>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="section2.html">The Deployment Wizard</a></span>
+  <span class="next"><a href="section4.html">Troubleshooting &amp; Constraints</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

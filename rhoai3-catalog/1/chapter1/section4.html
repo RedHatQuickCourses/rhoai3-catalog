@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Troubleshooting &amp; Known Constraints (RHOAI 3.2) :: Red Hat OpenShift AI (RHOAI) Model Catalog</title>
+    <link rel="prev" href="section3.html">
+    <meta name="generator" content="Antora 3.1.3">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">Red Hat OpenShift AI (RHOAI) Model Catalog</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/REPLACEREPONAME/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="rhoai3-catalog" data-version="1">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">Red Hat OpenShift AI (RHOAI) Model Catalog</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Introduction &amp; Value</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="section1.html">Architecture Deep Dive</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="section2.html">The Deployment Wizard</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="section3.html">Administration &amp; Configuration</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="1">
+    <a class="nav-link" href="section4.html">Troubleshooting &amp; Constraints</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Red Hat OpenShift AI (RHOAI) Model Catalog</span>
+    <span class="version">1</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">Red Hat OpenShift AI (RHOAI) Model Catalog</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">1</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">Red Hat OpenShift AI (RHOAI) Model Catalog</a></li>
+    <li><a href="section4.html">Troubleshooting &amp; Constraints</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Troubleshooting &amp; Known Constraints (RHOAI 3.2)</h1>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph lead">
+<p><strong>A catalog that does not load is worse than no catalog at all.</strong></p>
+</div>
+<div class="paragraph">
+<p>The Model Catalog is the front door to your GenAI platform. When it fails, users do not “deploy slower”—they deploy <strong>elsewhere</strong>.</p>
+</div>
+<div class="paragraph">
+<p>This section provides the operational playbook for the most common Model Catalog failures in <strong>Red Hat OpenShift AI 3.2</strong>, along with the known product constraints you must design around.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_1_upgrade_initialization_failure_request_access_to_model_catalog"><a class="anchor" href="#_1_upgrade_initialization_failure_request_access_to_model_catalog"></a>1. Upgrade Initialization Failure (“Request access to model catalog”)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>After upgrading from OpenShift AI 2.24 to 3.2, some clusters encounter an initialization issue where the catalog fails to load and the UI displays:</p>
+</div>
+<div class="paragraph">
+<p><strong><code>Request access to model catalog</code></strong></p>
+</div>
+<div class="sect2">
+<h3 id="_root_cause_whats_happening"><a class="anchor" href="#_root_cause_whats_happening"></a>Root Cause (What’s Happening)</h3>
+<div class="paragraph">
+<p>The catalog service depends on the <code>model-catalog-sources</code> ConfigMap and a healthy <code>model-catalog</code> deployment. During some upgrades, the existing ConfigMap or deployment state is incompatible with the new service expectations.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_fix_force_a_clean_refresh"><a class="anchor" href="#_fix_force_a_clean_refresh"></a>Fix (Force a Clean Refresh)</h3>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>This is a <strong>safe reset</strong> of the catalog service configuration. It does not delete your models. It forces the catalog to recreate its configuration state.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Delete the ConfigMap and deployment:</strong></p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc delete configmap model-catalog-sources -n rhoai-model-registries
+oc delete deployment model-catalog -n rhoai-model-registries</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Wait for the catalog pod to recreate and become ready:</strong></p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get pods -n rhoai-model-registries -l component=model-catalog -w</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p><strong>Re-check the UI:</strong> Navigate to <strong>AI hub → Catalog</strong>.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_2_silent_deployment_failure_name_length_63_characters"><a class="anchor" href="#_2_silent_deployment_failure_name_length_63_characters"></a>2. Silent Deployment Failure (Name Length &gt; 63 Characters)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Some models have long names (for example, variants of Mistral or Qwen). When you deploy from the wizard, KServe appends suffixes, and the resulting Kubernetes resource names can exceed the 63-character DNS label limit.</p>
+</div>
+<div class="sect2">
+<h3 id="_symptom"><a class="anchor" href="#_symptom"></a>Symptom</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>The wizard completes, but resources do not appear (or fail without an obvious error).</p>
+</li>
+<li>
+<p>The underlying KServe resources fail validation.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_workaround"><a class="anchor" href="#_workaround"></a>Workaround</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Manually shorten the deployment name</strong> in the wizard before creating resources.</p>
+</li>
+<li>
+<p>Use a stable naming convention:</p>
+</li>
+<li>
+<p><code>granite-3-2b</code></p>
+</li>
+<li>
+<p><code>llama-3-8b-int8</code></p>
+</li>
+<li>
+<p><code>mistral-small-24b-awq</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_3_missing_existing_cluster_storage_option_in_new_projects"><a class="anchor" href="#_3_missing_existing_cluster_storage_option_in_new_projects"></a>3. Missing “Existing cluster storage” Option in New Projects</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>When deploying from the catalog into a <strong>new</strong> Data Science Project, the wizard may not show the “Existing cluster storage” option.</p>
+</div>
+<div class="sect2">
+<h3 id="_root_cause"><a class="anchor" href="#_root_cause"></a>Root Cause</h3>
+<div class="paragraph">
+<p>The project does not yet have any <strong>Data Connections</strong> defined. The wizard hides some storage options until at least one connection exists.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_fix"><a class="anchor" href="#_fix"></a>Fix</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Create a simple Data Connection first (even a URI-based one):</p>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Open the OpenShift AI Dashboard</p>
+</li>
+<li>
+<p>Go to <strong>Settings → Data connections</strong></p>
+</li>
+<li>
+<p>Create a Data Connection in the target project</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Return to the Model Catalog wizard and retry the deployment.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_4_catalog_visibility_vs_deployment_authorization"><a class="anchor" href="#_4_catalog_visibility_vs_deployment_authorization"></a>4. Catalog Visibility vs. Deployment Authorization</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The catalog can be visible to many users, but deployments still fail if the user lacks:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Project membership</p>
+</li>
+<li>
+<p>Required quotas</p>
+</li>
+<li>
+<p>Access to the target hardware profile / accelerator capacity</p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_quick_checks"><a class="anchor" href="#_quick_checks"></a>Quick Checks</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Can the user create resources in the target namespace?
+oc auth can-i create inferenceservices -n &lt;project-namespace&gt;
+
+# Is there capacity for GPUs?
+oc get nodes -l nvidia.com/gpu.present=true</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_5_operational_best_practices"><a class="anchor" href="#_5_operational_best_practices"></a>5. Operational Best Practices</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Prefer ModelCars (OCI artifacts):</strong> Use ModelCar images from <code>registry.redhat.io</code> when available. They reduce cold-start time and simplify distribution.</p>
+</li>
+<li>
+<p><strong>Treat catalog sources as code:</strong> Manage <code>model-catalog-sources</code> via GitOps wherever possible.</p>
+</li>
+<li>
+<p><strong>Standardize names:</strong> Enforce short, predictable deployment names to avoid Kubernetes limits and reduce operational ambiguity.</p>
+</li>
+</ul>
+</div>
+<hr>
+<div class="paragraph">
+<p><strong>If the catalog is your showroom, these playbooks keep the lights on.</strong></p>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="section3.html">Administration &amp; Configuration</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>
