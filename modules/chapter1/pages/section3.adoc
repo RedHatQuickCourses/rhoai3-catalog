@@ -1,6 +1,135 @@
-= Section 3
+= Administration & Configuration (Curating the Showroom)
+:navtitle: Administration & Configuration
+:toc: macro
 
-* Create multiple copies of this section as needed.
-* Remove any unnecessary sections or chapter pages.
-* Customize the section as appropriate.
-* Ensure that each page contains a manageable amount of content.
+// Antora metadata
+:page-role: platform-admin
+:description: How to enable/disable the Model Catalog, configure sources, and manage access patterns in OpenShift AI 3.2.
+
+[.lead]
+*If users can’t trust what they see, they won’t use it.*
+
+The Model Catalog is enabled by default, but it is not “set and forget.”
+
+As a platform engineer or administrator, you own:
+
+* what sources appear
+* what models are promoted as “deployment-ready”
+* how the catalog behaves after upgrades
+* the boundary between catalog visibility and deployment permissions
+
+== 1. Enable / Disable the Model Catalog in the Dashboard
+
+If you need to hide the catalog UI (for example, during a migration window), update the `OdhDashboardConfig` resource.
+
+* **Hide the catalog menu:** set `spec.dashboardConfig.disableModelCatalog` to `true`
+
+[source,bash]
+----
+oc get odhdashboardconfig -n redhat-ods-applications
+----
+
+[source,bash]
+----
+oc patch odhdashboardconfig odh-dashboard-config -n redhat-ods-applications --type merge -p '{
+  "spec": { "dashboardConfig": { "disableModelCatalog": true } }
+}'
+----
+
+To re-enable, set it back to `false`.
+
+== 2. Configure Catalog Sources (What Users See)
+
+The catalog sources are configured via a ConfigMap (file-based configuration).
+
+The key object:
+
+* **Namespace:** `rhoai-model-registries`
+* **ConfigMap:** `model-catalog-sources`
+
+[source,bash]
+----
+oc get configmap model-catalog-sources -n rhoai-model-registries -o yaml
+----
+
+=== Source Model (Two Logical “Files”)
+
+Like other RHOAI components, the ConfigMap often contains two logical “files”:
+
+1. **`sources.yaml`**: defines which catalogs are loaded
+2. **`<your-catalog>.yaml`**: defines models and their artifacts
+
+[%collapsible]
+====
+[source,yaml]
+----
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: model-catalog-sources
+  namespace: rhoai-model-registries
+data:
+  sources.yaml: |
+    catalogs:
+      - name: "Enterprise Catalog"
+        id: "enterprise-catalog"
+        type: "yaml"
+        properties:
+          yamlCatalogPath: "/data/user-sources/enterprise-models.yaml"
+
+  enterprise-models.yaml: |
+    models:
+      - name: "granite-3.x-instruct"
+        description: "Validated Granite family model (ModelCar)"
+        customProperties:
+          model_type:
+            metadataType: MetadataStringValue
+            string_value: "generative"
+          provider:
+            metadataType: MetadataStringValue
+            string_value: "IBM"
+          format:
+            metadataType: MetadataStringValue
+            string_value: "modelcar-oci"
+        artifacts:
+          - name: "model-artifact"
+            uri: "oci://registry.redhat.io/redhat-ai-services/modelcar:granite-3.x-instruct"
+----
+====
+
+[IMPORTANT]
+====
+If you are using ModelCars, ensure your cluster can pull from `registry.redhat.io` (credentials/mirroring) as required by your environment.
+====
+
+=== Apply Changes and Force Reload
+
+After changes:
+
+[source,bash]
+----
+oc delete pod -l component=model-catalog -n rhoai-model-registries
+oc get pods -l component=model-catalog -n rhoai-model-registries -w
+----
+
+== 3. Access Control: Visibility vs. Deployment Rights
+
+The catalog can be visible, but deployments still require:
+
+* project access (RBAC)
+* quotas
+* hardware capacity (matching hardware profiles)
+
+This is intentional: the catalog is for discovery, while deployment is a governed action.
+
+== 4. Hardware Profiles Integration (The Safety Net)
+
+When users deploy from the catalog, RHOAI attempts to:
+
+* pick a compatible runtime based on the model
+* align deployment settings to the selected hardware profile
+
+As a platform engineer, your role is to keep hardware profiles accurate and available so auto-selection works reliably.
+
+---
+*Now that you can curate and govern the showroom, let’s cover the operational failure modes you must plan for.*

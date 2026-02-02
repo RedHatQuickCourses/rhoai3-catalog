@@ -1,7 +1,97 @@
-= Chapter 1
+= The Model Catalog: From Choice Overload to Confident Deployment
+:navtitle: Introduction & Value
+:toc: macro
 
-In this section, we cover... FIXME
+// Antora metadata
+:page-role: product-concept
+:description: Understanding the business value and operational role of the Model Catalog in OpenShift AI 3.2.
 
+[.lead]
+*Selection is not the hard part. Making the selection safe, fast, and repeatable is.*
 
-- Add or remove section entries in the `antora.yaml` file as needed.
-- Ensure you create or delete the corresponding directory for the chapter accordingly.
+In the early days of Generative AI, teams solved the “model problem” the same way they solved everything else: search the internet, download weights, and hope for the best.
+
+That approach collapses in production.
+
+* A model that performs well on paper may not fit your hardware.
+* A model with the wrong license can block an entire product launch.
+* A model served from the wrong source can turn “Time-To-First-Token” into “Time-To-First-Customer.”
+
+This is the **Model Catalog** problem: not discovery, but **curation**.
+
+[NOTE]
+.The Core Sales Objection
+====
+*"Why do we need a Model Catalog? Can't data scientists just use Hugging Face?"*
+
+Discovery is easy. **Enterprise deployment is expensive.** The Model Catalog exists to reduce deployment risk by providing curated, validated options with known performance characteristics and a streamlined deployment path.
+====
+
+== The Solution: The Model Catalog
+
+In **Red Hat OpenShift AI (RHOAI) 3.2**, the Model Catalog is the centralized discovery hub for Generative AI models.
+
+It is not a replacement for the Model Registry.
+
+* **Model Catalog**: *Find and choose* models that are validated and deployment-ready.
+* **Model Registry**: *Track and govern* the specific models your organization has selected, versioned, and promoted through environments.
+
+The catalog is the “showroom.” The registry is the “title office.”
+
+== What the Catalog Delivers (In Practice)
+
+The Model Catalog aggregates models from major providers and ecosystems, including:
+
+* Red Hat
+* IBM
+* Meta
+* NVIDIA
+* Mistral AI
+* Google
+
+It also adds two things that raw public hubs do not guarantee:
+
+=== 1. Validated Performance (“No Surprises”)
+
+The catalog includes performance metrics and benchmarks verified by Red Hat so teams can compare models against hardware realities before deployment.
+
+* **The win:** predictable deployment behavior.
+* **The benefit:** fewer failed pilots, fewer GPU “black hole” deployments, faster time-to-value.
+
+=== 2. Deployment Defaults (“The Fast Path”)
+
+RHOAI 3.2 includes a streamlined deployment wizard that provides sensible defaults for common deployment parameters.
+
+* **The win:** fewer knobs, fewer mistakes.
+* **The benefit:** platform engineers spend less time debugging “wizard drift” across projects.
+
+=== 3. ModelCars (“Ship Models Like Software”)
+
+Many validated catalog models are delivered as **ModelCars**—models packaged as OCI artifacts (container images).
+
+* **Recommendation:** In RHOAI, prefer ModelCar images hosted on `registry.redhat.io` over raw object storage downloads.
+* **Benefits:** layer deduplication, faster startup times, simpler distribution inside enterprise networks.
+
+== Your Mission: Operate the Showroom
+
+In this course, you will take on the role of a platform engineer responsible for making the catalog usable, trustworthy, and operationally stable.
+
+**You will execute the following technical workflow:**
+
+1. **Architecture:** Understand how the catalog is built, how it differs from the registry, and how model artifacts are represented (ModelCars, quantization variants).
+2. **Operations:** Use the deployment wizard safely—selecting runtimes and hardware profiles that match the model.
+3. **Administration:** Control visibility and sources by configuring the catalog service and its backing ConfigMaps.
+4. **Reliability:** Apply the known fixes and constraints for RHOAI 3.2 (upgrade issues, name limits, storage option behavior).
+
+[IMPORTANT]
+.Prerequisites
+====
+To successfully complete the hands-on sections of this course, you need:
+
+* Access to a **Red Hat OpenShift AI 3.2** cluster.
+* Permissions to view and edit resources in `rhoai-model-registries` (or cluster-admin).
+* The `oc` CLI tool installed in your terminal.
+====
+
+---
+*Ready to run the showroom? Let’s start with how it works under the hood.*

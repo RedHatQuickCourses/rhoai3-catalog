@@ -1,6 +1,83 @@
-= Section 1
+= Architecture: How the Model Catalog Works
+:navtitle: Architecture Deep Dive
+:toc: macro
 
-* Create multiple copies of this section as needed.
-* Remove any unnecessary sections or chapter pages.
-* Customize the section as appropriate.
-* Ensure that each page contains a manageable amount of content.
+// Antora metadata
+:page-role: architecture-concept
+:description: Technical deep dive into Model Catalog components, sources, and how catalog choices connect to deployment.
+
+[.lead]
+*A catalog is not a database. It is a control surface.*
+
+Platform engineers operate the Model Catalog like an air-traffic system:
+
+* It must present the right options (curation).
+* It must guide users into safe defaults (deployment wizard).
+* It must reflect infrastructure reality (hardware profiles, quotas, and runtimes).
+
+== 1. Catalog vs. Registry (Two Different Jobs)
+
+The Model Catalog and Model Registry solve different problems:
+
+* **Model Catalog:** discovery and selection of validated models
+* **Model Registry:** tracking, versioning, and governance of models your organization has adopted
+
+Think of it this way:
+
+* **Catalog:** “Which model should we choose?”
+* **Registry:** “Which exact model version did we deploy, and why?”
+
+== 2. What’s Inside a Catalog Model Card
+
+Each model entry in the catalog typically includes:
+
+* **Provider / family:** Granite, Llama, Mistral, Qwen, Phi, etc.
+* **Validated variants:** quantized formats (INT4, INT8, FP8) appropriate for different hardware
+* **Performance context:** benchmarks and metrics verified for specific configurations
+* **Artifacts:** the actual model reference used at deployment time
+
+In OpenShift AI, the artifact reference is often a **ModelCar** (OCI artifact).
+
+== 3. ModelCars (OCI Artifacts) — The Default “Enterprise” Distribution
+
+RHOAI uses **ModelCars**: model artifacts packaged as OCI container images (hosted on `registry.redhat.io`).
+
+This matters operationally:
+
+* **Faster cold starts:** image pulls and layer caching outperform raw weight downloads.
+* **Layer deduplication:** shared layers reduce bandwidth and storage cost.
+* **Predictable supply chain:** enterprises already know how to mirror, sign, and scan container images.
+
+[IMPORTANT]
+====
+If you are using RHOAI, prefer **ModelCar images** over ad-hoc downloads from public hubs or raw S3 pulls whenever possible.
+====
+
+== 4. How Catalog Selection Connects to Deployment
+
+In RHOAI 3.2, the catalog’s deployment workflow is optimized for speed:
+
+1. **Select a model** from the catalog
+2. **Launch the deployment wizard**
+3. **Choose a project and a serving runtime**
+4. **Match hardware profiles** to the model’s requirements
+5. **Deploy** (creating KServe resources behind the scenes)
+
+== 5. Integration with Hardware Profiles (Infrastructure Reality)
+
+The catalog does not magically create GPUs. It must align with what your cluster can provide.
+
+* **Auto-selection:** The system attempts to pick a serving runtime that matches the model type and your available hardware profiles (for example, CUDA-based runtime for NVIDIA GPUs).
+* **Minimum requirements:** some models require specific accelerator classes (A100/H100 or AMD MI300) and may only be deployable with certain quantized variants.
+
+== 6. Administration Surface (Sources and Visibility)
+
+Administrators control:
+
+* **Whether the catalog is visible** in the dashboard
+* **Which catalog sources are presented** to users (for example, curated vendor sources, internal sources, or restricted sources)
+
+In RHOAI, the catalog sources are configured via Kubernetes resources (ConfigMaps), which allows GitOps-style management.
+
+---
+*Now that you understand the architecture, it’s time to operate the deployment workflow safely.*

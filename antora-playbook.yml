@@ -1,6 +1,6 @@
 site:
-  title: FIXME Course Title
-  start_page: REPLACEREPONAME::index.adoc
+  title: Red Hat OpenShift AI (RHOAI) Model Catalog
+  start_page: rhoai3-catalog::ROOT::index.adoc
 
 content:
   sources:

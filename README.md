@@ -1,60 +1,140 @@
-## Getting started with a new training content repository
+# Red Hat OpenShift AI (RHOAI) 3.2 Model Catalog - Operations Guide
 
-- Open the [course-starter-template](https://github.com/RedHatQuickCourses/course-starter-template)
+**From Choice Overload to Confident Deployment**
 
-- Click on `Use This template` button and select `Create a new repository` option.
+> **The Problem:** Users can find models anywhere. They cannot safely deploy them everywhere.  
+> **The Solution:** The Model Catalog provides a curated, validated “showroom” with a streamlined deployment wizard and enterprise-ready artifacts (ModelCars).
 
-![use-this-template.png](./images/use-this-template.png)
+This repository contains a complete **Course-in-a-Box** that teaches platform engineers and administrators how to operate the **Model Catalog** in **Red Hat OpenShift AI 3.2**: architecture, deployment workflow, source configuration, and known constraints.
 
-- On `Create a new repository` page, Select the options as highlighted in the below image and then click `Create repository` button at the bottom of the page.
+---
 
-![create-new-repo.png](./images/create-new-repo.png)
+## 📚 Option 1: View the Full Course (Antora)
 
-- Clone this repository on your local system:
-```
-git clone git@github.com:RedHatQuickCourses/my-training-repository.git
-```
-NOTE: Use your repository url in the above command.
+### Using Docker (Recommended)
 
-- Go in to the course repository directory and initialize the course.
-``` 
-cd my-training-repository/
-sh course-init.sh --type bfx --lab demo
-```
-NOTE: If you are using Mac, use *zsh* in place of *sh* in the above command.
-
-Sample output:
-```
-Initializing my-training-repository . . . done
-
-Please replace the specified strings in the files below and commit the changes before proceeding with the course development.
-antora.yml:title: REPLACE Course Title
+```bash
+docker run -u $(id -u) -v $PWD:/antora:Z --rm -t antora/antora antora-playbook.yml
+# Open the generated site:
+# open build/site/index.html
 ```
 
-- Edit the files prompted by course initialization script.
+### Using Local NPM
 
-- Commit the changes done by course initialization script and your manual edits.
+```bash
+npm install
+npx antora antora-playbook.yml
+# Open build/site/index.html
 ```
- git status 
- git add -A; git commit -m "course initialization"
- git push origin main 
+
+---
+
+## ⚡ Option 2: The Fast Track (Admin Runbook)
+
+If you already know the concepts and just need the operational commands, use this runbook.
+
+### Prerequisites
+
+* **Cluster:** OpenShift AI 3.2 installed and accessible
+* **Access:** permissions to view/edit resources in `rhoai-model-registries` (or `cluster-admin`)
+* **CLI:** `oc` installed and authenticated (`oc login`)
+
+---
+
+## Step 1: Confirm the Catalog is Visible in the Dashboard
+
+The Model Catalog is enabled by default, but it can be hidden via `OdhDashboardConfig`.
+
+```bash
+oc get odhdashboardconfig -n redhat-ods-applications
 ```
 
-- Browse your git repository url 
+To **enable** the catalog menu:
 
-- On your github repo page, on left hand side pane, click on settings gear icon near `About` heading.
+```bash
+oc patch odhdashboardconfig odh-dashboard-config -n redhat-ods-applications --type merge -p '{
+  "spec": { "dashboardConfig": { "disableModelCatalog": false } }
+}'
+```
 
-- Click `Use your GitHub Pages website` option to select (checked) it and then click `Save changes` button.
+---
 
-![github-pages-setting](./images/github-pages-setting.png)
+## Step 2: Inspect and Manage Catalog Sources
 
-- You should now see the link to access the rendered content within that same block.
+The catalog reads sources from:
 
-![quickcourse-rendered-url](./images/quickcourse-rendered-url.png)
+* **Namespace:** `rhoai-model-registries`
+* **ConfigMap:** `model-catalog-sources`
 
-FIXME: highlight the relevant area on images.
+```bash
+oc get configmap model-catalog-sources -n rhoai-model-registries -o yaml
+```
 
-**SEE ALSO**
+If you manage sources as code, apply your ConfigMap YAML:
 
-- [Development using devspace](./DEVSPACE.md)
-- [Guideline for editing your content](./USAGEGUIDE.adoc)
+```bash
+oc apply -f model-catalog-sources.yaml
+```
+
+### Force a Reload (Recommended After Changes)
+
+```bash
+oc delete pod -l component=model-catalog -n rhoai-model-registries
+oc get pods -l component=model-catalog -n rhoai-model-registries -w
+```
+
+---
+
+## Step 3: Deploy from the Catalog (Wizard Guardrails)
+
+When deploying from **AI hub → Catalog** in RHOAI 3.2:
+
+* **Prefer ModelCars:** OCI artifacts hosted on `registry.redhat.io` start faster than raw downloads and match enterprise supply chain patterns.
+* **Shorten names:** keep deployment names under ~30–40 characters to avoid Kubernetes 63-character limits.
+* **New project storage option:** if “Existing cluster storage” is missing, create at least one Data Connection in that project first.
+
+---
+
+## Known Issues (RHOAI 3.2)
+
+### 1) “Request access to model catalog” after upgrade (2.24 → 3.2)
+
+Fix by forcing a clean refresh:
+
+```bash
+oc delete configmap model-catalog-sources -n rhoai-model-registries
+oc delete deployment model-catalog -n rhoai-model-registries
+oc get pods -n rhoai-model-registries -l component=model-catalog -w
+```
+
+### 2) Silent failure due to name length > 63 characters
+
+Workaround: shorten the name in the wizard (examples: `llama-3-8b-int8`, `mistral-small-24b-awq`).
+
+### 3) Missing storage options in new projects
+
+Workaround: create a Data Connection in the target project, then retry the wizard.
+
+---
+
+## Repository Structure
+
+```text
+/
+├── modules/                     # Antora course content (AsciiDoc)
+│   ├── ROOT/pages/index.adoc     # Home (includes chapter content)
+│   └── chapter1/pages/           # Course pages (intro, architecture, lab, troubleshooting)
+│
+├── antora.yml                    # Component descriptor
+├── antora-playbook.yml           # Antora build playbook
+└── README.md                     # This file
+```
+
+---
+
+## Next Steps
+
+* Treat catalog sources as code (GitOps) and standardize naming conventions.
+* Align catalog deployments with Hardware Profiles to prevent “wrong GPU” deployments.
+* Prefer ModelCars when available to reduce cold-start time and improve reliability.
+

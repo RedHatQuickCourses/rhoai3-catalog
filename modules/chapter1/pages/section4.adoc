@@ -1,0 +1,109 @@
+= Troubleshooting & Known Constraints (RHOAI 3.2)
+:navtitle: Troubleshooting & Constraints
+:toc: macro
+
+// Antora metadata
+:page-role: troubleshooting-guide
+:description: How to debug Model Catalog issues in OpenShift AI 3.2 and work around current platform constraints.
+
+[.lead]
+*A catalog that does not load is worse than no catalog at all.*
+
+The Model Catalog is the front door to your GenAI platform. When it fails, users do not “deploy slower”—they deploy *elsewhere*.
+
+This section provides the operational playbook for the most common Model Catalog failures in **Red Hat OpenShift AI 3.2**, along with the known product constraints you must design around.
+
+== 1. Upgrade Initialization Failure (“Request access to model catalog”)
+
+After upgrading from OpenShift AI 2.24 to 3.2, some clusters encounter an initialization issue where the catalog fails to load and the UI displays:
+
+*`Request access to model catalog`*
+
+=== Root Cause (What’s Happening)
+
+The catalog service depends on the `model-catalog-sources` ConfigMap and a healthy `model-catalog` deployment. During some upgrades, the existing ConfigMap or deployment state is incompatible with the new service expectations.
+
+=== Fix (Force a Clean Refresh)
+
+[IMPORTANT]
+====
+This is a **safe reset** of the catalog service configuration. It does not delete your models. It forces the catalog to recreate its configuration state.
+====
+
+. **Delete the ConfigMap and deployment:**
++
+[source,bash]
+----
+oc delete configmap model-catalog-sources -n rhoai-model-registries
+oc delete deployment model-catalog -n rhoai-model-registries
+----
+
+. **Wait for the catalog pod to recreate and become ready:**
++
+[source,bash]
+----
+oc get pods -n rhoai-model-registries -l component=model-catalog -w
+----
+
+. **Re-check the UI:** Navigate to **AI hub → Catalog**.
+
+== 2. Silent Deployment Failure (Name Length > 63 Characters)
+
+Some models have long names (for example, variants of Mistral or Qwen). When you deploy from the wizard, KServe appends suffixes, and the resulting Kubernetes resource names can exceed the 63-character DNS label limit.
+
+=== Symptom
+
+* The wizard completes, but resources do not appear (or fail without an obvious error).
+* The underlying KServe resources fail validation.
+
+=== Workaround
+
+* **Manually shorten the deployment name** in the wizard before creating resources.
+* Use a stable naming convention:
+  * `granite-3-2b`
+  * `llama-3-8b-int8`
+  * `mistral-small-24b-awq`
+
+== 3. Missing “Existing cluster storage” Option in New Projects
+
+When deploying from the catalog into a **new** Data Science Project, the wizard may not show the “Existing cluster storage” option.
+
+=== Root Cause
+
+The project does not yet have any **Data Connections** defined. The wizard hides some storage options until at least one connection exists.
+
+=== Fix
+
+* Create a simple Data Connection first (even a URI-based one):
+  1. Open the OpenShift AI Dashboard
+  2. Go to **Settings → Data connections**
+  3. Create a Data Connection in the target project
+* Return to the Model Catalog wizard and retry the deployment.
+
+== 4. Catalog Visibility vs. Deployment Authorization
+
+The catalog can be visible to many users, but deployments still fail if the user lacks:
+
+* Project membership
+* Required quotas
+* Access to the target hardware profile / accelerator capacity
+
+=== Quick Checks
+
+[source,bash]
+----
+# Can the user create resources in the target namespace?
+oc auth can-i create inferenceservices -n <project-namespace>
+
+# Is there capacity for GPUs?
+oc get nodes -l nvidia.com/gpu.present=true
+----
+
+== 5. Operational Best Practices
+
+* **Prefer ModelCars (OCI artifacts):** Use ModelCar images from `registry.redhat.io` when available. They reduce cold-start time and simplify distribution.
+* **Treat catalog sources as code:** Manage `model-catalog-sources` via GitOps wherever possible.
+* **Standardize names:** Enforce short, predictable deployment names to avoid Kubernetes limits and reduce operational ambiguity.
+
+---
+*If the catalog is your showroom, these playbooks keep the lights on.*
