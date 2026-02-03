@@ -1,6 +1,6 @@
 site:
   title: Red Hat OpenShift AI (RHOAI) Model Catalog
-  start_page: rhoai3-catalog::ROOT::index.adoc
+  start_page: rhoai3-catalog::index.adoc
 
 content:
   sources:

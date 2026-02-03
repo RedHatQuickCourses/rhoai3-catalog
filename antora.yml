@@ -1,5 +1,6 @@
 name: rhoai3-catalog
 title: Red Hat OpenShift AI (RHOAI) Model Catalog
-version: 1
+version: 3.2
 nav:
 - modules/ROOT/nav.adoc
+- modules/chapter1/nav.adoc
