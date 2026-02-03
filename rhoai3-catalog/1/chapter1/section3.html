@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Administration &amp; Configuration (Curating the Showroom) :: Red Hat OpenShift AI (RHOAI) Model Catalog</title>
+    <title>Administration &amp; Troubleshooting :: Red Hat OpenShift AI (RHOAI) Model Catalog</title>
     <link rel="prev" href="section2.html">
     <link rel="next" href="section4.html">
     <meta name="generator" content="Antora 3.1.3">
@@ -93,74 +93,48 @@
   <div class="toc-menu"></div>
 </aside>
 <article class="doc">
-<h1 class="page">Administration &amp; Configuration (Curating the Showroom)</h1>
+<h1 class="page">Administration &amp; Troubleshooting</h1>
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph lead">
-<p><strong>If users can’t trust what they see, they won’t use it.</strong></p>
+<p><strong>If users can&#8217;t trust what they see, they won&#8217;t use it.</strong></p>
 </div>
 <div class="paragraph">
-<p>The Model Catalog is enabled by default, but it is not “set and forget.”</p>
+<p>The Model Catalog is enabled by default, but it is not "set and forget." As a Platform Engineer, you own the curation of this surface. You decide which sources are visible, how the catalog handles maintenance windows, and how to resolve infrastructure conflicts.</p>
 </div>
 <div class="paragraph">
-<p>As a platform engineer or administrator, you own:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>what sources appear</p>
-</li>
-<li>
-<p>what models are promoted as “deployment-ready”</p>
-</li>
-<li>
-<p>how the catalog behaves after upgrades</p>
-</li>
-<li>
-<p>the boundary between catalog visibility and deployment permissions</p>
-</li>
-</ul>
+<p>This section covers the administrative primitives (ConfigMaps, CRDs) and the "Break-Glass" troubleshooting procedures for RHOAI 3.2.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_1_enable_disable_the_model_catalog_in_the_dashboard"><a class="anchor" href="#_1_enable_disable_the_model_catalog_in_the_dashboard"></a>1. Enable / Disable the Model Catalog in the Dashboard</h2>
+<h2 id="_1_controlling_visibility_the_kill_switch"><a class="anchor" href="#_1_controlling_visibility_the_kill_switch"></a>1. Controlling Visibility (The "Kill Switch")</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>If you need to hide the catalog UI (for example, during a migration window), update the <code>OdhDashboardConfig</code> resource.</p>
+<p>There are scenarios—migrations, upgrades, or security audits—where you need to temporarily disable user access to the catalog. You control this via the <code>OdhDashboardConfig</code> resource.</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p><strong>Hide the catalog menu:</strong> set <code>spec.dashboardConfig.disableModelCatalog</code> to <code>true</code></p>
-</li>
-</ul>
+<div class="paragraph">
+<p><strong>To hide the catalog from the UI:</strong></p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get odhdashboardconfig -n redhat-ods-applications</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc patch odhdashboardconfig odh-dashboard-config -n redhat-ods-applications --type merge -p '{
-  "spec": { "dashboardConfig": { "disableModelCatalog": true } }
-}'</code></pre>
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Patch the dashboard config to disable the catalog menu item
+oc patch odhdashboardconfig odh-dashboard-config \
+  -n redhat-ods-applications \
+  --type merge \
+  -p '{"spec": {"dashboardConfig": {"disableModelCatalog": true}}}'</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>To re-enable, set it back to <code>false</code>.</p>
+<p><strong>To restore access:</strong> Set <code>disableModelCatalog</code> back to <code>false</code>.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_2_configure_catalog_sources_what_users_see"><a class="anchor" href="#_2_configure_catalog_sources_what_users_see"></a>2. Configure Catalog Sources (What Users See)</h2>
+<h2 id="_2_configuring_sources_curation_as_code"><a class="anchor" href="#_2_configuring_sources_curation_as_code"></a>2. Configuring Sources (Curation as Code)</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The catalog sources are configured via a ConfigMap (file-based configuration).</p>
-</div>
-<div class="paragraph">
-<p>The key object:</p>
+<p>The catalog is not hardcoded; it aggregates sources defined in a Kubernetes ConfigMap. This allows you to manage your catalog sources via GitOps.</p>
 </div>
 <div class="ulist">
 <ul>
@@ -168,9 +142,12 @@
 <p><strong>Namespace:</strong> <code>rhoai-model-registries</code></p>
 </li>
 <li>
-<p><strong>ConfigMap:</strong> <code>model-catalog-sources</code></p>
+<p><strong>Object:</strong> ConfigMap <code>model-catalog-sources</code></p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p><strong>To view or edit current sources:</strong></p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -178,135 +155,135 @@
 </div>
 </div>
 <div class="sect2">
-<h3 id="_source_model_two_logical_files"><a class="anchor" href="#_source_model_two_logical_files"></a>Source Model (Two Logical “Files”)</h3>
+<h3 id="_adding_a_private_source"><a class="anchor" href="#_adding_a_private_source"></a>Adding a Private Source</h3>
 <div class="paragraph">
-<p>Like other RHOAI components, the ConfigMap often contains two logical “files”:</p>
+<p>You can add your own internal catalog (e.g., a curated list of fine-tuned company models) by appending a source block to this ConfigMap:</p>
 </div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p><strong><code>sources.yaml</code></strong>: defines which catalogs are loaded</p>
-</li>
-<li>
-<p><strong><code>&lt;your-catalog&gt;.yaml</code></strong>: defines models and their artifacts</p>
-</li>
-</ol>
-</div>
-<details>
-<summary class="title">Details</summary>
-<div class="content">
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: model-catalog-sources
-  namespace: rhoai-model-registries
-data:
-  sources.yaml: |
-    catalogs:
-      - name: "Enterprise Catalog"
-        id: "enterprise-catalog"
-        type: "yaml"
-        properties:
-          yamlCatalogPath: "/data/user-sources/enterprise-models.yaml"
-
-  enterprise-models.yaml: |
-    models:
-      - name: "granite-3.x-instruct"
-        description: "Validated Granite family model (ModelCar)"
-        customProperties:
-          model_type:
-            metadataType: MetadataStringValue
-            string_value: "generative"
-          provider:
-            metadataType: MetadataStringValue
-            string_value: "IBM"
-          format:
-            metadataType: MetadataStringValue
-            string_value: "modelcar-oci"
-        artifacts:
-          - name: "model-artifact"
-            uri: "oci://registry.redhat.io/redhat-ai-services/modelcar:granite-3.x-instruct"</code></pre>
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">sources:
+  - sourceURI: https://github.com/my-org/my-curated-catalog/archive/refs/heads/main.zip
+    name: internal-finance-models
+    displayName: "Acme Finance Models (Curated)"
+    description: "Verified models for financial sentiment analysis."</code></pre>
 </div>
 </div>
-</div>
-</details>
-<div class="admonitionblock important">
+<div class="admonitionblock note">
 <table>
 <tr>
 <td class="icon">
-<i class="fa icon-important" title="Important"></i>
+<i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
+<div class="title">The Reload Process</div>
 <div class="paragraph">
-<p>If you are using ModelCars, ensure your cluster can pull from <code>registry.redhat.io</code> (credentials/mirroring) as required by your environment.</p>
+<p>The catalog service caches these sources. After editing the ConfigMap, you must force a reload by deleting the catalog pods:
+<code>oc delete pod -l component=model-catalog -n rhoai-model-registries</code></p>
 </div>
 </td>
 </tr>
 </table>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_apply_changes_and_force_reload"><a class="anchor" href="#_apply_changes_and_force_reload"></a>Apply Changes and Force Reload</h3>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_3_troubleshooting_playbook_rhoai_3_2"><a class="anchor" href="#_3_troubleshooting_playbook_rhoai_3_2"></a>3. Troubleshooting Playbook (RHOAI 3.2)</h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>After changes:</p>
+<p>These are the three most common failure modes encountered by platform engineers in the current release.</p>
+</div>
+<div class="sect2">
+<h3 id="_issue_a_the_upgrade_hang_request_access_to_model_catalog"><a class="anchor" href="#_issue_a_the_upgrade_hang_request_access_to_model_catalog"></a>Issue A: The Upgrade Hang ("Request access to model catalog")</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Symptom:</strong> After upgrading from RHOAI 2.x to 3.2, the Catalog UI is blank and displays an error: <strong>"Request access to model catalog."</strong></p>
+</li>
+<li>
+<p><strong>Root Cause:</strong> The <code>model-catalog-sources</code> ConfigMap structure changed between versions, and the upgrade operator did not cleanly reconcile the old state.</p>
+</li>
+<li>
+<p><strong>The Fix:</strong> Force a regeneration of the default configuration.</p>
+</li>
+</ul>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc delete pod -l component=model-catalog -n rhoai-model-registries
-oc get pods -l component=model-catalog -n rhoai-model-registries -w</code></pre>
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># 1. Delete the existing ConfigMap
+oc delete configmap model-catalog-sources -n rhoai-model-registries
+
+# 2. Restart the operator (it will recreate the ConfigMap with correct defaults)
+oc delete pod -l name=model-registry-operator -n redhat-ods-monitoring
+# (Note: Namespace may vary depending on operator install mode)</code></pre>
 </div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_issue_b_the_missing_storage_loop"><a class="anchor" href="#_issue_b_the_missing_storage_loop"></a>Issue B: The "Missing Storage" Loop</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Symptom:</strong> In the Deployment Wizard, the "Existing Cluster Storage" option is hidden or disabled, forcing you to create a new connection even if PVCs exist.</p>
+</li>
+<li>
+<p><strong>Root Cause:</strong> The Wizard UI logic hides the "Existing Storage" radio button if it detects <strong>zero</strong> <code>DataConnections</code> in the project.</p>
+</li>
+<li>
+<p><strong>The Fix:</strong></p>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Navigate to <strong>Settings &#8594; Data Connections</strong>.</p>
+</li>
+<li>
+<p>Create a "Dummy" connection (it doesn&#8217;t need to be real).</p>
+</li>
+<li>
+<p>Refresh the Wizard. The "Existing Cluster Storage" option will now appear.</p>
+</li>
+</ol>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_issue_c_dns_name_collisions"><a class="anchor" href="#_issue_c_dns_name_collisions"></a>Issue C: DNS Name Collisions</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Symptom:</strong> Deployment status stays in "Unknown" or "Failed" with internal server errors regarding <code>Service</code> creation.</p>
+</li>
+<li>
+<p><strong>Root Cause:</strong> The user accepted the default model name (e.g., <code>mistral-7b-instruct-v0.1-quantized-w4a16</code>). KServe appends suffix strings (e.g., <code>-predictor-default</code>) which pushes the total character count over the Kubernetes 63-character DNS label limit.</p>
+</li>
+<li>
+<p><strong>The Fix:</strong> Enforce a naming convention. Rename deployments to use short aliases (e.g., <code>mistral-7b-lab</code>).</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_3_access_control_visibility_vs_deployment_rights"><a class="anchor" href="#_3_access_control_visibility_vs_deployment_rights"></a>3. Access Control: Visibility vs. Deployment Rights</h2>
+<h2 id="_4_operational_guardrails_summary"><a class="anchor" href="#_4_operational_guardrails_summary"></a>4. Operational Guardrails Summary</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The catalog can be visible, but deployments still require:</p>
+<p>To ensure a stable "Showroom" for your users, adopt these three rules:</p>
 </div>
-<div class="ulist">
-<ul>
+<div class="olist arabic">
+<ol class="arabic">
 <li>
-<p>project access (RBAC)</p>
+<p><strong>Prefer ModelCars:</strong> Ensure your cluster has pull secrets for <code>registry.redhat.io</code>. This enables the OCI-based artifact workflow (deduplication/caching).</p>
 </li>
 <li>
-<p>quotas</p>
+<p><strong>GitOps the Sources:</strong> Do not manually edit the <code>model-catalog-sources</code> ConfigMap in production. Store the file in Git and apply it via ArgoCD/Tekton to prevent drift.</p>
 </li>
 <li>
-<p>hardware capacity (matching hardware profiles)</p>
+<p><strong>Monitor Quotas:</strong> The catalog checks</p>
 </li>
-</ul>
-</div>
-<div class="paragraph">
-<p>This is intentional: the catalog is for discovery, while deployment is a governed action.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_4_hardware_profiles_integration_the_safety_net"><a class="anchor" href="#_4_hardware_profiles_integration_the_safety_net"></a>4. Hardware Profiles Integration (The Safety Net)</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>When users deploy from the catalog, RHOAI attempts to:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>pick a compatible runtime based on the model</p>
-</li>
-<li>
-<p>align deployment settings to the selected hardware profile</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>As a platform engineer, your role is to keep hardware profiles accurate and available so auto-selection works reliably.</p>
-</div>
-<hr>
-<div class="paragraph">
-<p><strong>Now that you can curate and govern the showroom, let’s cover the operational failure modes you must plan for.</strong></p>
+</ol>
 </div>
 </div>
 </div>

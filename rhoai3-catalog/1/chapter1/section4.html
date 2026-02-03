@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Troubleshooting &amp; Known Constraints (RHOAI 3.2) :: Red Hat OpenShift AI (RHOAI) Model Catalog</title>
+    <title>The Model Catalog: From Choice Overload to Confident Deployment :: Red Hat OpenShift AI (RHOAI) Model Catalog</title>
     <link rel="prev" href="section3.html">
     <meta name="generator" content="Antora 3.1.3">
     <link rel="stylesheet" href="../../../_/css/site.css">
@@ -92,8 +92,860 @@
   <div class="toc-menu"></div>
 </aside>
 <article class="doc">
-<h1 class="page">Troubleshooting &amp; Known Constraints (RHOAI 3.2)</h1>
+<h1 class="page">The Model Catalog: From Choice Overload to Confident Deployment</h1>
 <div id="preamble">
+<div class="sectionbody">
+<div class="paragraph lead">
+<p><strong>Selection is not the hard part. Making the selection safe, fast, and repeatable is.</strong></p>
+</div>
+<div class="paragraph">
+<p>In the early days of Generative AI, teams solved the “model problem” the same way they solved everything else: search the internet, download weights, and hope for the best.</p>
+</div>
+<div class="paragraph">
+<p>That approach collapses in production.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>A model that performs well on paper may not fit your hardware.</p>
+</li>
+<li>
+<p>A model with the wrong license can block an entire product launch.</p>
+</li>
+<li>
+<p>A model served from the wrong source can turn “Time-To-First-Token” into “Time-To-First-Customer.”</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This is the <strong>Model Catalog</strong> problem: not discovery, but <strong>curation</strong>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">The Core Sales Objection</div>
+<div class="paragraph">
+<p><strong>"Why do we need a Model Catalog? Can&#8217;t data scientists just use Hugging Face?"</strong></p>
+</div>
+<div class="paragraph">
+<p>Discovery is easy. <strong>Enterprise deployment is expensive.</strong> The Model Catalog exists to reduce deployment risk by providing curated, validated options with known performance characteristics and a streamlined deployment path.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_the_solution_the_model_catalog"><a class="anchor" href="#_the_solution_the_model_catalog"></a>The Solution: The Model Catalog</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In <strong>Red Hat OpenShift AI (RHOAI) 3.2</strong>, the Model Catalog is the centralized discovery hub for Generative AI models.</p>
+</div>
+<div class="paragraph">
+<p>It is not a replacement for the Model Registry.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Model Catalog</strong>: <strong>Find and choose</strong> models that are validated and deployment-ready.</p>
+</li>
+<li>
+<p><strong>Model Registry</strong>: <strong>Track and govern</strong> the specific models your organization has selected, versioned, and promoted through environments.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The catalog is the “showroom.” The registry is the “title office.”</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_what_the_catalog_delivers_in_practice"><a class="anchor" href="#_what_the_catalog_delivers_in_practice"></a>What the Catalog Delivers (In Practice)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The Model Catalog aggregates models from major providers and ecosystems, including:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Red Hat</p>
+</li>
+<li>
+<p>IBM</p>
+</li>
+<li>
+<p>Meta</p>
+</li>
+<li>
+<p>NVIDIA</p>
+</li>
+<li>
+<p>Mistral AI</p>
+</li>
+<li>
+<p>Google</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>It also adds two things that raw public hubs do not guarantee:</p>
+</div>
+<div class="sect2">
+<h3 id="_1_validated_performance_no_surprises"><a class="anchor" href="#_1_validated_performance_no_surprises"></a>1. Validated Performance (“No Surprises”)</h3>
+<div class="paragraph">
+<p>The catalog includes performance metrics and benchmarks verified by Red Hat so teams can compare models against hardware realities before deployment.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>The win:</strong> predictable deployment behavior.</p>
+</li>
+<li>
+<p><strong>The benefit:</strong> fewer failed pilots, fewer GPU “black hole” deployments, faster time-to-value.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_2_deployment_defaults_the_fast_path"><a class="anchor" href="#_2_deployment_defaults_the_fast_path"></a>2. Deployment Defaults (“The Fast Path”)</h3>
+<div class="paragraph">
+<p>RHOAI 3.2 includes a streamlined deployment wizard that provides sensible defaults for common deployment parameters.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>The win:</strong> fewer knobs, fewer mistakes.</p>
+</li>
+<li>
+<p><strong>The benefit:</strong> platform engineers spend less time debugging “wizard drift” across projects.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_3_modelcars_ship_models_like_software"><a class="anchor" href="#_3_modelcars_ship_models_like_software"></a>3. ModelCars (“Ship Models Like Software”)</h3>
+<div class="paragraph">
+<p>Many validated catalog models are delivered as <strong>ModelCars</strong>—models packaged as OCI artifacts (container images).</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Recommendation:</strong> In RHOAI, prefer ModelCar images hosted on <code>registry.redhat.io</code> over raw object storage downloads.</p>
+</li>
+<li>
+<p><strong>Benefits:</strong> layer deduplication, faster startup times, simpler distribution inside enterprise networks.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_your_mission_operate_the_showroom"><a class="anchor" href="#_your_mission_operate_the_showroom"></a>Your Mission: Operate the Showroom</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In this course, you will take on the role of a platform engineer responsible for making the catalog usable, trustworthy, and operationally stable.</p>
+</div>
+<div class="paragraph">
+<p><strong>You will execute the following technical workflow:</strong></p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Architecture:</strong> Understand how the catalog is built, how it differs from the registry, and how model artifacts are represented (ModelCars, quantization variants).</p>
+</li>
+<li>
+<p><strong>Operations:</strong> Use the deployment wizard safely—selecting runtimes and hardware profiles that match the model.</p>
+</li>
+<li>
+<p><strong>Administration:</strong> Control visibility and sources by configuring the catalog service and its backing ConfigMaps.</p>
+</li>
+<li>
+<p><strong>Reliability:</strong> Apply the known fixes and constraints for RHOAI 3.2 (upgrade issues, name limits, storage option behavior).</p>
+</li>
+</ol>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="title">Prerequisites</div>
+<div class="paragraph">
+<p>To successfully complete the hands-on sections of this course, you need:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Access to a <strong>Red Hat OpenShift AI 3.2</strong> cluster.</p>
+</li>
+<li>
+<p>Permissions to view and edit resources in <code>rhoai-model-registries</code> (or cluster-admin).</p>
+</li>
+<li>
+<p>The <code>oc</code> CLI tool installed in your terminal.</p>
+</li>
+</ul>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<hr>
+<div class="paragraph">
+<p><strong>Ready to run the showroom? Let’s start with how it works under the hood.</strong></p>
+</div>
+<div class="paragraph">
+<p>++_____=====+<em>__</em>\</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_architecture_how_the_model_catalog_works"><a class="anchor" href="#_architecture_how_the_model_catalog_works"></a>Architecture: How the Model Catalog Works</h2>
+<div class="sectionbody">
+<div class="paragraph lead">
+<p><strong>A catalog is not a database. It is a control surface.</strong></p>
+</div>
+<div class="paragraph">
+<p>Platform engineers operate the Model Catalog like an air-traffic system:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>It must present the right options (curation).</p>
+</li>
+<li>
+<p>It must guide users into safe defaults (deployment wizard).</p>
+</li>
+<li>
+<p>It must reflect infrastructure reality (hardware profiles, quotas, and runtimes).</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_1_catalog_vs_registry_two_different_jobs"><a class="anchor" href="#_1_catalog_vs_registry_two_different_jobs"></a>1. Catalog vs. Registry (Two Different Jobs)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The Model Catalog and Model Registry solve different problems:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Model Catalog:</strong> discovery and selection of validated models</p>
+</li>
+<li>
+<p><strong>Model Registry:</strong> tracking, versioning, and governance of models your organization has adopted</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Think of it this way:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Catalog:</strong> “Which model should we choose?”</p>
+</li>
+<li>
+<p><strong>Registry:</strong> “Which exact model version did we deploy, and why?”</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_2_whats_inside_a_catalog_model_card"><a class="anchor" href="#_2_whats_inside_a_catalog_model_card"></a>2. What’s Inside a Catalog Model Card</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Each model entry in the catalog typically includes:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Provider / family:</strong> Granite, Llama, Mistral, Qwen, Phi, etc.</p>
+</li>
+<li>
+<p><strong>Validated variants:</strong> quantized formats (INT4, INT8, FP8) appropriate for different hardware</p>
+</li>
+<li>
+<p><strong>Performance context:</strong> benchmarks and metrics verified for specific configurations</p>
+</li>
+<li>
+<p><strong>Artifacts:</strong> the actual model reference used at deployment time</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>In OpenShift AI, the artifact reference is often a <strong>ModelCar</strong> (OCI artifact).</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_3_modelcars_oci_artifacts_the_default_enterprise_distribution"><a class="anchor" href="#_3_modelcars_oci_artifacts_the_default_enterprise_distribution"></a>3. ModelCars (OCI Artifacts) — The Default “Enterprise” Distribution</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>RHOAI uses <strong>ModelCars</strong>: model artifacts packaged as OCI container images (hosted on <code>registry.redhat.io</code>).</p>
+</div>
+<div class="paragraph">
+<p>This matters operationally:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Faster cold starts:</strong> image pulls and layer caching outperform raw weight downloads.</p>
+</li>
+<li>
+<p><strong>Layer deduplication:</strong> shared layers reduce bandwidth and storage cost.</p>
+</li>
+<li>
+<p><strong>Predictable supply chain:</strong> enterprises already know how to mirror, sign, and scan container images.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>If you are using RHOAI, prefer <strong>ModelCar images</strong> over ad-hoc downloads from public hubs or raw S3 pulls whenever possible.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_4_how_catalog_selection_connects_to_deployment"><a class="anchor" href="#_4_how_catalog_selection_connects_to_deployment"></a>4. How Catalog Selection Connects to Deployment</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In RHOAI 3.2, the catalog’s deployment workflow is optimized for speed:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Select a model</strong> from the catalog</p>
+</li>
+<li>
+<p><strong>Launch the deployment wizard</strong></p>
+</li>
+<li>
+<p><strong>Choose a project and a serving runtime</strong></p>
+</li>
+<li>
+<p><strong>Match hardware profiles</strong> to the model’s requirements</p>
+</li>
+<li>
+<p><strong>Deploy</strong> (creating KServe resources behind the scenes)</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_5_integration_with_hardware_profiles_infrastructure_reality"><a class="anchor" href="#_5_integration_with_hardware_profiles_infrastructure_reality"></a>5. Integration with Hardware Profiles (Infrastructure Reality)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The catalog does not magically create GPUs. It must align with what your cluster can provide.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Auto-selection:</strong> The system attempts to pick a serving runtime that matches the model type and your available hardware profiles (for example, CUDA-based runtime for NVIDIA GPUs).</p>
+</li>
+<li>
+<p><strong>Minimum requirements:</strong> some models require specific accelerator classes (A100/H100 or AMD MI300) and may only be deployable with certain quantized variants.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_6_administration_surface_sources_and_visibility"><a class="anchor" href="#_6_administration_surface_sources_and_visibility"></a>6. Administration Surface (Sources and Visibility)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Administrators control:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Whether the catalog is visible</strong> in the dashboard</p>
+</li>
+<li>
+<p><strong>Which catalog sources are presented</strong> to users (for example, curated vendor sources, internal sources, or restricted sources)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>In RHOAI, the catalog sources are configured via Kubernetes resources (ConfigMaps), which allows GitOps-style management.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><strong>Now that you understand the architecture, it’s time to operate the deployment workflow safely.</strong></p>
+</div>
+<div class="paragraph">
+<p>++_____=======</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_lab_using_the_deployment_wizard_safely"><a class="anchor" href="#_lab_using_the_deployment_wizard_safely"></a>Lab: Using the Deployment Wizard Safely</h2>
+<div class="sectionbody">
+<div class="paragraph lead">
+<p><strong>A fast deployment is only valuable if it is repeatable.</strong></p>
+</div>
+<div class="paragraph">
+<p>In this lab, you will deploy a validated model from the <strong>Model Catalog</strong> using the RHOAI 3.2 deployment wizard. Along the way, you will apply the guardrails that prevent the most common “wizard accidents.”</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="title">Prerequisites</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Access to the OpenShift AI 3.2 dashboard</p>
+</li>
+<li>
+<p>Permissions to create resources in a Data Science Project</p>
+</li>
+<li>
+<p>At least one appropriate Hardware Profile (CPU or GPU) available in the cluster</p>
+</li>
+</ul>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_step_1_open_the_model_catalog"><a class="anchor" href="#_step_1_open_the_model_catalog"></a>Step 1: Open the Model Catalog</h2>
+<div class="sectionbody">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Open the <strong>OpenShift AI Dashboard</strong></p>
+</li>
+<li>
+<p>Navigate to <strong>AI hub → Catalog</strong></p>
+</li>
+<li>
+<p>Use filters to narrow the selection by:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>provider</p>
+</li>
+<li>
+<p>model family (Granite, Llama, Mistral, Qwen, Phi)</p>
+</li>
+<li>
+<p>quantization (INT4/INT8/FP8)</p>
+</li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_step_2_select_a_validated_model_variant"><a class="anchor" href="#_step_2_select_a_validated_model_variant"></a>Step 2: Select a Validated Model Variant</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Choose a model variant that matches your hardware and your deployment goal:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Small model / quick validation:</strong> Granite 3.x small variants</p>
+</li>
+<li>
+<p><strong>GPU-constrained environments:</strong> INT4/INT8 variants</p>
+</li>
+<li>
+<p><strong>Modern accelerators:</strong> FP8 variants (notably relevant for AMD GPUs supporting FP8 and GGUF variants)</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">ModelCars vs. Raw Downloads</div>
+<div class="paragraph">
+<p>When available, the catalog will point to <strong>ModelCar (OCI) artifacts</strong> hosted on <code>registry.redhat.io</code>.</p>
+</div>
+<div class="paragraph">
+<p>Prefer these over raw downloads because they start faster, deduplicate layers, and fit enterprise image distribution patterns (mirroring, scanning, signing).</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_step_3_launch_the_deployment_wizard"><a class="anchor" href="#_step_3_launch_the_deployment_wizard"></a>Step 3: Launch the Deployment Wizard</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>From the model card:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Click <strong>Deploy</strong></p>
+</li>
+<li>
+<p>Select the target <strong>Data Science Project</strong></p>
+</li>
+<li>
+<p>Choose the <strong>serving runtime</strong> (or accept auto-selection)</p>
+</li>
+<li>
+<p>Choose a <strong>Hardware Profile</strong> that matches the model’s requirements</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_step_4_apply_the_two_critical_guardrails"><a class="anchor" href="#_step_4_apply_the_two_critical_guardrails"></a>Step 4: Apply the Two Critical Guardrails</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_guardrail_a_name_length_63_characters"><a class="anchor" href="#_guardrail_a_name_length_63_characters"></a>Guardrail A: Name Length (63 characters)</h3>
+<div class="paragraph">
+<p>If the wizard generates a long resource name, shorten it.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Why:</strong> Kubernetes DNS label limits can silently break deployments when KServe appends suffixes.</p>
+</li>
+<li>
+<p><strong>Rule of thumb:</strong> keep names under ~30–40 characters.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>mistral-small-24b-awq</code></p>
+</li>
+<li>
+<p><code>llama-3-8b-int8</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_guardrail_b_storage_options_in_new_projects"><a class="anchor" href="#_guardrail_b_storage_options_in_new_projects"></a>Guardrail B: Storage Options in New Projects</h3>
+<div class="paragraph">
+<p>If you do not see “Existing cluster storage” in a brand-new project:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Create a <strong>Data Connection</strong> first in that project (even a simple URI connection).</p>
+</li>
+<li>
+<p>Return to the wizard and retry.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_step_5_deploy_and_validate"><a class="anchor" href="#_step_5_deploy_and_validate"></a>Step 5: Deploy and Validate</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>After confirming the wizard settings, deploy the model.</p>
+</div>
+<div class="paragraph">
+<p>Validate success using both the UI and CLI:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Check created KServe resources (names vary by UI flow)
+oc get inferenceservices -n &lt;project-namespace&gt;
+
+# Check pods and events
+oc get pods -n &lt;project-namespace&gt;
+oc get events -n &lt;project-namespace&gt; --sort-by=.lastTimestamp | tail -n 20</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_step_6_confirm_hardware_alignment"><a class="anchor" href="#_step_6_confirm_hardware_alignment"></a>Step 6: Confirm Hardware Alignment</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>If you deployed to GPU:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get pods -n &lt;project-namespace&gt; -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.spec.containers[*].resources.limits.nvidia\\.com/gpu}{"\n"}{end}'</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Expected:</strong> pods requesting GPU resources only if a GPU profile was selected.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><strong>You can now deploy quickly. Next, learn how to administer and curate what users see in the catalog.</strong></p>
+</div>
+<div class="paragraph">
+<p>==============+</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_administration_configuration_curating_the_showroom"><a class="anchor" href="#_administration_configuration_curating_the_showroom"></a>Administration &amp; Configuration (Curating the Showroom)</h2>
+<div class="sectionbody">
+<div class="paragraph lead">
+<p><strong>If users can’t trust what they see, they won’t use it.</strong></p>
+</div>
+<div class="paragraph">
+<p>The Model Catalog is enabled by default, but it is not “set and forget.”</p>
+</div>
+<div class="paragraph">
+<p>As a platform engineer or administrator, you own:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>what sources appear</p>
+</li>
+<li>
+<p>what models are promoted as “deployment-ready”</p>
+</li>
+<li>
+<p>how the catalog behaves after upgrades</p>
+</li>
+<li>
+<p>the boundary between catalog visibility and deployment permissions</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_1_enable_disable_the_model_catalog_in_the_dashboard"><a class="anchor" href="#_1_enable_disable_the_model_catalog_in_the_dashboard"></a>1. Enable / Disable the Model Catalog in the Dashboard</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>If you need to hide the catalog UI (for example, during a migration window), update the <code>OdhDashboardConfig</code> resource.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Hide the catalog menu:</strong> set <code>spec.dashboardConfig.disableModelCatalog</code> to <code>true</code></p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get odhdashboardconfig -n redhat-ods-applications</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc patch odhdashboardconfig odh-dashboard-config -n redhat-ods-applications --type merge -p '{
+  "spec": { "dashboardConfig": { "disableModelCatalog": true } }
+}'</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To re-enable, set it back to <code>false</code>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_2_configure_catalog_sources_what_users_see"><a class="anchor" href="#_2_configure_catalog_sources_what_users_see"></a>2. Configure Catalog Sources (What Users See)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The catalog sources are configured via a ConfigMap (file-based configuration).</p>
+</div>
+<div class="paragraph">
+<p>The key object:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Namespace:</strong> <code>rhoai-model-registries</code></p>
+</li>
+<li>
+<p><strong>ConfigMap:</strong> <code>model-catalog-sources</code></p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get configmap model-catalog-sources -n rhoai-model-registries -o yaml</code></pre>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_source_model_two_logical_files"><a class="anchor" href="#_source_model_two_logical_files"></a>Source Model (Two Logical “Files”)</h3>
+<div class="paragraph">
+<p>Like other RHOAI components, the ConfigMap often contains two logical “files”:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong><code>sources.yaml</code></strong>: defines which catalogs are loaded</p>
+</li>
+<li>
+<p><strong><code>&lt;your-catalog&gt;.yaml</code></strong>: defines models and their artifacts</p>
+</li>
+</ol>
+</div>
+<details>
+<summary class="title">Details</summary>
+<div class="content">
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: model-catalog-sources
+  namespace: rhoai-model-registries
+data:
+  sources.yaml: |
+    catalogs:
+      - name: "Enterprise Catalog"
+        id: "enterprise-catalog"
+        type: "yaml"
+        properties:
+          yamlCatalogPath: "/data/user-sources/enterprise-models.yaml"
+
+  enterprise-models.yaml: |
+    models:
+      - name: "granite-3.x-instruct"
+        description: "Validated Granite family model (ModelCar)"
+        customProperties:
+          model_type:
+            metadataType: MetadataStringValue
+            string_value: "generative"
+          provider:
+            metadataType: MetadataStringValue
+            string_value: "IBM"
+          format:
+            metadataType: MetadataStringValue
+            string_value: "modelcar-oci"
+        artifacts:
+          - name: "model-artifact"
+            uri: "oci://registry.redhat.io/redhat-ai-services/modelcar:granite-3.x-instruct"</code></pre>
+</div>
+</div>
+</div>
+</details>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>If you are using ModelCars, ensure your cluster can pull from <code>registry.redhat.io</code> (credentials/mirroring) as required by your environment.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_apply_changes_and_force_reload"><a class="anchor" href="#_apply_changes_and_force_reload"></a>Apply Changes and Force Reload</h3>
+<div class="paragraph">
+<p>After changes:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc delete pod -l component=model-catalog -n rhoai-model-registries
+oc get pods -l component=model-catalog -n rhoai-model-registries -w</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_3_access_control_visibility_vs_deployment_rights"><a class="anchor" href="#_3_access_control_visibility_vs_deployment_rights"></a>3. Access Control: Visibility vs. Deployment Rights</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The catalog can be visible, but deployments still require:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>project access (RBAC)</p>
+</li>
+<li>
+<p>quotas</p>
+</li>
+<li>
+<p>hardware capacity (matching hardware profiles)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This is intentional: the catalog is for discovery, while deployment is a governed action.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_4_hardware_profiles_integration_the_safety_net"><a class="anchor" href="#_4_hardware_profiles_integration_the_safety_net"></a>4. Hardware Profiles Integration (The Safety Net)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>When users deploy from the catalog, RHOAI attempts to:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>pick a compatible runtime based on the model</p>
+</li>
+<li>
+<p>align deployment settings to the selected hardware profile</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>As a platform engineer, your role is to keep hardware profiles accurate and available so auto-selection works reliably.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><strong>Now that you can curate and govern the showroom, let’s cover the operational failure modes you must plan for.</strong></p>
+</div>
+<div class="paragraph">
+<p>==============+</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_troubleshooting_known_constraints_rhoai_3_2"><a class="anchor" href="#_troubleshooting_known_constraints_rhoai_3_2"></a>Troubleshooting &amp; Known Constraints (RHOAI 3.2)</h2>
 <div class="sectionbody">
 <div class="paragraph lead">
 <p><strong>A catalog that does not load is worse than no catalog at all.</strong></p>

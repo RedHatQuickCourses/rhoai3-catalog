@@ -100,7 +100,10 @@
 <p><strong>A fast deployment is only valuable if it is repeatable.</strong></p>
 </div>
 <div class="paragraph">
-<p>In this lab, you will deploy a validated model from the <strong>Model Catalog</strong> using the RHOAI 3.2 deployment wizard. Along the way, you will apply the guardrails that prevent the most common “wizard accidents.”</p>
+<p>In this lab, you will deploy a validated model from the <strong>Model Catalog</strong> using the RHOAI 3.2 deployment wizard. Unlike a manual <code>kubectl apply</code> of a raw KServe YAML, the wizard enforces consistency—but it still requires operator judgment to avoid common platform constraints.</p>
+</div>
+<div class="paragraph">
+<p>You will select a model, align it with a hardware profile, and apply specific guardrails to prevent downstream DNS and storage errors.</p>
 </div>
 <div class="admonitionblock important">
 <table>
@@ -113,13 +116,13 @@
 <div class="ulist">
 <ul>
 <li>
-<p>Access to the OpenShift AI 3.2 dashboard</p>
+<p>Access to the OpenShift AI 3.2 Dashboard.</p>
 </li>
 <li>
-<p>Permissions to create resources in a Data Science Project</p>
+<p>A Data Science Project created (e.g., <code>my-llm-project</code>).</p>
 </li>
 <li>
-<p>At least one appropriate Hardware Profile (CPU or GPU) available in the cluster</p>
+<p><strong>Critical:</strong> A pre-existing Data Connection (S3/Minio) in that project (required to unlock storage options in the wizard).</p>
 </li>
 </ul>
 </div>
@@ -130,54 +133,33 @@
 </div>
 </div>
 <div class="sect1">
-<h2 id="_step_1_open_the_model_catalog"><a class="anchor" href="#_step_1_open_the_model_catalog"></a>Step 1: Open the Model Catalog</h2>
+<h2 id="_step_1_filter_and_select"><a class="anchor" href="#_step_1_filter_and_select"></a>Step 1: Filter and Select</h2>
 <div class="sectionbody">
+<div class="paragraph">
+<p>The catalog view can be noisy. Use the filters to isolate validated, hardware-optimized assets.</p>
+</div>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Open the <strong>OpenShift AI Dashboard</strong></p>
+<p>Navigate to <strong>AI Hub &#8594; Model Catalog</strong>.</p>
 </li>
 <li>
-<p>Navigate to <strong>AI hub → Catalog</strong></p>
-</li>
-<li>
-<p>Use filters to narrow the selection by:</p>
+<p>In the filter sidebar, select:</p>
 <div class="ulist">
 <ul>
 <li>
-<p>provider</p>
+<p><strong>Provider:</strong> Red Hat (to see validated models).</p>
 </li>
 <li>
-<p>model family (Granite, Llama, Mistral, Qwen, Phi)</p>
-</li>
-<li>
-<p>quantization (INT4/INT8/FP8)</p>
+<p><strong>Model Family:</strong> Select <code>Granite</code> or <code>Mistral</code> (depending on available inventory).</p>
 </li>
 </ul>
 </div>
+</li>
+<li>
+<p><strong>Select the Variant:</strong> Click on a model card (e.g., <code>granite-3.1-8b-instruct</code>).</p>
 </li>
 </ol>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_step_2_select_a_validated_model_variant"><a class="anchor" href="#_step_2_select_a_validated_model_variant"></a>Step 2: Select a Validated Model Variant</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Choose a model variant that matches your hardware and your deployment goal:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><strong>Small model / quick validation:</strong> Granite 3.x small variants</p>
-</li>
-<li>
-<p><strong>GPU-constrained environments:</strong> INT4/INT8 variants</p>
-</li>
-<li>
-<p><strong>Modern accelerators:</strong> FP8 variants (notably relevant for AMD GPUs supporting FP8 and GGUF variants)</p>
-</li>
-</ul>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -186,12 +168,11 @@
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-<div class="title">ModelCars vs. Raw Downloads</div>
+<div class="title">Operational Tip: Check the Source</div>
 <div class="paragraph">
-<p>When available, the catalog will point to <strong>ModelCar (OCI) artifacts</strong> hosted on <code>registry.redhat.io</code>.</p>
-</div>
-<div class="paragraph">
-<p>Prefer these over raw downloads because they start faster, deduplicate layers, and fit enterprise image distribution patterns (mirroring, scanning, signing).</p>
+<p>Inspect the <strong>Product Version</strong> or <strong>Source</strong> field in the model card.
+* If it references <code>registry.redhat.io</code>, this is a <strong>ModelCar (OCI)</strong>. It will pull fast and cache efficiently.
+* If it references a URL, it may be a direct download (slower startup).</p>
 </div>
 </td>
 </tr>
@@ -200,117 +181,136 @@
 </div>
 </div>
 <div class="sect1">
-<h2 id="_step_3_launch_the_deployment_wizard"><a class="anchor" href="#_step_3_launch_the_deployment_wizard"></a>Step 3: Launch the Deployment Wizard</h2>
+<h2 id="_step_2_configure_the_runtime_the_wizard"><a class="anchor" href="#_step_2_configure_the_runtime_the_wizard"></a>Step 2: Configure the Runtime (The Wizard)</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>From the model card:</p>
+<p>Click <strong>Deploy</strong> to enter the configuration flow.</p>
+</div>
+<div class="sect2">
+<h3 id="_1_project_selection"><a class="anchor" href="#_1_project_selection"></a>1. Project Selection</h3>
+<div class="paragraph">
+<p>Select your target Data Science Project.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_2_guardrail_a_name_length"><a class="anchor" href="#_2_guardrail_a_name_length"></a>2. Guardrail A: Name Length</h3>
+<div class="paragraph">
+<p>The wizard auto-generates a name based on the model. <strong>You must truncate this.</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>The Constraint:</strong> Kubernetes DNS labels have a strict 63-character limit. KServe appends suffixes (e.g., <code>-predictor-default</code>) to creating service names.</p>
+</li>
+<li>
+<p><strong>The Risk:</strong> If the model name is ~50 chars, the appended suffix will break the deployment limit, causing a silent failure in the Service Mesh.</p>
+</li>
+<li>
+<p><strong>The Action:</strong> Rename the deployment to something short.</p>
+</li>
+<li>
+<p><strong>Bad:</strong> <code>granite-3-1-8b-instruct-quantized-w4a16</code></p>
+</li>
+<li>
+<p><strong>Good:</strong> <code>granite-8b-lab</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_3_guardrail_b_storage_connection"><a class="anchor" href="#_3_guardrail_b_storage_connection"></a>3. Guardrail B: Storage &amp; Connection</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Scenario:</strong> You see the "Model Location" section.</p>
+</li>
+<li>
+<p><strong>The Trap:</strong> If you created a new project but <strong>did not</strong> create a Data Connection, the wizard may lock you into "New Data Connection" mode or fail to list "Existing Cluster Storage."</p>
+</li>
+<li>
+<p><strong>The Fix:</strong> Ensure you have a valid S3/Object Store connection selected. This is where the model (if not a ModelCar) would be downloaded to, or where the serving runtime will look for configuration.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_step_3_align_hardware_profiles"><a class="anchor" href="#_step_3_align_hardware_profiles"></a>Step 3: Align Hardware Profiles</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This is the most critical step for system stability.</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Click <strong>Deploy</strong></p>
+<p>Look for the <strong>Compute resources</strong> section.</p>
 </li>
 <li>
-<p>Select the target <strong>Data Science Project</strong></p>
+<p><strong>Hardware Profile:</strong> Select the profile that matches the model&#8217;s quantization.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>For a <code>.w4a16</code> model, a standard GPU profile (e.g., NVIDIA L4 or A10g) is sufficient.</p>
 </li>
 <li>
-<p>Choose the <strong>serving runtime</strong> (or accept auto-selection)</p>
+<p>For <code>.FP8</code> models, ensure you select a profile backed by NVIDIA H100 or compatible Ada Lovelace nodes.</p>
+</li>
+</ul>
+</div>
 </li>
 <li>
-<p>Choose a <strong>Hardware Profile</strong> that matches the model’s requirements</p>
+<p><strong>Review Limits:</strong> The wizard will pre-fill CPU and Memory requests. <strong>Do not lower these below the recommended defaults</strong> unless you have strictly tested the memory pressure.</p>
 </li>
 </ol>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_step_4_apply_the_two_critical_guardrails"><a class="anchor" href="#_step_4_apply_the_two_critical_guardrails"></a>Step 4: Apply the Two Critical Guardrails</h2>
-<div class="sectionbody">
-<div class="sect2">
-<h3 id="_guardrail_a_name_length_63_characters"><a class="anchor" href="#_guardrail_a_name_length_63_characters"></a>Guardrail A: Name Length (63 characters)</h3>
-<div class="paragraph">
-<p>If the wizard generates a long resource name, shorten it.</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><strong>Why:</strong> Kubernetes DNS label limits can silently break deployments when KServe appends suffixes.</p>
-</li>
-<li>
-<p><strong>Rule of thumb:</strong> keep names under ~30–40 characters.</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>Examples:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>mistral-small-24b-awq</code></p>
-</li>
-<li>
-<p><code>llama-3-8b-int8</code></p>
-</li>
-</ul>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_guardrail_b_storage_options_in_new_projects"><a class="anchor" href="#_guardrail_b_storage_options_in_new_projects"></a>Guardrail B: Storage Options in New Projects</h3>
-<div class="paragraph">
-<p>If you do not see “Existing cluster storage” in a brand-new project:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Create a <strong>Data Connection</strong> first in that project (even a simple URI connection).</p>
-</li>
-<li>
-<p>Return to the wizard and retry.</p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_step_5_deploy_and_validate"><a class="anchor" href="#_step_5_deploy_and_validate"></a>Step 5: Deploy and Validate</h2>
+<h2 id="_step_4_validate_the_deployment"><a class="anchor" href="#_step_4_validate_the_deployment"></a>Step 4: Validate the Deployment</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>After confirming the wizard settings, deploy the model.</p>
+<p>Click <strong>Deploy</strong>. You will be redirected to the Model Serving page.</p>
 </div>
 <div class="paragraph">
-<p>Validate success using both the UI and CLI:</p>
+<p>Do not trust the "Green Checkmark" immediately. Verify the infrastructure state:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Check the Status:</strong> Wait for the status to turn from "Deploying" to "Loaded" (Green).</p>
+</li>
+<li>
+<p><strong>Verify the Endpoint:</strong> Copy the Inference Endpoint URL.</p>
+</li>
+<li>
+<p><strong>CLI Validation:</strong> Run the following to confirm the Pod is stable and not crashing due to OOM (Out of Memory):</p>
+</li>
+</ol>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Check created KServe resources (names vary by UI flow)
-oc get inferenceservices -n &lt;project-namespace&gt;
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Replace with your project name
+oc get pods -n my-llm-project
 
-# Check pods and events
-oc get pods -n &lt;project-namespace&gt;
-oc get events -n &lt;project-namespace&gt; --sort-by=.lastTimestamp | tail -n 20</code></pre>
+# Check for restarts (indicates OOM or config errors)
+oc get pods -n my-llm-project -o wide</code></pre>
 </div>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_step_6_confirm_hardware_alignment"><a class="anchor" href="#_step_6_confirm_hardware_alignment"></a>Step 6: Confirm Hardware Alignment</h2>
+<h2 id="_summary_of_configuration"><a class="anchor" href="#_summary_of_configuration"></a>Summary of Configuration</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>If you deployed to GPU:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get pods -n &lt;project-namespace&gt; -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.spec.containers[*].resources.limits.nvidia\\.com/gpu}{"\n"}{end}'</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p><strong>Expected:</strong> pods requesting GPU resources only if a GPU profile was selected.</p>
+<p>You have successfully:
+1.  Selected a verified asset from the catalog.
+2.  Prevented a DNS failure by shortening the resource name.
+3.  Aligned the deployment with a compatible hardware profile.</p>
 </div>
 <hr>
 <div class="paragraph">
-<p><strong>You can now deploy quickly. Next, learn how to administer and curate what users see in the catalog.</strong></p>
+<p><strong>Next: Now that the model is running, we will look at how to Administer the Catalog (hiding/showing sources).</strong></p>
 </div>
 </div>
 </div>
