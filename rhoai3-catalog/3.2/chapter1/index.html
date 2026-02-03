@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>The Model Catalog: Operationalizing Model Selection :: Red Hat OpenShift AI (RHOAI) Model Catalog</title>
+    <meta name="generator" content="Antora 3.1.3">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">Red Hat OpenShift AI (RHOAI) Model Catalog</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/REPLACEREPONAME/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="rhoai3-catalog" data-version="3.2">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">Red Hat OpenShift AI (RHOAI) Model Catalog</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Introduction &amp; Value</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="section1.html">Architecture Deep Dive</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="section2.html">The Deployment Wizard</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="section3.html">Administration &amp; Configuration</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="section4.html">Troubleshooting &amp; Constraints</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Red Hat OpenShift AI (RHOAI) Model Catalog</span>
+    <span class="version">3.2</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">Red Hat OpenShift AI (RHOAI) Model Catalog</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">3.2</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">Red Hat OpenShift AI (RHOAI) Model Catalog</a></li>
+    <li><a href="index.html">The Model Catalog: Operationalizing Model Selection</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">The Model Catalog: Operationalizing Model Selection</h1>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph lead">
+<p><strong>Standardize the selection process. Validate performance before deployment. Operationalize artifacts via OCI.</strong></p>
+</div>
+<div class="paragraph">
+<p>For Platform Engineers, the challenge of Generative AI is not model discovery—it is <strong>model curation</strong>. Allowing ad-hoc downloads of arbitrary weights from public hubs introduces significant operational risks: incompatible hardware requirements, unverified performance on specific accelerators, and inefficient artifact distribution ("Shadow AI").</p>
+</div>
+<div class="paragraph">
+<p>In <strong>Red Hat OpenShift AI (RHOAI)</strong>, the Model Catalog functions as a centralized control plane to solve these integration challenges. It provides a library of <strong>Red Hat Validated Models</strong>—curated, benchmarked, and packaged to ensure predictability in enterprise environments.</p>
+</div>
+<div class="paragraph">
+<p>This guide outlines how the Model Catalog accelerates the path from "selection" to "serving" by providing performance baselines, hardware-aligned quantization, and standardized deployment mechanics.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_1_validated_performance_risk_reduction"><a class="anchor" href="#_1_validated_performance_risk_reduction"></a>1. Validated Performance (Risk Reduction)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The primary value of the Model Catalog is the removal of integration guesswork. Unlike public repositories where models are uploaded "as-is," the <strong>Red Hat Validated Models</strong> available in the catalog undergo a rigorous qualification process using tools like GuideLLM and vLLM.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Hardware Alignment:</strong> Models are explicitly verified to run on specific accelerator profiles (e.g., NVIDIA A100/H100, AMD MI300).</p>
+</li>
+<li>
+<p><strong>Performance Baselines:</strong> Red Hat provides metrics for throughput and latency, allowing you to evaluate if a model fits your Service Level Objectives (SLOs) <strong>before</strong> you commit resources.</p>
+</li>
+<li>
+<p><strong>Quantization Clarity:</strong> The catalog provides specific quantized variants (e.g., <code>w4a16</code>, <code>w8a8</code>, <code>FP8</code>) to match your available VRAM. This prevents the common failure mode of deploying a 70B parameter model to a GPU that physically cannot hold its weights.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_2_optimized_artifact_delivery_modelcars"><a class="anchor" href="#_2_optimized_artifact_delivery_modelcars"></a>2. Optimized Artifact Delivery (ModelCars)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Operational efficiency depends on how massive model weights are distributed to your cluster. The Model Catalog prioritizes <strong>ModelCars</strong>—models packaged as OCI (Open Container Initiative) artifacts stored in enterprise registries (like <code>registry.redhat.io</code>).</p>
+</div>
+<div class="paragraph">
+<p>Using ModelCars enables standard container workflow benefits for Large Language Models:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Layer Deduplication:</strong> Reduces storage costs and network bandwidth when deploying updated versions of the same model family.</p>
+</li>
+<li>
+<p><strong>Faster Startup:</strong> Leveraging container image pull secrets and node-level caching significantly improves "Time-to-Ready" for inference services compared to downloading raw object files at runtime.</p>
+</li>
+<li>
+<p><strong>Security &amp; Governance:</strong> You can apply standard container scanning and signing policies to model artifacts, treating them exactly like software binaries.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_3_the_deployment_wizard_reducing_configuration_drift"><a class="anchor" href="#_3_the_deployment_wizard_reducing_configuration_drift"></a>3. The Deployment Wizard: Reducing Configuration Drift</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Manually configuring KServe InferenceServices requires precise alignment between the serving runtime, storage URI, and resource requests. The Model Catalog includes a <strong>deployment wizard</strong> that automates this configuration to prevent drift.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Sensible Defaults:</strong> The wizard pre-populates runtime arguments and environment variables known to work for the specific model variant.</p>
+</li>
+<li>
+<p><strong>Hardware Profile Integration:</strong> It automatically filters for compatible hardware profiles, preventing deployments that are destined to fail due to resource mismatches.</p>
+</li>
+<li>
+<p><strong>Repeatability:</strong> It enforces a standardized deployment structure, ensuring that every engineer on the team deploys models using the same architectural pattern.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Context: Catalog vs. Registry</div>
+<div class="paragraph">
+<p>While similar in name, these components serve distinct phases of the lifecycle:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>The Model Catalog</strong> is for <strong>Inbound Discovery</strong>: Bringing third-party, validated assets (like Red Hat Validated Models) into your environment.</p>
+</li>
+<li>
+<p><strong>The Model Registry</strong> is for <strong>Outbound Control</strong>: Versioning and governing the proprietary models your team creates, tunes, or adopts for the long term.</p>
+</li>
+</ul>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_what_you_will_learn"><a class="anchor" href="#_what_you_will_learn"></a>What You Will Learn</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This module is designed to help you operationalize the Model Catalog within your RHOAI environment. You will learn to:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Navigate the Architecture:</strong> Understand how the catalog sources data and how it integrates with ModelCars (OCI).</p>
+</li>
+<li>
+<p><strong>Deploy with Precision:</strong> Use the deployment wizard to launch a validated model (e.g., Granite, Mistral), ensuring correct alignment of hardware profiles and runtimes.</p>
+</li>
+<li>
+<p><strong>Configure &amp; Curate:</strong> Administer the catalog by managing <code>ConfigMap</code> sources to control which models are visible to your users.</p>
+</li>
+<li>
+<p><strong>Troubleshoot:</strong> Address common operational constraints, such as Kubernetes naming limits and storage configuration issues.</p>
+</li>
+</ol>
+</div>
+<hr>
+<div class="paragraph">
+<p><strong>Next: Explore the architecture of the Model Catalog and the technical details of ModelCars.</strong></p>
+</div>
+</div>
+</div>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

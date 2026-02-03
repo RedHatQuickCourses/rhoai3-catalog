@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Administration &amp; Troubleshooting :: Red Hat OpenShift AI (RHOAI) Model Catalog</title>
+    <link rel="prev" href="section2.html">
+    <link rel="next" href="section4.html">
+    <meta name="generator" content="Antora 3.1.3">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">Red Hat OpenShift AI (RHOAI) Model Catalog</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/REPLACEREPONAME/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="rhoai3-catalog" data-version="3.2">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">Red Hat OpenShift AI (RHOAI) Model Catalog</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Introduction &amp; Value</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="section1.html">Architecture Deep Dive</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="section2.html">The Deployment Wizard</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="1">
+    <a class="nav-link" href="section3.html">Administration &amp; Configuration</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="section4.html">Troubleshooting &amp; Constraints</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Red Hat OpenShift AI (RHOAI) Model Catalog</span>
+    <span class="version">3.2</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">Red Hat OpenShift AI (RHOAI) Model Catalog</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">3.2</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">Red Hat OpenShift AI (RHOAI) Model Catalog</a></li>
+    <li><a href="section3.html">Administration &amp; Configuration</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Administration &amp; Troubleshooting</h1>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph lead">
+<p><strong>If users can&#8217;t trust what they see, they won&#8217;t use it.</strong></p>
+</div>
+<div class="paragraph">
+<p>The Model Catalog is enabled by default, but it is not "set and forget." As a Platform Engineer, you own the curation of this surface. You decide which sources are visible, how the catalog handles maintenance windows, and how to resolve infrastructure conflicts.</p>
+</div>
+<div class="paragraph">
+<p>This section covers the administrative primitives (ConfigMaps, CRDs) and the "Break-Glass" troubleshooting procedures for RHOAI 3.2.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_1_controlling_visibility_the_kill_switch"><a class="anchor" href="#_1_controlling_visibility_the_kill_switch"></a>1. Controlling Visibility (The "Kill Switch")</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>There are scenarios—migrations, upgrades, or security audits—where you need to temporarily disable user access to the catalog. You control this via the <code>OdhDashboardConfig</code> resource.</p>
+</div>
+<div class="paragraph">
+<p><strong>To hide the catalog from the UI:</strong></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Patch the dashboard config to disable the catalog menu item
+oc patch odhdashboardconfig odh-dashboard-config \
+  -n redhat-ods-applications \
+  --type merge \
+  -p '{"spec": {"dashboardConfig": {"disableModelCatalog": true}}}'</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>To restore access:</strong> Set <code>disableModelCatalog</code> back to <code>false</code>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_2_configuring_sources_curation_as_code"><a class="anchor" href="#_2_configuring_sources_curation_as_code"></a>2. Configuring Sources (Curation as Code)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The catalog is not hardcoded; it aggregates sources defined in a Kubernetes ConfigMap. This allows you to manage your catalog sources via GitOps.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Namespace:</strong> <code>rhoai-model-registries</code></p>
+</li>
+<li>
+<p><strong>Object:</strong> ConfigMap <code>model-catalog-sources</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><strong>To view or edit current sources:</strong></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get configmap model-catalog-sources -n rhoai-model-registries -o yaml</code></pre>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_adding_a_private_source"><a class="anchor" href="#_adding_a_private_source"></a>Adding a Private Source</h3>
+<div class="paragraph">
+<p>You can add your own internal catalog (e.g., a curated list of fine-tuned company models) by appending a source block to this ConfigMap:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">sources:
+  - sourceURI: https://github.com/my-org/my-curated-catalog/archive/refs/heads/main.zip
+    name: internal-finance-models
+    displayName: "Acme Finance Models (Curated)"
+    description: "Verified models for financial sentiment analysis."</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">The Reload Process</div>
+<div class="paragraph">
+<p>The catalog service caches these sources. After editing the ConfigMap, you must force a reload by deleting the catalog pods:
+<code>oc delete pod -l component=model-catalog -n rhoai-model-registries</code></p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_3_troubleshooting_playbook_rhoai_3_2"><a class="anchor" href="#_3_troubleshooting_playbook_rhoai_3_2"></a>3. Troubleshooting Playbook (RHOAI 3.2)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>These are the three most common failure modes encountered by platform engineers in the current release.</p>
+</div>
+<div class="sect2">
+<h3 id="_issue_a_the_upgrade_hang_request_access_to_model_catalog"><a class="anchor" href="#_issue_a_the_upgrade_hang_request_access_to_model_catalog"></a>Issue A: The Upgrade Hang ("Request access to model catalog")</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Symptom:</strong> After upgrading from RHOAI 2.x to 3.2, the Catalog UI is blank and displays an error: <strong>"Request access to model catalog."</strong></p>
+</li>
+<li>
+<p><strong>Root Cause:</strong> The <code>model-catalog-sources</code> ConfigMap structure changed between versions, and the upgrade operator did not cleanly reconcile the old state.</p>
+</li>
+<li>
+<p><strong>The Fix:</strong> Force a regeneration of the default configuration.</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># 1. Delete the existing ConfigMap
+oc delete configmap model-catalog-sources -n rhoai-model-registries
+
+# 2. Restart the operator (it will recreate the ConfigMap with correct defaults)
+oc delete pod -l name=model-registry-operator -n redhat-ods-monitoring
+# (Note: Namespace may vary depending on operator install mode)</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_issue_b_the_missing_storage_loop"><a class="anchor" href="#_issue_b_the_missing_storage_loop"></a>Issue B: The "Missing Storage" Loop</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Symptom:</strong> In the Deployment Wizard, the "Existing Cluster Storage" option is hidden or disabled, forcing you to create a new connection even if PVCs exist.</p>
+</li>
+<li>
+<p><strong>Root Cause:</strong> The Wizard UI logic hides the "Existing Storage" radio button if it detects <strong>zero</strong> <code>DataConnections</code> in the project.</p>
+</li>
+<li>
+<p><strong>The Fix:</strong></p>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Navigate to <strong>Settings &#8594; Data Connections</strong>.</p>
+</li>
+<li>
+<p>Create a "Dummy" connection (it doesn&#8217;t need to be real).</p>
+</li>
+<li>
+<p>Refresh the Wizard. The "Existing Cluster Storage" option will now appear.</p>
+</li>
+</ol>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_issue_c_dns_name_collisions"><a class="anchor" href="#_issue_c_dns_name_collisions"></a>Issue C: DNS Name Collisions</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Symptom:</strong> Deployment status stays in "Unknown" or "Failed" with internal server errors regarding <code>Service</code> creation.</p>
+</li>
+<li>
+<p><strong>Root Cause:</strong> The user accepted the default model name (e.g., <code>mistral-7b-instruct-v0.1-quantized-w4a16</code>). KServe appends suffix strings (e.g., <code>-predictor-default</code>) which pushes the total character count over the Kubernetes 63-character DNS label limit.</p>
+</li>
+<li>
+<p><strong>The Fix:</strong> Enforce a naming convention. Rename deployments to use short aliases (e.g., <code>mistral-7b-lab</code>).</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_4_operational_guardrails_summary"><a class="anchor" href="#_4_operational_guardrails_summary"></a>4. Operational Guardrails Summary</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To ensure a stable "Showroom" for your users, adopt these three rules:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Prefer ModelCars:</strong> Ensure your cluster has pull secrets for <code>registry.redhat.io</code>. This enables the OCI-based artifact workflow (deduplication/caching).</p>
+</li>
+<li>
+<p><strong>GitOps the Sources:</strong> Do not manually edit the <code>model-catalog-sources</code> ConfigMap in production. Store the file in Git and apply it via ArgoCD/Tekton to prevent drift.</p>
+</li>
+<li>
+<p><strong>Monitor Quotas:</strong> The catalog checks</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="section2.html">The Deployment Wizard</a></span>
+  <span class="next"><a href="section4.html">Troubleshooting &amp; Constraints</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

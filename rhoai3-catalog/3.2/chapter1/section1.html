@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Architecture: Inside the Model Catalog :: Red Hat OpenShift AI (RHOAI) Model Catalog</title>
+    <link rel="prev" href="../index.html">
+    <link rel="next" href="section2.html">
+    <meta name="generator" content="Antora 3.1.3">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">Red Hat OpenShift AI (RHOAI) Model Catalog</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/REPLACEREPONAME/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="rhoai3-catalog" data-version="3.2">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">Red Hat OpenShift AI (RHOAI) Model Catalog</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Introduction &amp; Value</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item is-current-page" data-depth="1">
+    <a class="nav-link" href="section1.html">Architecture Deep Dive</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="section2.html">The Deployment Wizard</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="section3.html">Administration &amp; Configuration</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="section4.html">Troubleshooting &amp; Constraints</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Red Hat OpenShift AI (RHOAI) Model Catalog</span>
+    <span class="version">3.2</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">Red Hat OpenShift AI (RHOAI) Model Catalog</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">3.2</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">Red Hat OpenShift AI (RHOAI) Model Catalog</a></li>
+    <li><a href="section1.html">Architecture Deep Dive</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Architecture: Inside the Model Catalog</h1>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph lead">
+<p><strong>Understand the machinery behind the dashboard. From OCI artifacts to Quantization profiles.</strong></p>
+</div>
+<div class="paragraph">
+<p>To a user, the Model Catalog is a gallery. To a Platform Engineer, it is an integration engine that connects three distinct layers of the RHOAI platform:
+1. <strong>The Supply Chain:</strong> Validated external sources (Red Hat / IBM).
+2. <strong>The Artifact Store:</strong> OCI-compliant registries delivering standardized container images.
+3. <strong>The Infrastructure:</strong> The compute resources (GPUs) and runtimes required to serve the models.</p>
+</div>
+<div class="paragraph">
+<p>This section breaks down how these components interact to enable safe, reproducible deployments.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_1_the_validation_layer_the_trust_engine"><a class="anchor" href="#_1_the_validation_layer_the_trust_engine"></a>1. The Validation Layer (The "Trust" Engine)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>A raw model on a public hub is a black box. A <strong>Red Hat Validated Model</strong> in the catalog is a known quantity, verified through a collaboration between Red Hat and IBM Research.</p>
+</div>
+<div class="paragraph">
+<p>Before a model appears in your catalog, it undergoes a qualification process using tools like <strong>GuideLLM</strong> and <strong>vLLM</strong> to establish:
+* <strong>Throughput &amp; Latency Baselines:</strong> Ensuring the model meets enterprise performance standards.
+* <strong>Hardware Compatibility:</strong> Verifying the model runs on specific accelerators (NVIDIA A100/H100, AMD MI300).
+* <strong>Security Scanning:</strong> Checking for malicious code injection in the model weights.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_2_the_artifact_layer_modelcars_oci"><a class="anchor" href="#_2_the_artifact_layer_modelcars_oci"></a>2. The Artifact Layer: ModelCars (OCI)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The most significant architectural shift in the RHOAI Model Catalog is the move away from "tarballs in S3 buckets" toward <strong>ModelCars</strong>.</p>
+</div>
+<div class="paragraph">
+<p>A <strong>ModelCar</strong> is a Large Language Model (LLM) packaged as an OCI (Open Container Initiative) image. It treats model weights exactly like software binaries.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Structure:</strong> The model weights (safetensors, GGUF) are stored in the <code>root</code> layer of a container image.</p>
+</li>
+<li>
+<p><strong>Delivery:</strong> When a user deploys a model, the cluster pulls this image from <code>registry.redhat.io</code> using standard container runtimes (CRI-O).</p>
+</li>
+<li>
+<p><strong>Operational Benefit:</strong></p>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Deduplication:</strong> Updates to a model family often share base layers, reducing storage costs.</p>
+</li>
+<li>
+<p><strong>Caching:</strong> Once a node pulls a 70B model, it is cached locally. Subsequent deployments on that node are near-instant.</p>
+</li>
+<li>
+<p><strong>Security:</strong> You can scan a ModelCar for vulnerabilities using the same tools (ACS/StackRox) you use for application images.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_3_quantization_strategies_the_hardware_fit_engine"><a class="anchor" href="#_3_quantization_strategies_the_hardware_fit_engine"></a>3. Quantization Strategies (The "Hardware Fit" Engine)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The catalog uses specific naming conventions to help you align models with your available hardware capacity (VRAM). Understanding these suffixes is critical for avoiding <code>OOMKilled</code> errors.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Suffix</th>
+<th class="tableblock halign-left valign-top">Precision</th>
+<th class="tableblock halign-left valign-top">Operational Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>.w4a16</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>4-bit Weights / 16-bit Activations</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Best for VRAM Constraints.</strong> Allows larger models (e.g., 70B) to fit on standard enterprise GPUs while maintaining reasonable accuracy.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>.w8a8</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>8-bit Weights / 8-bit Activations</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Balanced Performance.</strong> Good speed and memory savings; widely supported on most modern GPUs.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>.FP8</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>8-bit Floating Point</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>High Performance.</strong> Designed for modern accelerators (NVIDIA H100, Ada Lovelace) that have native FP8 support. Offers the best balance of speed and accuracy if your hardware supports it.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Why this matters:</strong> The catalog uses this metadata to filter the "Hardware Profile" list in the deployment wizard, preventing users from trying to deploy an FP8 model on older hardware that doesn&#8217;t support it.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_4_the_integration_catalog_to_kserve"><a class="anchor" href="#_4_the_integration_catalog_to_kserve"></a>4. The Integration: Catalog to KServe</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>When a user clicks "Deploy," the catalog acts as a translator. It converts the high-level intent ("I want Granite 3.0") into low-level Kubernetes resources:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>InferenceService:</strong> The KServe CRD that defines the service.</p>
+</li>
+<li>
+<p><strong>ServingRuntime:</strong> The engine (e.g., vLLM, TGIS) optimized for that specific model family.</p>
+</li>
+<li>
+<p><strong>Resource Limits:</strong> The CPU/Memory/GPU requests derived from the hardware profile.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>This automated translation eliminates the "drift" that occurs when engineers manually copy-paste YAML files.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Architecture Decision: Catalog vs. Registry</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>The Model Catalog</strong> is your <strong>Inbound Supply Chain</strong>. It is for bringing third-party, verified assets into your environment.</p>
+</li>
+<li>
+<p><strong>The Model Registry</strong> is your <strong>Outbound Asset Library</strong>. It is for versioning the models you have fine-tuned or specifically approved for production application use.</p>
+</li>
+</ul>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<hr>
+<div class="paragraph">
+<p><strong>Next: We will perform the hands-on deployment using the wizard and apply operational guardrails.</strong></p>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="../index.html">Introduction &amp; Value</a></span>
+  <span class="next"><a href="section2.html">The Deployment Wizard</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>
