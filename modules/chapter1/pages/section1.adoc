@@ -1,83 +1,82 @@
-= Architecture: How the Model Catalog Works
+= Architecture: Inside the Model Catalog
 :navtitle: Architecture Deep Dive
 :toc: macro
 
 // Antora metadata
 :page-role: architecture-concept
-:description: Technical deep dive into Model Catalog components, sources, and how catalog choices connect to deployment.
+:description: A technical deep dive into the Model Catalog's architecture, OCI-based artifact delivery (ModelCars), and Quantization strategies.
 
 [.lead]
-*A catalog is not a database. It is a control surface.*
+*Understand the machinery behind the dashboard. From OCI artifacts to Quantization profiles.*
 
-Platform engineers operate the Model Catalog like an air-traffic system:
+To a user, the Model Catalog is a gallery. To a Platform Engineer, it is an integration engine that connects three distinct layers of the RHOAI platform:
+1. **The Supply Chain:** Validated external sources (Red Hat / IBM).
+2. **The Artifact Store:** OCI-compliant registries delivering standardized container images.
+3. **The Infrastructure:** The compute resources (GPUs) and runtimes required to serve the models.
 
-* It must present the right options (curation).
-* It must guide users into safe defaults (deployment wizard).
-* It must reflect infrastructure reality (hardware profiles, quotas, and runtimes).
+This section breaks down how these components interact to enable safe, reproducible deployments.
 
-== 1. Catalog vs. Registry (Two Different Jobs)
+== 1. The Validation Layer (The "Trust" Engine)
 
-The Model Catalog and Model Registry solve different problems:
+A raw model on a public hub is a black box. A **Red Hat Validated Model** in the catalog is a known quantity, verified through a collaboration between Red Hat and IBM Research.
 
-* **Model Catalog:** discovery and selection of validated models
-* **Model Registry:** tracking, versioning, and governance of models your organization has adopted
+Before a model appears in your catalog, it undergoes a qualification process using tools like **GuideLLM** and **vLLM** to establish:
+* **Throughput & Latency Baselines:** Ensuring the model meets enterprise performance standards.
+* **Hardware Compatibility:** Verifying the model runs on specific accelerators (NVIDIA A100/H100, AMD MI300).
+* **Security Scanning:** Checking for malicious code injection in the model weights.
 
-Think of it this way:
+== 2. The Artifact Layer: ModelCars (OCI)
 
-* **Catalog:** “Which model should we choose?”
-* **Registry:** “Which exact model version did we deploy, and why?”
+The most significant architectural shift in the RHOAI Model Catalog is the move away from "tarballs in S3 buckets" toward **ModelCars**.
 
-== 2. What’s Inside a Catalog Model Card
+A **ModelCar** is a Large Language Model (LLM) packaged as an OCI (Open Container Initiative) image. It treats model weights exactly like software binaries.
 
-Each model entry in the catalog typically includes:
+* **Structure:** The model weights (safetensors, GGUF) are stored in the `root` layer of a container image.
+* **Delivery:** When a user deploys a model, the cluster pulls this image from `registry.redhat.io` using standard container runtimes (CRI-O).
+* **Operational Benefit:**
+** **Deduplication:** Updates to a model family often share base layers, reducing storage costs.
+** **Caching:** Once a node pulls a 70B model, it is cached locally. Subsequent deployments on that node are near-instant.
+** **Security:** You can scan a ModelCar for vulnerabilities using the same tools (ACS/StackRox) you use for application images.
 
-* **Provider / family:** Granite, Llama, Mistral, Qwen, Phi, etc.
-* **Validated variants:** quantized formats (INT4, INT8, FP8) appropriate for different hardware
-* **Performance context:** benchmarks and metrics verified for specific configurations
-* **Artifacts:** the actual model reference used at deployment time
+== 3. Quantization Strategies (The "Hardware Fit" Engine)
 
-In OpenShift AI, the artifact reference is often a **ModelCar** (OCI artifact).
+The catalog uses specific naming conventions to help you align models with your available hardware capacity (VRAM). Understanding these suffixes is critical for avoiding `OOMKilled` errors.
 
-== 3. ModelCars (OCI Artifacts) — The Default “Enterprise” Distribution
+[cols="1,1,2", options="header"]
+|===
+| Suffix | Precision | Operational Impact
 
-RHOAI uses **ModelCars**: model artifacts packaged as OCI container images (hosted on `registry.redhat.io`).
+| **.w4a16**
+| **4-bit Weights / 16-bit Activations**
+| **Best for VRAM Constraints.** Allows larger models (e.g., 70B) to fit on standard enterprise GPUs while maintaining reasonable accuracy.
 
-This matters operationally:
+| **.w8a8**
+| **8-bit Weights / 8-bit Activations**
+| **Balanced Performance.** Good speed and memory savings; widely supported on most modern GPUs.
 
-* **Faster cold starts:** image pulls and layer caching outperform raw weight downloads.
-* **Layer deduplication:** shared layers reduce bandwidth and storage cost.
-* **Predictable supply chain:** enterprises already know how to mirror, sign, and scan container images.
+| **.FP8**
+| **8-bit Floating Point**
+| **High Performance.** Designed for modern accelerators (NVIDIA H100, Ada Lovelace) that have native FP8 support. Offers the best balance of speed and accuracy if your hardware supports it.
+|===
 
-[IMPORTANT]
+* **Why this matters:** The catalog uses this metadata to filter the "Hardware Profile" list in the deployment wizard, preventing users from trying to deploy an FP8 model on older hardware that doesn't support it.
+
+== 4. The Integration: Catalog to KServe
+
+When a user clicks "Deploy," the catalog acts as a translator. It converts the high-level intent ("I want Granite 3.0") into low-level Kubernetes resources:
+
+1.  **InferenceService:** The KServe CRD that defines the service.
+2.  **ServingRuntime:** The engine (e.g., vLLM, TGIS) optimized for that specific model family.
+3.  **Resource Limits:** The CPU/Memory/GPU requests derived from the hardware profile.
+
+This automated translation eliminates the "drift" that occurs when engineers manually copy-paste YAML files.
+
+[NOTE]
+.Architecture Decision: Catalog vs. Registry
 ====
-If you are using RHOAI, prefer **ModelCar images** over ad-hoc downloads from public hubs or raw S3 pulls whenever possible.
+* **The Model Catalog** is your **Inbound Supply Chain**. It is for bringing third-party, verified assets into your environment.
+* **The Model Registry** is your **Outbound Asset Library**. It is for versioning the models you have fine-tuned or specifically approved for production application use.
 ====
-
-== 4. How Catalog Selection Connects to Deployment
-
-In RHOAI 3.2, the catalog’s deployment workflow is optimized for speed:
-
-1. **Select a model** from the catalog
-2. **Launch the deployment wizard**
-3. **Choose a project and a serving runtime**
-4. **Match hardware profiles** to the model’s requirements
-5. **Deploy** (creating KServe resources behind the scenes)
-
-== 5. Integration with Hardware Profiles (Infrastructure Reality)
-
-The catalog does not magically create GPUs. It must align with what your cluster can provide.
-
-* **Auto-selection:** The system attempts to pick a serving runtime that matches the model type and your available hardware profiles (for example, CUDA-based runtime for NVIDIA GPUs).
-* **Minimum requirements:** some models require specific accelerator classes (A100/H100 or AMD MI300) and may only be deployable with certain quantized variants.
-
-== 6. Administration Surface (Sources and Visibility)
-
-Administrators control:
-
-* **Whether the catalog is visible** in the dashboard
-* **Which catalog sources are presented** to users (for example, curated vendor sources, internal sources, or restricted sources)
-
-In RHOAI, the catalog sources are configured via Kubernetes resources (ConfigMaps), which allows GitOps-style management.
 
 ---
-*Now that you understand the architecture, it’s time to operate the deployment workflow safely.*
+*Next: We will perform the hands-on deployment using the wizard and apply operational guardrails.*

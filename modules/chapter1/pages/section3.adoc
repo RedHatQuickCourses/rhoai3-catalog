@@ -1,135 +1,103 @@
-= Administration & Configuration (Curating the Showroom)
-:navtitle: Administration & Configuration
+= Administration & Troubleshooting
+:navtitle: Admin & Troubleshooting
 :toc: macro
 
 // Antora metadata
 :page-role: platform-admin
-:description: How to enable/disable the Model Catalog, configure sources, and manage access patterns in OpenShift AI 3.2.
+:description: Operational guide for configuring Model Catalog sources, managing visibility, and troubleshooting common RHOAI 3.2 failures.
 
 [.lead]
-*If users can’t trust what they see, they won’t use it.*
+*If users can't trust what they see, they won't use it.*
 
-The Model Catalog is enabled by default, but it is not “set and forget.”
+The Model Catalog is enabled by default, but it is not "set and forget." As a Platform Engineer, you own the curation of this surface. You decide which sources are visible, how the catalog handles maintenance windows, and how to resolve infrastructure conflicts.
 
-As a platform engineer or administrator, you own:
+This section covers the administrative primitives (ConfigMaps, CRDs) and the "Break-Glass" troubleshooting procedures for RHOAI 3.2.
 
-* what sources appear
-* what models are promoted as “deployment-ready”
-* how the catalog behaves after upgrades
-* the boundary between catalog visibility and deployment permissions
+== 1. Controlling Visibility (The "Kill Switch")
 
-== 1. Enable / Disable the Model Catalog in the Dashboard
+There are scenarios—migrations, upgrades, or security audits—where you need to temporarily disable user access to the catalog. You control this via the `OdhDashboardConfig` resource.
 
-If you need to hide the catalog UI (for example, during a migration window), update the `OdhDashboardConfig` resource.
-
-* **Hide the catalog menu:** set `spec.dashboardConfig.disableModelCatalog` to `true`
+**To hide the catalog from the UI:**
 
 [source,bash]
 ----
-oc get odhdashboardconfig -n redhat-ods-applications
+# Patch the dashboard config to disable the catalog menu item
+oc patch odhdashboardconfig odh-dashboard-config \
+  -n redhat-ods-applications \
+  --type merge \
+  -p '{"spec": {"dashboardConfig": {"disableModelCatalog": true}}}'
 ----
 
-[source,bash]
-----
-oc patch odhdashboardconfig odh-dashboard-config -n redhat-ods-applications --type merge -p '{
-  "spec": { "dashboardConfig": { "disableModelCatalog": true } }
-}'
-----
+**To restore access:** Set `disableModelCatalog` back to `false`.
 
-To re-enable, set it back to `false`.
+== 2. Configuring Sources (Curation as Code)
 
-== 2. Configure Catalog Sources (What Users See)
-
-The catalog sources are configured via a ConfigMap (file-based configuration).
-
-The key object:
+The catalog is not hardcoded; it aggregates sources defined in a Kubernetes ConfigMap. This allows you to manage your catalog sources via GitOps.
 
 * **Namespace:** `rhoai-model-registries`
-* **ConfigMap:** `model-catalog-sources`
+* **Object:** ConfigMap `model-catalog-sources`
 
+**To view or edit current sources:**
 [source,bash]
 ----
 oc get configmap model-catalog-sources -n rhoai-model-registries -o yaml
 ----
 
-=== Source Model (Two Logical “Files”)
+=== Adding a Private Source
+You can add your own internal catalog (e.g., a curated list of fine-tuned company models) by appending a source block to this ConfigMap:
 
-Like other RHOAI components, the ConfigMap often contains two logical “files”:
-
-1. **`sources.yaml`**: defines which catalogs are loaded
-2. **`<your-catalog>.yaml`**: defines models and their artifacts
-
-[%collapsible]
-====
 [source,yaml]
 ----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: model-catalog-sources
-  namespace: rhoai-model-registries
-data:
-  sources.yaml: |
-    catalogs:
-      - name: "Enterprise Catalog"
-        id: "enterprise-catalog"
-        type: "yaml"
-        properties:
-          yamlCatalogPath: "/data/user-sources/enterprise-models.yaml"
-
-  enterprise-models.yaml: |
-    models:
-      - name: "granite-3.x-instruct"
-        description: "Validated Granite family model (ModelCar)"
-        customProperties:
-          model_type:
-            metadataType: MetadataStringValue
-            string_value: "generative"
-          provider:
-            metadataType: MetadataStringValue
-            string_value: "IBM"
-          format:
-            metadataType: MetadataStringValue
-            string_value: "modelcar-oci"
-        artifacts:
-          - name: "model-artifact"
-            uri: "oci://registry.redhat.io/redhat-ai-services/modelcar:granite-3.x-instruct"
+sources:
+  - sourceURI: https://github.com/my-org/my-curated-catalog/archive/refs/heads/main.zip
+    name: internal-finance-models
+    displayName: "Acme Finance Models (Curated)"
+    description: "Verified models for financial sentiment analysis."
 ----
+
+[NOTE]
+.The Reload Process
+====
+The catalog service caches these sources. After editing the ConfigMap, you must force a reload by deleting the catalog pods:
+`oc delete pod -l component=model-catalog -n rhoai-model-registries`
 ====
 
-[IMPORTANT]
-====
-If you are using ModelCars, ensure your cluster can pull from `registry.redhat.io` (credentials/mirroring) as required by your environment.
-====
+== 3. Troubleshooting Playbook (RHOAI 3.2)
 
-=== Apply Changes and Force Reload
+These are the three most common failure modes encountered by platform engineers in the current release.
 
-After changes:
+=== Issue A: The Upgrade Hang ("Request access to model catalog")
+* **Symptom:** After upgrading from RHOAI 2.x to 3.2, the Catalog UI is blank and displays an error: *"Request access to model catalog."*
+* **Root Cause:** The `model-catalog-sources` ConfigMap structure changed between versions, and the upgrade operator did not cleanly reconcile the old state.
+* **The Fix:** Force a regeneration of the default configuration.
 
 [source,bash]
 ----
-oc delete pod -l component=model-catalog -n rhoai-model-registries
-oc get pods -l component=model-catalog -n rhoai-model-registries -w
+# 1. Delete the existing ConfigMap
+oc delete configmap model-catalog-sources -n rhoai-model-registries
+
+# 2. Restart the operator (it will recreate the ConfigMap with correct defaults)
+oc delete pod -l name=model-registry-operator -n redhat-ods-monitoring 
+# (Note: Namespace may vary depending on operator install mode)
 ----
 
-== 3. Access Control: Visibility vs. Deployment Rights
+=== Issue B: The "Missing Storage" Loop
+* **Symptom:** In the Deployment Wizard, the "Existing Cluster Storage" option is hidden or disabled, forcing you to create a new connection even if PVCs exist.
+* **Root Cause:** The Wizard UI logic hides the "Existing Storage" radio button if it detects *zero* `DataConnections` in the project.
+* **The Fix:**
+1. Navigate to **Settings -> Data Connections**.
+2. Create a "Dummy" connection (it doesn't need to be real).
+3. Refresh the Wizard. The "Existing Cluster Storage" option will now appear.
 
-The catalog can be visible, but deployments still require:
+=== Issue C: DNS Name Collisions
+* **Symptom:** Deployment status stays in "Unknown" or "Failed" with internal server errors regarding `Service` creation.
+* **Root Cause:** The user accepted the default model name (e.g., `mistral-7b-instruct-v0.1-quantized-w4a16`). KServe appends suffix strings (e.g., `-predictor-default`) which pushes the total character count over the Kubernetes 63-character DNS label limit.
+* **The Fix:** Enforce a naming convention. Rename deployments to use short aliases (e.g., `mistral-7b-lab`).
 
-* project access (RBAC)
-* quotas
-* hardware capacity (matching hardware profiles)
+== 4. Operational Guardrails Summary
 
-This is intentional: the catalog is for discovery, while deployment is a governed action.
+To ensure a stable "Showroom" for your users, adopt these three rules:
 
-== 4. Hardware Profiles Integration (The Safety Net)
-
-When users deploy from the catalog, RHOAI attempts to:
-
-* pick a compatible runtime based on the model
-* align deployment settings to the selected hardware profile
-
-As a platform engineer, your role is to keep hardware profiles accurate and available so auto-selection works reliably.
-
----
-*Now that you can curate and govern the showroom, let’s cover the operational failure modes you must plan for.*
+1.  **Prefer ModelCars:** Ensure your cluster has pull secrets for `registry.redhat.io`. This enables the OCI-based artifact workflow (deduplication/caching).
+2.  **GitOps the Sources:** Do not manually edit the `model-catalog-sources` ConfigMap in production. Store the file in Git and apply it via ArgoCD/Tekton to prevent drift.
+3.  **Monitor Quotas:** The catalog checks

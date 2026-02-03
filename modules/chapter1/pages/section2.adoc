@@ -4,102 +4,97 @@
 
 // Antora metadata
 :page-role: hands-on-lab
-:description: Deploying a validated model from the Model Catalog in RHOAI 3.2 using safe defaults and known constraints.
+:description: A step-by-step guide to deploying validated models using the RHOAI wizard, applying operational guardrails for naming and storage.
 
 [.lead]
 *A fast deployment is only valuable if it is repeatable.*
 
-In this lab, you will deploy a validated model from the **Model Catalog** using the RHOAI 3.2 deployment wizard. Along the way, you will apply the guardrails that prevent the most common “wizard accidents.”
+In this lab, you will deploy a validated model from the **Model Catalog** using the RHOAI 3.2 deployment wizard. Unlike a manual `kubectl apply` of a raw KServe YAML, the wizard enforces consistency—but it still requires operator judgment to avoid common platform constraints.
+
+You will select a model, align it with a hardware profile, and apply specific guardrails to prevent downstream DNS and storage errors.
 
 [IMPORTANT]
 .Prerequisites
 ====
-* Access to the OpenShift AI 3.2 dashboard
-* Permissions to create resources in a Data Science Project
-* At least one appropriate Hardware Profile (CPU or GPU) available in the cluster
+* Access to the OpenShift AI 3.2 Dashboard.
+* A Data Science Project created (e.g., `my-llm-project`).
+* **Critical:** A pre-existing Data Connection (S3/Minio) in that project (required to unlock storage options in the wizard).
 ====
 
-== Step 1: Open the Model Catalog
+== Step 1: Filter and Select
 
-1. Open the **OpenShift AI Dashboard**
-2. Navigate to **AI hub → Catalog**
-3. Use filters to narrow the selection by:
-   * provider
-   * model family (Granite, Llama, Mistral, Qwen, Phi)
-   * quantization (INT4/INT8/FP8)
+The catalog view can be noisy. Use the filters to isolate validated, hardware-optimized assets.
 
-== Step 2: Select a Validated Model Variant
-
-Choose a model variant that matches your hardware and your deployment goal:
-
-* **Small model / quick validation:** Granite 3.x small variants
-* **GPU-constrained environments:** INT4/INT8 variants
-* **Modern accelerators:** FP8 variants (notably relevant for AMD GPUs supporting FP8 and GGUF variants)
+1.  Navigate to **AI Hub -> Model Catalog**.
+2.  In the filter sidebar, select:
+    * **Provider:** Red Hat (to see validated models).
+    * **Model Family:** Select `Granite` or `Mistral` (depending on available inventory).
+3.  **Select the Variant:** Click on a model card (e.g., `granite-3.1-8b-instruct`).
 
 [NOTE]
-.ModelCars vs. Raw Downloads
+.Operational Tip: Check the Source
 ====
-When available, the catalog will point to **ModelCar (OCI) artifacts** hosted on `registry.redhat.io`.
-
-Prefer these over raw downloads because they start faster, deduplicate layers, and fit enterprise image distribution patterns (mirroring, scanning, signing).
+Inspect the **Product Version** or **Source** field in the model card.
+* If it references `registry.redhat.io`, this is a **ModelCar (OCI)**. It will pull fast and cache efficiently.
+* If it references a URL, it may be a direct download (slower startup).
 ====
 
-== Step 3: Launch the Deployment Wizard
+== Step 2: Configure the Runtime (The Wizard)
 
-From the model card:
+Click **Deploy** to enter the configuration flow.
 
-1. Click **Deploy**
-2. Select the target **Data Science Project**
-3. Choose the **serving runtime** (or accept auto-selection)
-4. Choose a **Hardware Profile** that matches the model’s requirements
+=== 1. Project Selection
+Select your target Data Science Project.
 
-== Step 4: Apply the Two Critical Guardrails
+=== 2. Guardrail A: Name Length
+The wizard auto-generates a name based on the model. **You must truncate this.**
 
-=== Guardrail A: Name Length (63 characters)
+* **The Constraint:** Kubernetes DNS labels have a strict 63-character limit. KServe appends suffixes (e.g., `-predictor-default`) to creating service names.
+* **The Risk:** If the model name is ~50 chars, the appended suffix will break the deployment limit, causing a silent failure in the Service Mesh.
+* **The Action:** Rename the deployment to something short.
+    * *Bad:* `granite-3-1-8b-instruct-quantized-w4a16`
+    * *Good:* `granite-8b-lab`
 
-If the wizard generates a long resource name, shorten it.
+=== 3. Guardrail B: Storage & Connection
+* **Scenario:** You see the "Model Location" section.
+* **The Trap:** If you created a new project but *did not* create a Data Connection, the wizard may lock you into "New Data Connection" mode or fail to list "Existing Cluster Storage."
+* **The Fix:** Ensure you have a valid S3/Object Store connection selected. This is where the model (if not a ModelCar) would be downloaded to, or where the serving runtime will look for configuration.
 
-* **Why:** Kubernetes DNS label limits can silently break deployments when KServe appends suffixes.
-* **Rule of thumb:** keep names under ~30–40 characters.
+== Step 3: Align Hardware Profiles
 
-Examples:
+This is the most critical step for system stability.
 
-* `mistral-small-24b-awq`
-* `llama-3-8b-int8`
+1.  Look for the **Compute resources** section.
+2.  **Hardware Profile:** Select the profile that matches the model's quantization.
+    * For a `.w4a16` model, a standard GPU profile (e.g., NVIDIA L4 or A10g) is sufficient.
+    * For `.FP8` models, ensure you select a profile backed by NVIDIA H100 or compatible Ada Lovelace nodes.
+3.  **Review Limits:** The wizard will pre-fill CPU and Memory requests. *Do not lower these below the recommended defaults* unless you have strictly tested the memory pressure.
 
-=== Guardrail B: Storage Options in New Projects
+== Step 4: Validate the Deployment
 
-If you do not see “Existing cluster storage” in a brand-new project:
+Click **Deploy**. You will be redirected to the Model Serving page.
 
-* Create a **Data Connection** first in that project (even a simple URI connection).
-* Return to the wizard and retry.
+Do not trust the "Green Checkmark" immediately. Verify the infrastructure state:
 
-== Step 5: Deploy and Validate
-
-After confirming the wizard settings, deploy the model.
-
-Validate success using both the UI and CLI:
+1.  **Check the Status:** Wait for the status to turn from "Deploying" to "Loaded" (Green).
+2.  **Verify the Endpoint:** Copy the Inference Endpoint URL.
+3.  **CLI Validation:** Run the following to confirm the Pod is stable and not crashing due to OOM (Out of Memory):
 
 [source,bash]
 ----
-# Check created KServe resources (names vary by UI flow)
-oc get inferenceservices -n <project-namespace>
+# Replace with your project name
+oc get pods -n my-llm-project
 
-# Check pods and events
-oc get pods -n <project-namespace>
-oc get events -n <project-namespace> --sort-by=.lastTimestamp | tail -n 20
+# Check for restarts (indicates OOM or config errors)
+oc get pods -n my-llm-project -o wide
 ----
 
-== Step 6: Confirm Hardware Alignment
+== Summary of Configuration
 
-If you deployed to GPU:
-
-[source,bash]
-----
-oc get pods -n <project-namespace> -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.spec.containers[*].resources.limits.nvidia\\.com/gpu}{"\n"}{end}'
-----
-
-*Expected:* pods requesting GPU resources only if a GPU profile was selected.
+You have successfully:
+1.  Selected a verified asset from the catalog.
+2.  Prevented a DNS failure by shortening the resource name.
+3.  Aligned the deployment with a compatible hardware profile.
 
 ---
-*You can now deploy quickly. Next, learn how to administer and curate what users see in the catalog.*
+*Next: Now that the model is running, we will look at how to Administer the Catalog (hiding/showing sources).*
