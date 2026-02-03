@@ -105,10 +105,20 @@
 <p><strong>Understand the machinery behind the dashboard. From OCI artifacts to Quantization profiles.</strong></p>
 </div>
 <div class="paragraph">
-<p>To a user, the Model Catalog is a gallery. To a Platform Engineer, it is an integration engine that connects three distinct layers of the RHOAI platform:
-1. <strong>The Supply Chain:</strong> Validated external sources (Red Hat / IBM).
-2. <strong>The Artifact Store:</strong> OCI-compliant registries delivering standardized container images.
-3. <strong>The Infrastructure:</strong> The compute resources (GPUs) and runtimes required to serve the models.</p>
+<p>To a user, the Model Catalog is a gallery. To a Platform Engineer, it is an integration engine that connects three distinct layers of the RHOAI platform:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>The Supply Chain:</strong> Validated external sources (Red Hat / IBM).</p>
+</li>
+<li>
+<p><strong>The Artifact Store:</strong> OCI-compliant registries delivering standardized container images.</p>
+</li>
+<li>
+<p><strong>The Infrastructure:</strong> The compute resources (GPUs) and runtimes required to serve the models.</p>
+</li>
+</ol>
 </div>
 <div class="paragraph">
 <p>This section breaks down how these components interact to enable safe, reproducible deployments.</p>
@@ -122,10 +132,20 @@
 <p>A raw model on a public hub is a black box. A <strong>Red Hat Validated Model</strong> in the catalog is a known quantity, verified through a collaboration between Red Hat and IBM Research.</p>
 </div>
 <div class="paragraph">
-<p>Before a model appears in your catalog, it undergoes a qualification process using tools like <strong>GuideLLM</strong> and <strong>vLLM</strong> to establish:
-* <strong>Throughput &amp; Latency Baselines:</strong> Ensuring the model meets enterprise performance standards.
-* <strong>Hardware Compatibility:</strong> Verifying the model runs on specific accelerators (NVIDIA A100/H100, AMD MI300).
-* <strong>Security Scanning:</strong> Checking for malicious code injection in the model weights.</p>
+<p>Before a model appears in your catalog, it undergoes a qualification process using tools like <strong>GuideLLM</strong> and <strong>vLLM</strong> to establish:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Throughput &amp; Latency Baselines:</strong> Ensuring the model meets enterprise performance standards.</p>
+</li>
+<li>
+<p><strong>Hardware Compatibility:</strong> Verifying the model runs on specific accelerators (NVIDIA A100/H100, AMD MI300).</p>
+</li>
+<li>
+<p><strong>Security Scanning:</strong> Checking for malicious code injection in the model weights.</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
