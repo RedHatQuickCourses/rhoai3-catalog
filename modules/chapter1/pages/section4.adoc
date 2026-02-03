@@ -1,4 +1,4 @@
-= The Model Catalog: From Choice Overload to Confident Deployment
+= Delete this section
 :navtitle: Introduction & Value
 :toc: macro
 

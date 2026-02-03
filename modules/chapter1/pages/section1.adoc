@@ -10,9 +10,10 @@
 *Understand the machinery behind the dashboard. From OCI artifacts to Quantization profiles.*
 
 To a user, the Model Catalog is a gallery. To a Platform Engineer, it is an integration engine that connects three distinct layers of the RHOAI platform:
-1. **The Supply Chain:** Validated external sources (Red Hat / IBM).
-2. **The Artifact Store:** OCI-compliant registries delivering standardized container images.
-3. **The Infrastructure:** The compute resources (GPUs) and runtimes required to serve the models.
+ 
+ 1. **The Supply Chain:** Validated external sources (Red Hat / IBM).
+ 2. **The Artifact Store:** OCI-compliant registries delivering standardized container images.
+ 3. **The Infrastructure:** The compute resources (GPUs) and runtimes required to serve the models.
 
 This section breaks down how these components interact to enable safe, reproducible deployments.
 
@@ -21,9 +22,10 @@ This section breaks down how these components interact to enable safe, reproduci
 A raw model on a public hub is a black box. A **Red Hat Validated Model** in the catalog is a known quantity, verified through a collaboration between Red Hat and IBM Research.
 
 Before a model appears in your catalog, it undergoes a qualification process using tools like **GuideLLM** and **vLLM** to establish:
-* **Throughput & Latency Baselines:** Ensuring the model meets enterprise performance standards.
-* **Hardware Compatibility:** Verifying the model runs on specific accelerators (NVIDIA A100/H100, AMD MI300).
-* **Security Scanning:** Checking for malicious code injection in the model weights.
+
+ * **Throughput & Latency Baselines:** Ensuring the model meets enterprise performance standards.
+ * **Hardware Compatibility:** Verifying the model runs on specific accelerators (NVIDIA A100/H100, AMD MI300).
+ * **Security Scanning:** Checking for malicious code injection in the model weights.
 
 == 2. The Artifact Layer: ModelCars (OCI)
 
@@ -31,12 +33,12 @@ The most significant architectural shift in the RHOAI Model Catalog is the move 
 
 A **ModelCar** is a Large Language Model (LLM) packaged as an OCI (Open Container Initiative) image. It treats model weights exactly like software binaries.
 
-* **Structure:** The model weights (safetensors, GGUF) are stored in the `root` layer of a container image.
-* **Delivery:** When a user deploys a model, the cluster pulls this image from `registry.redhat.io` using standard container runtimes (CRI-O).
-* **Operational Benefit:**
-** **Deduplication:** Updates to a model family often share base layers, reducing storage costs.
-** **Caching:** Once a node pulls a 70B model, it is cached locally. Subsequent deployments on that node are near-instant.
-** **Security:** You can scan a ModelCar for vulnerabilities using the same tools (ACS/StackRox) you use for application images.
+ * **Structure:** The model weights (safetensors, GGUF) are stored in the `root` layer of a container image.
+ * **Delivery:** When a user deploys a model, the cluster pulls this image from `registry.redhat.io` using standard container runtimes (CRI-O).
+ * **Operational Benefit:**
+ ** **Deduplication:** Updates to a model family often share base layers, reducing storage costs.
+ ** **Caching:** Once a node pulls a 70B model, it is cached locally. Subsequent deployments on that node are near-instant.
+ ** **Security:** You can scan a ModelCar for vulnerabilities using the same tools (ACS/StackRox) you use for application images.
 
 == 3. Quantization Strategies (The "Hardware Fit" Engine)
 
@@ -65,17 +67,18 @@ The catalog uses specific naming conventions to help you align models with your 
 
 When a user clicks "Deploy," the catalog acts as a translator. It converts the high-level intent ("I want Granite 3.0") into low-level Kubernetes resources:
 
-1.  **InferenceService:** The KServe CRD that defines the service.
-2.  **ServingRuntime:** The engine (e.g., vLLM, TGIS) optimized for that specific model family.
-3.  **Resource Limits:** The CPU/Memory/GPU requests derived from the hardware profile.
+ 1.  **InferenceService:** The KServe CRD that defines the service.
+ 2.  **ServingRuntime:** The engine (e.g., vLLM, TGIS) optimized for that specific model family.
+ 3.  **Resource Limits:** The CPU/Memory/GPU requests derived from the hardware profile.
 
 This automated translation eliminates the "drift" that occurs when engineers manually copy-paste YAML files.
 
 [NOTE]
 .Architecture Decision: Catalog vs. Registry
 ====
-* **The Model Catalog** is your **Inbound Supply Chain**. It is for bringing third-party, verified assets into your environment.
-* **The Model Registry** is your **Outbound Asset Library**. It is for versioning the models you have fine-tuned or specifically approved for production application use.
+
+ * **The Model Catalog** is your **Inbound Supply Chain**. It is for bringing third-party, verified assets into your environment.
+ * **The Model Registry** is your **Outbound Asset Library**. It is for versioning the models you have fine-tuned or specifically approved for production application use.
 ====
 
 ---
