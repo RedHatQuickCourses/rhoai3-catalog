@@ -15,31 +15,16 @@ In **Red Hat OpenShift AI (RHOAI)**, the Model Catalog functions as a centralize
 
 This guide outlines how the Model Catalog accelerates the path from "selection" to "serving" by providing performance baselines, hardware-aligned quantization, and standardized deployment mechanics.
 
-== 1. Validated Performance (Risk Reduction)
+== The Solution: The Model Catalog
 
-The primary value of the Model Catalog is the removal of integration guesswork. Unlike public repositories where models are uploaded "as-is," the **Red Hat Validated Models** available in the catalog undergo a rigorous qualification process using tools like GuideLLM and vLLM.
+In **Red Hat OpenShift AI (RHOAI) 3.2**, the Model Catalog is the centralized discovery hub for Generative AI models.
 
-* **Hardware Alignment:** Models are explicitly verified to run on specific accelerator profiles (e.g., NVIDIA A100/H100, AMD MI300).
-* **Performance Baselines:** Red Hat provides metrics for throughput and latency, allowing you to evaluate if a model fits your Service Level Objectives (SLOs) *before* you commit resources.
-* **Quantization Clarity:** The catalog provides specific quantized variants (e.g., `w4a16`, `w8a8`, `FP8`) to match your available VRAM. This prevents the common failure mode of deploying a 70B parameter model to a GPU that physically cannot hold its weights.
+It is not a replacement for the Model Registry.
 
-== 2. Optimized Artifact Delivery (ModelCars)
+* **Model Catalog**: *Find and choose* models that are validated and deployment-ready.
+* **Model Registry**: *Track and govern* the specific models your organization has selected, versioned, and promoted through environments.
 
-Operational efficiency depends on how massive model weights are distributed to your cluster. The Model Catalog prioritizes **ModelCars**—models packaged as OCI (Open Container Initiative) artifacts stored in enterprise registries (like `registry.redhat.io`).
-
-Using ModelCars enables standard container workflow benefits for Large Language Models:
-
-* **Layer Deduplication:** Reduces storage costs and network bandwidth when deploying updated versions of the same model family.
-* **Faster Startup:** Leveraging container image pull secrets and node-level caching significantly improves "Time-to-Ready" for inference services compared to downloading raw object files at runtime.
-* **Security & Governance:** You can apply standard container scanning and signing policies to model artifacts, treating them exactly like software binaries.
-
-== 3. The Deployment Wizard: Reducing Configuration Drift
-
-Manually configuring KServe InferenceServices requires precise alignment between the serving runtime, storage URI, and resource requests. The Model Catalog includes a **deployment wizard** that automates this configuration to prevent drift.
-
-* **Sensible Defaults:** The wizard pre-populates runtime arguments and environment variables known to work for the specific model variant.
-* **Hardware Profile Integration:** It automatically filters for compatible hardware profiles, preventing deployments that are destined to fail due to resource mismatches.
-* **Repeatability:** It enforces a standardized deployment structure, ensuring that every engineer on the team deploys models using the same architectural pattern.
+The catalog is the “showroom.” The registry is the “title office.”
 
 [NOTE]
 .Context: Catalog vs. Registry
@@ -50,12 +35,13 @@ While similar in name, these components serve distinct phases of the lifecycle:
 * **The Model Registry** is for **Outbound Control**: Versioning and governing the proprietary models your team creates, tunes, or adopts for the long term.
 ====
 
-== What You Will Learn
+
+== What You Will Do
 
 This module is designed to help you operationalize the Model Catalog within your RHOAI environment. You will learn to:
 
 1.  **Navigate the Architecture:** Understand how the catalog sources data and how it integrates with ModelCars (OCI).
-2.  **Deploy with Precision:** Use the deployment wizard to launch a validated model (e.g., Granite, Mistral), ensuring correct alignment of hardware profiles and runtimes.
+2.  **Deploy with Precision:** Use the deployment wizard to launch a validated model (e.g., Granite, Mistral), ensuring correct alignment of hardware profiles and runtimes. (arcade simulation)
 3.  **Configure & Curate:** Administer the catalog by managing `ConfigMap` sources to control which models are visible to your users.
 4.  **Troubleshoot:** Address common operational constraints, such as Kubernetes naming limits and storage configuration issues.
 
