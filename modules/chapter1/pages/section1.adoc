@@ -60,7 +60,7 @@ The catalog uses specific naming conventions to help you align models with your 
 | **High Performance.** Designed for modern accelerators (NVIDIA H100, Ada Lovelace) that have native FP8 support. Offers the best balance of speed and accuracy if your hardware supports it.
 |===
 
-* **Why this matters:** The catalog uses this metadata to filter the "Hardware Profile" list in the deployment wizard, preventing users from trying to deploy an FP8 model on older hardware that doesn't support it.
+**Why this matters:** The catalog uses this metadata to filter the "Hardware Profile" list in the deployment wizard, preventing users from trying to deploy an FP8 model on older hardware that doesn't support it.
 
 == 4. Reducing Configuration Drift
 

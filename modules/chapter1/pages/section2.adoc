@@ -1,100 +1,126 @@
-= Lab: Using the Deployment Wizard Safely
-:navtitle: The Deployment Wizard
+= Lab: Injecting a Custom Source (The CLI Way)
+:navtitle: Lab: Custom Source Injection
 :toc: macro
 
 // Antora metadata
 :page-role: hands-on-lab
-:description: A step-by-step guide to deploying validated models using the RHOAI wizard, applying operational guardrails for naming and storage.
+:description: Hands-on guide to registering a private model source in the RHOAI Model Catalog using CLI and ConfigMaps.
 
 [.lead]
-*A fast deployment is only valuable if it is repeatable.*
+*We don't click buttons to add infrastructure. We apply code.*
 
-In this lab, you will deploy a validated model from the **Model Catalog** using the RHOAI 3.2 deployment wizard. Unlike a manual `kubectl apply` of a raw KServe YAML, the wizard enforces consistency—but it still requires operator judgment to avoid common platform constraints.
+In this lab, you will simulate the workflow of a Platform Engineer at "Acme Corp." Your data science team has fine-tuned a model (`Acme-Finance-7B`) and stored it in a private S3 bucket.
 
-You will select a model, align it with a hardware profile, and apply specific guardrails to prevent downstream DNS and storage errors.
+Your task is to register this private model into the global **Model Catalog** so that authorized developers can deploy it using the standard wizard—without them knowing (or caring) that it comes from a private bucket.
 
-[IMPORTANT]
-.Prerequisites
-====
-* Access to the OpenShift AI 3.2 Dashboard.
-* A Data Science Project created (e.g., `my-llm-project`).
-* **Critical:** A pre-existing Data Connection (S3/Minio) in that project (required to unlock storage options in the wizard).
-====
+== Prerequisites
+* Access to the cluster with `cluster-admin` (or edit rights in `rhoai-model-registries`).
+* The `oc` CLI tool.
 
-== Step 1: Filter and Select
+== Step 1: Define the Catalog Manifests
 
-The catalog view can be noisy. Use the filters to isolate validated, hardware-optimized assets.
+We need to construct two objects to inject into the `model-catalog-sources` ConfigMap:
+1.  **The Source Registration:** Tells the catalog *where* to look for metadata.
+2.  **The Model Metadata:** The actual card data (Architecture, Quantization, URI).
 
-1.  Navigate to **AI Hub -> Model Catalog**.
-2.  In the filter sidebar, select:
-    * **Provider:** Red Hat (to see validated models).
-    * **Model Family:** Select `Granite` or `Mistral` (depending on available inventory).
-3.  **Select the Variant:** Click on a model card (e.g., `granite-3.1-8b-instruct`).
-
-[NOTE]
-.Operational Tip: Check the Source
-====
-Inspect the **Product Version** or **Source** field in the model card.
-* If it references `registry.redhat.io`, this is a **ModelCar (OCI)**. It will pull fast and cache efficiently.
-* If it references a URL, it may be a direct download (slower startup).
-====
-
-== Step 2: Configure the Runtime (The Wizard)
-
-Click **Deploy** to enter the configuration flow.
-
-=== 1. Project Selection
-Select your target Data Science Project.
-
-=== 2. Guardrail A: Name Length
-The wizard auto-generates a name based on the model. **You must truncate this.**
-
-* **The Constraint:** Kubernetes DNS labels have a strict 63-character limit. KServe appends suffixes (e.g., `-predictor-default`) to creating service names.
-* **The Risk:** If the model name is ~50 chars, the appended suffix will break the deployment limit, causing a silent failure in the Service Mesh.
-* **The Action:** Rename the deployment to something short.
-    * *Bad:* `granite-3-1-8b-instruct-quantized-w4a16`
-    * *Good:* `granite-8b-lab`
-
-=== 3. Guardrail B: Storage & Connection
-* **Scenario:** You see the "Model Location" section.
-* **The Trap:** If you created a new project but *did not* create a Data Connection, the wizard may lock you into "New Data Connection" mode or fail to list "Existing Cluster Storage."
-* **The Fix:** Ensure you have a valid S3/Object Store connection selected. This is where the model (if not a ModelCar) would be downloaded to, or where the serving runtime will look for configuration.
-
-== Step 3: Align Hardware Profiles
-
-This is the most critical step for system stability.
-
-1.  Look for the **Compute resources** section.
-2.  **Hardware Profile:** Select the profile that matches the model's quantization.
-    * For a `.w4a16` model, a standard GPU profile (e.g., NVIDIA L4 or A10g) is sufficient.
-    * For `.FP8` models, ensure you select a profile backed by NVIDIA H100 or compatible Ada Lovelace nodes.
-3.  **Review Limits:** The wizard will pre-fill CPU and Memory requests. *Do not lower these below the recommended defaults* unless you have strictly tested the memory pressure.
-
-== Step 4: Validate the Deployment
-
-Click **Deploy**. You will be redirected to the Model Serving page.
-
-Do not trust the "Green Checkmark" immediately. Verify the infrastructure state:
-
-1.  **Check the Status:** Wait for the status to turn from "Deploying" to "Loaded" (Green).
-2.  **Verify the Endpoint:** Copy the Inference Endpoint URL.
-3.  **CLI Validation:** Run the following to confirm the Pod is stable and not crashing due to OOM (Out of Memory):
+Run the following command in your terminal to create the catalog definition file locally:
 
 [source,bash]
 ----
-# Replace with your project name
-oc get pods -n my-llm-project
+cat <<EOF > acme-catalog.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: model-catalog-sources
+  namespace: rhoai-model-registries
+  labels:
+    model.catalog.sources: "true"
+data:
+  # 1. Register the new "file" source
+  sources.yaml: |
+    sources:
+      - name: acme-corp-private
+        displayName: "Acme Corp Private Models"
+        description: "Internal fine-tuned models for Finance and HR applications."
+        sourceURI: "file:///etc/model-catalog-source/acme-models.yaml"
 
-# Check for restarts (indicates OOM or config errors)
-oc get pods -n my-llm-project -o wide
+  # 2. Define the Model Metadata (The "Card")
+  acme-models.yaml: |
+    apiVersion: modelregistry.opendatahub.io/v1alpha1
+    kind: ModelRegistry
+    metadata:
+      name: acme-finance-7b
+    spec:
+      models:
+        - name: "Acme-Finance-7B"
+          displayName: "Acme Finance 7B (v1.2)"
+          description: "Fine-tuned on quarterly reports. Optimized for summarization."
+          provider: "Acme AI Lab"
+          version: "1.2.0"
+          tags: ["finance", "summarization", "internal"]
+          
+          # The Critical Part: Pointing to Private Storage
+          model_files:
+            - name: "safetensors-w4a16"
+              size: "4GB"
+              quantization: "w4a16"
+              uri: "s3://acme-private-models/finance-7b/v1.2/"
+          
+          # Hardware Requirements (The Guardrails)
+          hardware_profile:
+            - "nvidia.com/gpu" 
+EOF
 ----
 
-== Summary of Configuration
+[NOTE]
+.The "Industrialized" Concept
+====
+In a real production environment, this `acme-models.yaml` would likely be a file in a Git repository. The `sources.yaml` would point to that Git URL (e.g., `https://github.com/acme/catalog/archive/main.zip`).
 
-You have successfully:
-1.  Selected a verified asset from the catalog.
-2.  Prevented a DNS failure by shortening the resource name.
-3.  Aligned the deployment with a compatible hardware profile.
+For this lab, we are using the `file://` protocol to inject the metadata directly into the ConfigMap for immediate feedback.
+====
+
+== Step 2: Apply the Configuration
+
+Inject the new configuration into the cluster. This overwrites the existing ConfigMap with your new definition.
+
+[source,bash]
+----
+oc apply -f acme-catalog.yaml
+----
+
+*Expected Output:*
+`configmap/model-catalog-sources configured`
+
+== Step 3: Force a Catalog Refresh
+
+The Model Catalog service caches the configuration on startup. To see your changes immediately, you must restart the pod.
+
+[source,bash]
+----
+# 1. Delete the existing pod to force a rollout
+oc delete pod -l component=model-catalog -n rhoai-model-registries
+
+# 2. Wait for the new pod to be Ready
+oc wait --for=condition=Ready pod -l component=model-catalog -n rhoai-model-registries --timeout=60s
+----
+
+== Step 4: Verification (The "Arcade" Moment)
+
+Now that the backend is configured, the frontend should reflect the new reality.
+
+1.  Open the **OpenShift AI Dashboard**.
+2.  Navigate to **Model Catalog**.
+3.  In the **Provider** filter on the left, you should now see a new checkbox: **"Acme AI Lab"**.
+4.  Select it. You will see the **"Acme Finance 7B"** card.
+5.  Click the card. Verify that the **Model Location** points to your private S3 URI (`s3://acme-private-models...`).
+
+== Summary of Actions
+
+You successfully performed a "Day 2" operation:
+* **Bypassed the UI** to modify the platform configuration as code.
+* **Injected a custom source** (`acme-models.yaml`) representing a private asset.
+* **Operationalized the change** by reloading the service.
 
 ---
-*Next: Now that the model is running, we will look at how to Administer the Catalog (hiding/showing sources).*
+*Next: We will conclude the module by reviewing the Audit and Governance implications.*

@@ -11,9 +11,9 @@
 
 The Model Catalog is enabled by default, but it is not "set and forget." As a Platform Engineer, you own the curation of this surface. You decide which sources are visible, how the catalog handles maintenance windows, and how to resolve infrastructure conflicts.
 
-This section covers the administrative primitives (ConfigMaps, CRDs) and the "Break-Glass" troubleshooting procedures for RHOAI 3.2.
+This section covers the administrative primitives (ConfigMaps, CRDs) and the "Break-Glass" troubleshooting procedures for RHOAI 3.x.
 
-== 1. Controlling Visibility (The "Kill Switch")
+== Controlling Visibility (The "Kill Switch")
 
 There are scenarios—migrations, upgrades, or security audits—where you need to temporarily disable user access to the catalog. You control this via the `OdhDashboardConfig` resource.
 
@@ -30,7 +30,7 @@ oc patch odhdashboardconfig odh-dashboard-config \
 
 **To restore access:** Set `disableModelCatalog` back to `false`.
 
-== 2. Configuring Sources (Curation as Code)
+== Configuring Sources (Curation as Code)
 
 The catalog is not hardcoded; it aggregates sources defined in a Kubernetes ConfigMap. This allows you to manage your catalog sources via GitOps.
 
@@ -58,7 +58,8 @@ sources:
 [NOTE]
 .The Reload Process
 ====
-The catalog service caches these sources. After editing the ConfigMap, you must force a reload by deleting the catalog pods:
+The catalog service caches these sources. Waiting 30 seconds is usually enought time load new config with manual intervention. After editing the ConfigMap, you can force a reload by deleting the catalog pods:
+
 `oc delete pod -l component=model-catalog -n rhoai-model-registries`
 ====
 
@@ -67,7 +68,7 @@ The catalog service caches these sources. After editing the ConfigMap, you must 
 These are the three most common failure modes encountered by platform engineers in the current release.
 
 === Issue A: The Upgrade Hang ("Request access to model catalog")
-* **Symptom:** After upgrading from RHOAI 2.x to 3.2, the Catalog UI is blank and displays an error: *"Request access to model catalog."*
+* **Symptom:** After upgrading from RHOAI 2.x to 3.3x, the Catalog UI is blank and displays an error: *"Request access to model catalog."*
 * **Root Cause:** The `model-catalog-sources` ConfigMap structure changed between versions, and the upgrade operator did not cleanly reconcile the old state.
 * **The Fix:** Force a regeneration of the default configuration.
 
