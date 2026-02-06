@@ -131,9 +131,17 @@
 <h2 id="_step_1_define_the_catalog_manifests"><a class="anchor" href="#_step_1_define_the_catalog_manifests"></a>Step 1: Define the Catalog Manifests</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>We need to construct two objects to inject into the <code>model-catalog-sources</code> ConfigMap:
-1.  <strong>The Source Registration:</strong> Tells the catalog <strong>where</strong> to look for metadata.
-2.  <strong>The Model Metadata:</strong> The actual card data (Architecture, Quantization, URI).</p>
+<p>We need to construct two objects to inject into the <code>model-catalog-sources</code> ConfigMap:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>The Source Registration:</strong> Tells the catalog <strong>where</strong> to look for metadata.</p>
+</li>
+<li>
+<p><strong>The Model Metadata:</strong> The actual card data (Architecture, Quantization, URI).</p>
+</li>
+</ol>
 </div>
 <div class="paragraph">
 <p>Run the following command in your terminal to create the catalog definition file locally:</p>
@@ -151,37 +159,33 @@ metadata:
 data:
   # 1. Register the new "file" source
   sources.yaml: |
-    sources:
-      - name: acme-corp-private
-        displayName: "Acme Corp Private Models"
-        description: "Internal fine-tuned models for Finance and HR applications."
-        sourceURI: "file:///etc/model-catalog-source/acme-models.yaml"
+    catalogs:
+      - name: "acme-corp-private"
+        id: "Acme Corp Private Models"
+        type: "yaml"
+        properties:
+          yamlCatalogPath: "/data/user-sources/acme-models.yaml"
 
   # 2. Define the Model Metadata (The "Card")
-  acme-models.yaml: |
-    apiVersion: modelregistry.opendatahub.io/v1alpha1
-    kind: ModelRegistry
-    metadata:
-      name: acme-finance-7b
-    spec:
-      models:
-        - name: "Acme-Finance-7B"
-          displayName: "Acme Finance 7B (v1.2)"
-          description: "Fine-tuned on quarterly reports. Optimized for summarization."
-          provider: "Acme AI Lab"
-          version: "1.2.0"
-          tags: ["finance", "summarization", "internal"]
+  acme-models.yaml:
+    models:
+      - name: "Acme-Finance-7B"
+        displayName: "Acme Finance 7B (v1.2)"
+        description: "Fine-tuned on quarterly reports. Optimized for summarization."
+        provider: "Acme AI Lab"
+        version: "1.2.0"
+        tags: ["finance", "summarization", "internal"]
 
           # The Critical Part: Pointing to Private Storage
-          model_files:
-            - name: "safetensors-w4a16"
-              size: "4GB"
-              quantization: "w4a16"
-              uri: "s3://acme-private-models/finance-7b/v1.2/"
+        model_files:
+          - name: "safetensors-w4a16"
+            size: "4GB"
+            quantization: "w4a16"
+            uri: "s3://acme-private-models/finance-7b/v1.2/"
 
           # Hardware Requirements (The Guardrails)
-          hardware_profile:
-            - "nvidia.com/gpu"
+        hardware_profile:
+          - "nvidia.com/gpu"
 EOF</code></pre>
 </div>
 </div>
@@ -197,7 +201,7 @@ EOF</code></pre>
 <p>In a real production environment, this <code>acme-models.yaml</code> would likely be a file in a Git repository. The <code>sources.yaml</code> would point to that Git URL (e.g., <code><a href="https://github.com/acme/catalog/archive/main.zip" class="bare">https://github.com/acme/catalog/archive/main.zip</a></code>).</p>
 </div>
 <div class="paragraph">
-<p>For this lab, we are using the <code>file://</code> protocol to inject the metadata directly into the ConfigMap for immediate feedback.</p>
+<p>For this lab, we are using storing the .yaml files directly into the ConfigMap.</p>
 </div>
 </td>
 </tr>
@@ -270,10 +274,20 @@ oc wait --for=condition=Ready pod -l component=model-catalog -n rhoai-model-regi
 <h2 id="_summary_of_actions"><a class="anchor" href="#_summary_of_actions"></a>Summary of Actions</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>You successfully performed a "Day 2" operation:
-* <strong>Bypassed the UI</strong> to modify the platform configuration as code.
-* <strong>Injected a custom source</strong> (<code>acme-models.yaml</code>) representing a private asset.
-* <strong>Operationalized the change</strong> by reloading the service.</p>
+<p>You successfully performed a "Day 2" operation:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Bypassed the UI</strong> to modify the platform configuration as code.</p>
+</li>
+<li>
+<p><strong>Injected a custom source</strong> (<code>acme-models.yaml</code>) representing a private asset.</p>
+</li>
+<li>
+<p><strong>Operationalized the change</strong> by reloading the service.</p>
+</li>
+</ul>
 </div>
 <hr>
 <div class="paragraph">
