@@ -144,6 +144,27 @@
 </li>
 <li>
 <p><strong>Security Scanning:</strong> Checking for malicious code injection in the model weights.</p>
+<div class="literalblock">
+<div class="content">
+<pre>== 1. Validated Performance (Risk Reduction)</pre>
+</div>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The primary value of the Model Catalog is the removal of integration guesswork. Unlike public repositories where models are uploaded "as-is," the <strong>Red Hat Validated Models</strong> available in the catalog undergo a rigorous qualification process using tools like GuideLLM and vLLM.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Hardware Alignment:</strong> Models are explicitly verified to run on specific accelerator profiles (e.g., NVIDIA A100/H100, AMD MI300).</p>
+</li>
+<li>
+<p><strong>Performance Baselines:</strong> Red Hat provides metrics for throughput and latency, allowing you to evaluate if a model fits your Service Level Objectives (SLOs) <strong>before</strong> you commit resources.</p>
+</li>
+<li>
+<p><strong>Quantization Clarity:</strong> The catalog provides specific quantized variants (e.g., <code>w4a16</code>, <code>w8a8</code>, <code>FP8</code>) to match your available VRAM. This prevents the common failure mode of deploying a 70B parameter model to a GPU that physically cannot hold its weights.</p>
 </li>
 </ul>
 </div>
@@ -178,9 +199,33 @@
 </li>
 <li>
 <p><strong>Security:</strong> You can scan a ModelCar for vulnerabilities using the same tools (ACS/StackRox) you use for application images.</p>
+<div class="literalblock">
+<div class="content">
+<pre>== 2. Optimized Artifact Delivery (ModelCars)</pre>
+</div>
+</div>
 </li>
 </ul>
 </div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Operational efficiency depends on how massive model weights are distributed to your cluster. The Model Catalog prioritizes <strong>ModelCars</strong>—models packaged as OCI (Open Container Initiative) artifacts stored in enterprise registries (like <code>registry.redhat.io</code>).</p>
+</div>
+<div class="paragraph">
+<p>Using ModelCars enables standard container workflow benefits for Large Language Models:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Layer Deduplication:</strong> Reduces storage costs and network bandwidth when deploying updated versions of the same model family.</p>
+</li>
+<li>
+<p><strong>Faster Startup:</strong> Leveraging container image pull secrets and node-level caching significantly improves "Time-to-Ready" for inference services compared to downloading raw object files at runtime.</p>
+</li>
+<li>
+<p><strong>Security &amp; Governance:</strong> You can apply standard container scanning and signing policies to model artifacts, treating them exactly like software binaries.</p>
 </li>
 </ul>
 </div>
@@ -227,6 +272,27 @@
 <ul>
 <li>
 <p><strong>Why this matters:</strong> The catalog uses this metadata to filter the "Hardware Profile" list in the deployment wizard, preventing users from trying to deploy an FP8 model on older hardware that doesn&#8217;t support it.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_3_the_deployment_wizard_reducing_configuration_drift"><a class="anchor" href="#_3_the_deployment_wizard_reducing_configuration_drift"></a>3. The Deployment Wizard: Reducing Configuration Drift</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Manually configuring KServe InferenceServices requires precise alignment between the serving runtime, storage URI, and resource requests. The Model Catalog includes a <strong>deployment wizard</strong> that automates this configuration to prevent drift.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Sensible Defaults:</strong> The wizard pre-populates runtime arguments and environment variables known to work for the specific model variant.</p>
+</li>
+<li>
+<p><strong>Hardware Profile Integration:</strong> It automatically filters for compatible hardware profiles, preventing deployments that are destined to fail due to resource mismatches.</p>
+</li>
+<li>
+<p><strong>Repeatability:</strong> It enforces a standardized deployment structure, ensuring that every engineer on the team deploys models using the same architectural pattern.</p>
 </li>
 </ul>
 </div>
