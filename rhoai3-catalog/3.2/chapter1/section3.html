@@ -108,12 +108,12 @@
 <p>The Model Catalog is enabled by default, but it is not "set and forget." As a Platform Engineer, you own the curation of this surface. You decide which sources are visible, how the catalog handles maintenance windows, and how to resolve infrastructure conflicts.</p>
 </div>
 <div class="paragraph">
-<p>This section covers the administrative primitives (ConfigMaps, CRDs) and the "Break-Glass" troubleshooting procedures for RHOAI 3.2.</p>
+<p>This section covers the administrative primitives (ConfigMaps, CRDs) and the "Break-Glass" troubleshooting procedures for RHOAI 3.x.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_1_controlling_visibility_the_kill_switch"><a class="anchor" href="#_1_controlling_visibility_the_kill_switch"></a>1. Controlling Visibility (The "Kill Switch")</h2>
+<h2 id="_controlling_visibility_the_kill_switch"><a class="anchor" href="#_controlling_visibility_the_kill_switch"></a>Controlling Visibility (The "Kill Switch")</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>There are scenarios—migrations, upgrades, or security audits—where you need to temporarily disable user access to the catalog. You control this via the <code>OdhDashboardConfig</code> resource.</p>
@@ -136,7 +136,7 @@ oc patch odhdashboardconfig odh-dashboard-config \
 </div>
 </div>
 <div class="sect1">
-<h2 id="_2_configuring_sources_curation_as_code"><a class="anchor" href="#_2_configuring_sources_curation_as_code"></a>2. Configuring Sources (Curation as Code)</h2>
+<h2 id="_configuring_sources_curation_as_code"><a class="anchor" href="#_configuring_sources_curation_as_code"></a>Configuring Sources (Curation as Code)</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>The catalog is not hardcoded; it aggregates sources defined in a Kubernetes ConfigMap. This allows you to manage your catalog sources via GitOps.</p>
@@ -182,8 +182,10 @@ oc patch odhdashboardconfig odh-dashboard-config \
 <td class="content">
 <div class="title">The Reload Process</div>
 <div class="paragraph">
-<p>The catalog service caches these sources. After editing the ConfigMap, you must force a reload by deleting the catalog pods:
-<code>oc delete pod -l component=model-catalog -n rhoai-model-registries</code></p>
+<p>The catalog service caches these sources. Waiting 30 seconds is usually enought time load new config with manual intervention. After editing the ConfigMap, you can force a reload by deleting the catalog pods:</p>
+</div>
+<div class="paragraph">
+<p><code>oc delete pod -l component=model-catalog -n rhoai-model-registries</code></p>
 </div>
 </td>
 </tr>
@@ -203,7 +205,7 @@ oc patch odhdashboardconfig odh-dashboard-config \
 <div class="ulist">
 <ul>
 <li>
-<p><strong>Symptom:</strong> After upgrading from RHOAI 2.x to 3.2, the Catalog UI is blank and displays an error: <strong>"Request access to model catalog."</strong></p>
+<p><strong>Symptom:</strong> After upgrading from RHOAI 2.x to 3.3x, the Catalog UI is blank and displays an error: <strong>"Request access to model catalog."</strong></p>
 </li>
 <li>
 <p><strong>Root Cause:</strong> The <code>model-catalog-sources</code> ConfigMap structure changed between versions, and the upgrade operator did not cleanly reconcile the old state.</p>
