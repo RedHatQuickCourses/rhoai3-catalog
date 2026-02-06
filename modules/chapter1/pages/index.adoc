@@ -1,4 +1,4 @@
-= The Model Catalog: Operationalizing Model Selection
+= Operationalizing Model Selection
 :navtitle: Introduction & Value
 :toc: macro
 
@@ -17,7 +17,7 @@ This guide outlines how the Model Catalog accelerates the path from "selection" 
 
 == The Solution: The Model Catalog
 
-In **Red Hat OpenShift AI (RHOAI) 3.2**, the Model Catalog is the centralized discovery hub for Generative AI models.
+In **Red Hat OpenShift AI (RHOAI) 3.x**, the Model Catalog is the centralized discovery hub for Generative AI models.
 
 It is not a replacement for the Model Registry.
 
