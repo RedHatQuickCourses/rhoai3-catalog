@@ -20,8 +20,9 @@ Your task is to register this private model into the global **Model Catalog** so
 == Step 1: Define the Catalog Manifests
 
 We need to construct two objects to inject into the `model-catalog-sources` ConfigMap:
-1.  **The Source Registration:** Tells the catalog *where* to look for metadata.
-2.  **The Model Metadata:** The actual card data (Architecture, Quantization, URI).
+
+ 1.  **The Source Registration:** Tells the catalog *where* to look for metadata.
+ 2.  **The Model Metadata:** The actual card data (Architecture, Quantization, URI).
 
 Run the following command in your terminal to create the catalog definition file locally:
 
@@ -38,37 +39,33 @@ metadata:
 data:
   # 1. Register the new "file" source
   sources.yaml: |
-    sources:
-      - name: acme-corp-private
-        displayName: "Acme Corp Private Models"
-        description: "Internal fine-tuned models for Finance and HR applications."
-        sourceURI: "file:///etc/model-catalog-source/acme-models.yaml"
+    catalogs:
+      - name: "acme-corp-private"
+        id: "Acme Corp Private Models"
+        type: "yaml"
+        properties:
+          yamlCatalogPath: "/data/user-sources/acme-models.yaml"
 
   # 2. Define the Model Metadata (The "Card")
-  acme-models.yaml: |
-    apiVersion: modelregistry.opendatahub.io/v1alpha1
-    kind: ModelRegistry
-    metadata:
-      name: acme-finance-7b
-    spec:
-      models:
-        - name: "Acme-Finance-7B"
-          displayName: "Acme Finance 7B (v1.2)"
-          description: "Fine-tuned on quarterly reports. Optimized for summarization."
-          provider: "Acme AI Lab"
-          version: "1.2.0"
-          tags: ["finance", "summarization", "internal"]
+  acme-models.yaml:
+    models:
+      - name: "Acme-Finance-7B"
+        displayName: "Acme Finance 7B (v1.2)"
+        description: "Fine-tuned on quarterly reports. Optimized for summarization."
+        provider: "Acme AI Lab"
+        version: "1.2.0"
+        tags: ["finance", "summarization", "internal"]
           
           # The Critical Part: Pointing to Private Storage
-          model_files:
-            - name: "safetensors-w4a16"
-              size: "4GB"
-              quantization: "w4a16"
-              uri: "s3://acme-private-models/finance-7b/v1.2/"
+        model_files:
+          - name: "safetensors-w4a16"
+            size: "4GB"
+            quantization: "w4a16"
+            uri: "s3://acme-private-models/finance-7b/v1.2/"
           
           # Hardware Requirements (The Guardrails)
-          hardware_profile:
-            - "nvidia.com/gpu" 
+        hardware_profile:
+          - "nvidia.com/gpu" 
 EOF
 ----
 
@@ -77,7 +74,7 @@ EOF
 ====
 In a real production environment, this `acme-models.yaml` would likely be a file in a Git repository. The `sources.yaml` would point to that Git URL (e.g., `https://github.com/acme/catalog/archive/main.zip`).
 
-For this lab, we are using the `file://` protocol to inject the metadata directly into the ConfigMap for immediate feedback.
+For this lab, we are using storing the .yaml files directly into the ConfigMap.
 ====
 
 == Step 2: Apply the Configuration
@@ -118,9 +115,10 @@ Now that the backend is configured, the frontend should reflect the new reality.
 == Summary of Actions
 
 You successfully performed a "Day 2" operation:
-* **Bypassed the UI** to modify the platform configuration as code.
-* **Injected a custom source** (`acme-models.yaml`) representing a private asset.
-* **Operationalized the change** by reloading the service.
+
+ * **Bypassed the UI** to modify the platform configuration as code.
+ * **Injected a custom source** (`acme-models.yaml`) representing a private asset.
+ * **Operationalized the change** by reloading the service.
 
 ---
 *Next: We will conclude the module by reviewing the Audit and Governance implications.*
