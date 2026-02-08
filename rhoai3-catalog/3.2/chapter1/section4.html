@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Architecture: How the Model Catalog Works :: Red Hat OpenShift AI (RHOAI) Model Catalog</title>
+    <title>Arcade Interactive Click Through Experience :: Red Hat OpenShift AI (RHOAI) Model Catalog</title>
     <link rel="prev" href="section3.html">
     <meta name="generator" content="Antora 3.1.3">
     <link rel="stylesheet" href="../../../_/css/site.css">
@@ -39,7 +39,7 @@
   <li class="nav-item" data-depth="0">
 <ul class="nav-list">
   <li class="nav-item" data-depth="1">
-    <a class="nav-link" href="../index.html">Introduction &amp; Value</a>
+    <a class="nav-link" href="../index.html">Introduction</a>
   </li>
 </ul>
   </li>
@@ -49,13 +49,13 @@
     <a class="nav-link" href="section1.html">Architecture Deep Dive</a>
   </li>
   <li class="nav-item" data-depth="1">
-    <a class="nav-link" href="section2.html">The Deployment Wizard</a>
+    <a class="nav-link" href="section2.html">Catalog Customization</a>
   </li>
   <li class="nav-item" data-depth="1">
-    <a class="nav-link" href="section3.html">Administration &amp; Configuration</a>
+    <a class="nav-link" href="section3.html">Administration &amp; Troubleshooting</a>
   </li>
   <li class="nav-item is-current-page" data-depth="1">
-    <a class="nav-link" href="section4.html">Troubleshooting &amp; Constraints</a>
+    <a class="nav-link" href="section4.html">Catalog Simulation Arcade</a>
   </li>
 </ul>
   </li>
@@ -88,7 +88,7 @@
 <nav class="breadcrumbs" aria-label="breadcrumbs">
   <ul>
     <li><a href="../index.html">Red Hat OpenShift AI (RHOAI) Model Catalog</a></li>
-    <li><a href="section4.html">Troubleshooting &amp; Constraints</a></li>
+    <li><a href="section4.html">Catalog Simulation Arcade</a></li>
   </ul>
 </nav>
 </div>
@@ -97,7 +97,7 @@
   <div class="toc-menu"></div>
 </aside>
 <article class="doc">
-<h1 class="page">Architecture: How the Model Catalog Works</h1>
+<h1 class="page">Arcade Interactive Click Through Experience</h1>
 <div class="sect2">
 <h3 id="_1_2_catalog_click_through_with_arcade"><a class="anchor" href="#_1_2_catalog_click_through_with_arcade"></a>1.2 Catalog Click Through with Arcade</h3>
 <div class="paragraph">
@@ -124,349 +124,8 @@
 </ul>
 </div>
 </div>
-<div class="sect1">
-<h2 id="_1_catalog_vs_registry_two_different_jobs"><a class="anchor" href="#_1_catalog_vs_registry_two_different_jobs"></a>1. Catalog vs. Registry (Two Different Jobs)</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>The Model Catalog and Model Registry solve different problems:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><strong>Model Catalog:</strong> discovery and selection of validated models</p>
-</li>
-<li>
-<p><strong>Model Registry:</strong> tracking, versioning, and governance of models your organization has adopted</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>Think of it this way:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><strong>Catalog:</strong> “Which model should we choose?”</p>
-</li>
-<li>
-<p><strong>Registry:</strong> “Which exact model version did we deploy, and why?”</p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_2_whats_inside_a_catalog_model_card"><a class="anchor" href="#_2_whats_inside_a_catalog_model_card"></a>2. What’s Inside a Catalog Model Card</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Each model entry in the catalog typically includes:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><strong>Provider / family:</strong> Granite, Llama, Mistral, Qwen, Phi, etc.</p>
-</li>
-<li>
-<p><strong>Validated variants:</strong> quantized formats (INT4, INT8, FP8) appropriate for different hardware</p>
-</li>
-<li>
-<p><strong>Performance context:</strong> benchmarks and metrics verified for specific configurations</p>
-</li>
-<li>
-<p><strong>Artifacts:</strong> the actual model reference used at deployment time</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>In OpenShift AI, the artifact reference is often a <strong>ModelCar</strong> (OCI artifact).</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_3_modelcars_oci_artifacts_the_default_enterprise_distribution"><a class="anchor" href="#_3_modelcars_oci_artifacts_the_default_enterprise_distribution"></a>3. ModelCars (OCI Artifacts) — The Default “Enterprise” Distribution</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>RHOAI uses <strong>ModelCars</strong>: model artifacts packaged as OCI container images (hosted on <code>registry.redhat.io</code>).</p>
-</div>
-<div class="paragraph">
-<p>This matters operationally:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><strong>Faster cold starts:</strong> image pulls and layer caching outperform raw weight downloads.</p>
-</li>
-<li>
-<p><strong>Layer deduplication:</strong> shared layers reduce bandwidth and storage cost.</p>
-</li>
-<li>
-<p><strong>Predictable supply chain:</strong> enterprises already know how to mirror, sign, and scan container images.</p>
-</li>
-</ul>
-</div>
-<div class="admonitionblock important">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-important" title="Important"></i>
-</td>
-<td class="content">
-<div class="paragraph">
-<p>If you are using RHOAI, prefer <strong>ModelCar images</strong> over ad-hoc downloads from public hubs or raw S3 pulls whenever possible.</p>
-</div>
-</td>
-</tr>
-</table>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_4_how_catalog_selection_connects_to_deployment"><a class="anchor" href="#_4_how_catalog_selection_connects_to_deployment"></a>4. How Catalog Selection Connects to Deployment</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>In RHOAI 3.x, the catalog’s deployment workflow is optimized for speed:</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p><strong>Select a model</strong> from the catalog</p>
-</li>
-<li>
-<p><strong>Launch the deployment wizard</strong></p>
-</li>
-<li>
-<p><strong>Choose a project and a serving runtime</strong></p>
-</li>
-<li>
-<p><strong>Match hardware profiles</strong> to the model’s requirements</p>
-</li>
-<li>
-<p><strong>Deploy</strong> (creating KServe resources behind the scenes)</p>
-</li>
-</ol>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_5_integration_with_hardware_profiles_infrastructure_reality"><a class="anchor" href="#_5_integration_with_hardware_profiles_infrastructure_reality"></a>5. Integration with Hardware Profiles (Infrastructure Reality)</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>The catalog does not magically create GPUs. It must align with what your cluster can provide.</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><strong>Auto-selection:</strong> The system attempts to pick a serving runtime that matches the model type and your available hardware profiles (for example, CUDA-based runtime for NVIDIA GPUs).</p>
-</li>
-<li>
-<p><strong>Minimum requirements:</strong> some models require specific accelerator classes (A100/H100 or AMD MI300) and may only be deployable with certain quantized variants.</p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_deploy_and_validate"><a class="anchor" href="#_deploy_and_validate"></a>Deploy and Validate</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>After confirming the wizard settings, deploy the model.</p>
-</div>
-<div class="paragraph">
-<p>Validate success using both the UI and CLI:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># Check created KServe resources (names vary by UI flow)
-oc get inferenceservices -n &lt;project-namespace&gt;
-
-# Check pods and events
-oc get pods -n &lt;project-namespace&gt;
-oc get events -n &lt;project-namespace&gt; --sort-by=.lastTimestamp | tail -n 20</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_confirm_hardware_alignment"><a class="anchor" href="#_confirm_hardware_alignment"></a>Confirm Hardware Alignment</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>If you deployed to GPU:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get pods -n &lt;project-namespace&gt; -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.spec.containers[*].resources.limits.nvidia\\.com/gpu}{"\n"}{end}'</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p><strong>Expected:</strong> pods requesting GPU resources only if a GPU profile was selected.</p>
-</div>
-<hr>
-<div class="paragraph">
-<p><strong>You can now deploy quickly. Next, learn how to administer and curate what users see in the catalog.</strong></p>
-</div>
-<div class="paragraph">
-<p>==============+</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_administration_configuration_curating_the_showroom"><a class="anchor" href="#_administration_configuration_curating_the_showroom"></a>Administration &amp; Configuration (Curating the Showroom)</h2>
-<div class="sectionbody">
-<div class="paragraph lead">
-<p><strong>If users can’t trust what they see, they won’t use it.</strong></p>
-</div>
-<div class="paragraph">
-<p>The Model Catalog is enabled by default, but it is not “set and forget.”</p>
-</div>
-<div class="paragraph">
-<p>As a platform engineer or administrator, you own:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>what sources appear</p>
-</li>
-<li>
-<p>what models are promoted as “deployment-ready”</p>
-</li>
-<li>
-<p>how the catalog behaves after upgrades</p>
-</li>
-<li>
-<p>the boundary between catalog visibility and deployment permissions</p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_1_enable_disable_the_model_catalog_in_the_dashboard"><a class="anchor" href="#_1_enable_disable_the_model_catalog_in_the_dashboard"></a>1. Enable / Disable the Model Catalog in the Dashboard</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>If you need to hide the catalog UI (for example, during a migration window), update the <code>OdhDashboardConfig</code> resource.</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><strong>Hide the catalog menu:</strong> set <code>spec.dashboardConfig.disableModelCatalog</code> to <code>true</code></p>
-</li>
-</ul>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get odhdashboardconfig -n redhat-ods-applications</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc patch odhdashboardconfig odh-dashboard-config -n redhat-ods-applications --type merge -p '{
-  "spec": { "dashboardConfig": { "disableModelCatalog": true } }
-}'</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>To re-enable, set it back to <code>false</code>.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_2_configure_catalog_sources_what_users_see"><a class="anchor" href="#_2_configure_catalog_sources_what_users_see"></a>2. Configure Catalog Sources (What Users See)</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>The catalog sources are configured via a ConfigMap (file-based configuration).</p>
-</div>
-<div class="paragraph">
-<p>The key object:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><strong>Namespace:</strong> <code>rhoai-model-registries</code></p>
-</li>
-<li>
-<p><strong>ConfigMap:</strong> <code>model-catalog-sources</code></p>
-</li>
-</ul>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc get configmap model-catalog-sources -n rhoai-model-registries -o yaml</code></pre>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_source_model_two_logical_files"><a class="anchor" href="#_source_model_two_logical_files"></a>Source Model (Two Logical “Files”)</h3>
-<div class="paragraph">
-<p>Like other RHOAI components, the ConfigMap often contains two logical “files”:</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p><strong><code>sources.yaml</code></strong>: defines which catalogs are loaded</p>
-</li>
-<li>
-<p><strong><code>&lt;your-catalog&gt;.yaml</code></strong>: defines models and their artifacts</p>
-</li>
-</ol>
-</div>
-<details>
-<summary class="title">Details</summary>
-<div class="content">
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: model-catalog-sources
-  namespace: rhoai-model-registries
-data:
-  sources.yaml: |
-    catalogs:
-      - name: "Enterprise Catalog"
-        id: "enterprise-catalog"
-        type: "yaml"
-        properties:
-          yamlCatalogPath: "/data/user-sources/enterprise-models.yaml"
-
-  enterprise-models.yaml: |
-    models:
-      - name: "granite-3.x-instruct"
-        description: "Validated Granite family model (ModelCar)"
-        customProperties:
-          model_type:
-            metadataType: MetadataStringValue
-            string_value: "generative"
-          provider:
-            metadataType: MetadataStringValue
-            string_value: "IBM"
-          format:
-            metadataType: MetadataStringValue
-            string_value: "modelcar-oci"
-        artifacts:
-          - name: "model-artifact"
-            uri: "oci://registry.redhat.io/redhat-ai-services/modelcar:granite-3.x-instruct"</code></pre>
-</div>
-</div>
-</div>
-</details>
-<div class="admonitionblock important">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-important" title="Important"></i>
-</td>
-<td class="content">
-<div class="paragraph">
-<p>If you are using ModelCars, ensure your cluster can pull from <code>registry.redhat.io</code> (credentials/mirroring) as required by your environment.</p>
-</div>
-</td>
-</tr>
-</table>
-</div>
-</div>
-</div>
-</div>
 <nav class="pagination">
-  <span class="prev"><a href="section3.html">Administration &amp; Configuration</a></span>
+  <span class="prev"><a href="section3.html">Administration &amp; Troubleshooting</a></span>
 </nav>
 </article>
   </div>
