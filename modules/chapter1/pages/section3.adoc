@@ -1,104 +1,105 @@
-= Administration & Troubleshooting
-:navtitle: Admin & Troubleshooting
+= Day 2 Operations & Value Realization
+:navtitle: Ops & Summary
 :toc: macro
 
 // Antora metadata
-:page-role: platform-admin
-:description: Operational guide for configuring Model Catalog sources, managing visibility, and troubleshooting common RHOAI 3.2 failures.
+:page-role: troubleshooting-guide
+:description: A consolidated guide to Model Catalog troubleshooting, operational guardrails, and the final business value summary.
 
 [.lead]
-*If users can't trust what they see, they won't use it.*
+*A catalog that doesn't load delivers zero value. A catalog that works delivers a competitive advantage.*
 
-The Model Catalog is enabled by default, but it is not "set and forget." As a Platform Engineer, you own the curation of this surface. You decide which sources are visible, how the catalog handles maintenance windows, and how to resolve infrastructure conflicts.
+You have built the supply chain. You have learned how to inject custom sources and deploy with hardware-aligned profiles. Now, we turn to **Day 2 Operations**: keeping the lights on and articulating the value of what you have built.
 
-This section covers the administrative primitives (ConfigMaps, CRDs) and the "Break-Glass" troubleshooting procedures for RHOAI 3.x.
 
-== Controlling Visibility (The "Kill Switch")
+== 1. Managing Availability (The "Kill Switch")
 
-There are scenarios—migrations, upgrades, or security audits—where you need to temporarily disable user access to the catalog. You control this via the `OdhDashboardConfig` resource.
+There will be times—during upgrades, security audits, or huge re-indexing operations—when you need to temporarily close the showroom. You control visibility via the `OdhDashboardConfig` resource.
 
 **To hide the catalog from the UI:**
 
 [source,bash]
 ----
-# Patch the dashboard config to disable the catalog menu item
 oc patch odhdashboardconfig odh-dashboard-config \
   -n redhat-ods-applications \
   --type merge \
   -p '{"spec": {"dashboardConfig": {"disableModelCatalog": true}}}'
 ----
 
-**To restore access:** Set `disableModelCatalog` back to `false`.
+* **True:** Catalog tab disappears.
+* **False:** Catalog tab reappears.
 
-== Configuring Sources (Curation as Code)
+== 2. The Troubleshooting Playbook (RHOAI 3.2)
 
-The catalog is not hardcoded; it aggregates sources defined in a Kubernetes ConfigMap. This allows you to manage your catalog sources via GitOps.
+Even a validated platform has edge cases. These are the three most common "Gotchas" you will encounter as a Platform Engineer, and exactly how to fix them.
 
-* **Namespace:** `rhoai-model-registries`
-* **Object:** ConfigMap `model-catalog-sources`
+=== Issue A: The Upgrade Hang
 
-**To view or edit current sources:**
-[source,bash]
-----
-oc get configmap model-catalog-sources -n rhoai-model-registries -o yaml
-----
-
-=== Adding a Private Source
-You can add your own internal catalog (e.g., a curated list of fine-tuned company models) by appending a source block to this ConfigMap:
-
-[source,yaml]
-----
-sources:
-  - sourceURI: https://github.com/my-org/my-curated-catalog/archive/refs/heads/main.zip
-    name: internal-finance-models
-    displayName: "Acme Finance Models (Curated)"
-    description: "Verified models for financial sentiment analysis."
-----
-
-[NOTE]
-.The Reload Process
-====
-The catalog service caches these sources. Waiting 30 seconds is usually enought time load new config with manual intervention. After editing the ConfigMap, you can force a reload by deleting the catalog pods:
-
-`oc delete pod -l component=model-catalog -n rhoai-model-registries`
-====
-
-== 3. Troubleshooting Playbook (RHOAI 3.2)
-
-These are the three most common failure modes encountered by platform engineers in the current release.
-
-=== Issue A: The Upgrade Hang ("Request access to model catalog")
-* **Symptom:** After upgrading from RHOAI 2.x to 3.3x, the Catalog UI is blank and displays an error: *"Request access to model catalog."*
-* **Root Cause:** The `model-catalog-sources` ConfigMap structure changed between versions, and the upgrade operator did not cleanly reconcile the old state.
-* **The Fix:** Force a regeneration of the default configuration.
+ * **Symptom:** After an OpenShift AI upgrade, the Catalog UI is blank or displays *"Request access to model catalog."*
+ * **Root Cause:** The `model-catalog-sources` ConfigMap schema changed, and the operator failed to reconcile the old state.
+ * **The Fix:** Force a clean regeneration.
 
 [source,bash]
 ----
-# 1. Delete the existing ConfigMap
+# Delete the config and the pod; the operator will recreate them with defaults
 oc delete configmap model-catalog-sources -n rhoai-model-registries
-
-# 2. Restart the operator (it will recreate the ConfigMap with correct defaults)
-oc delete pod -l name=model-registry-operator -n redhat-ods-monitoring 
-# (Note: Namespace may vary depending on operator install mode)
+oc delete pod -l component=model-catalog -n rhoai-model-registries
 ----
 
 === Issue B: The "Missing Storage" Loop
-* **Symptom:** In the Deployment Wizard, the "Existing Cluster Storage" option is hidden or disabled, forcing you to create a new connection even if PVCs exist.
-* **Root Cause:** The Wizard UI logic hides the "Existing Storage" radio button if it detects *zero* `DataConnections` in the project.
+* **Symptom:** In the Deployment Wizard, the **"Existing Cluster Storage"** radio button is hidden, forcing you to create a new connection even if you already have PVCs.
+* **Root Cause:** The Wizard UI logic proactively hides the option if it detects *zero* `DataConnections` in the project.
 * **The Fix:**
-1. Navigate to **Settings -> Data Connections**.
-2. Create a "Dummy" connection (it doesn't need to be real).
-3. Refresh the Wizard. The "Existing Cluster Storage" option will now appear.
+    1.  Go to **Settings -> Data Connections**.
+    2.  Create a "Dummy" S3 connection (it doesn't need to be real).
+    3.  Refresh the Wizard. The "Existing Cluster Storage" option will appear.
 
-=== Issue C: DNS Name Collisions
-* **Symptom:** Deployment status stays in "Unknown" or "Failed" with internal server errors regarding `Service` creation.
-* **Root Cause:** The user accepted the default model name (e.g., `mistral-7b-instruct-v0.1-quantized-w4a16`). KServe appends suffix strings (e.g., `-predictor-default`) which pushes the total character count over the Kubernetes 63-character DNS label limit.
-* **The Fix:** Enforce a naming convention. Rename deployments to use short aliases (e.g., `mistral-7b-lab`).
+=== Issue C: DNS Name Collisions (The 63-Char Limit)
+* **Symptom:** Deployment status hangs in "Unknown" or fails with internal service errors.
+* **Root Cause:** You accepted a long default name (e.g., `mistral-7b-instruct-v0.1-quantized-w4a16`). KServe appends suffixes (e.g., `-predictor-default`), pushing the string over the Kubernetes 63-character DNS label limit.
+* **The Fix:** **Always rename.** Use short aliases like `mistral-7b-prod`.
 
-== 4. Operational Guardrails Summary
+== 3. Operational Guardrails Summary
 
-To ensure a stable "Showroom" for your users, adopt these three rules:
+To keep your catalog healthy, commit to these three rules:
 
-1.  **Prefer ModelCars:** Ensure your cluster has pull secrets for `registry.redhat.io`. This enables the OCI-based artifact workflow (deduplication/caching).
-2.  **GitOps the Sources:** Do not manually edit the `model-catalog-sources` ConfigMap in production. Store the file in Git and apply it via ArgoCD/Tekton to prevent drift.
-3.  **Monitor Quotas:** The catalog checks
+1.  **Prefer ModelCars:** Ensure your cluster has pull secrets for `registry.redhat.io` . This moves model distribution from "slow file downloads" to "fast container caching."
+2.  **GitOps Your Sources:** Never edit the `model-catalog-sources` ConfigMap manually in production. Manage it in Git so you have an audit trail of every model added or removed.
+3.  **Quantization Matching:** Monitor your `ClusterResourceQuotas`. Ensure you aren't approving `.FP8` models (High Performance) if your nodes only have older GPUs that can only handle `.w4a16` (High Efficiency).
+
+== 4. The Payoff: Business Value & ROI
+
+You started this course with a question: *"Why should we use this instead of just downloading files from the internet?"*
+
+You now have the answer. The Model Catalog is not just a UI; it is a **Risk Control Plane**.
+
+[cols="1,3", options="header"]
+|===
+| Value Pillar | The Engineering Reality
+
+| **1. ROI & Cost**
+| **Quantization Aware:** By filtering for `.w4a16` or `.w8a8` models, you fit 70B parameter models onto cheaper GPUs (e.g., A10g vs A100), potentially lowering hardware TCO by **40-60%**.
+
+| **2. Security**
+| **Supply Chain Trust:** Red Hat Validated Models are scanned and signed. You aren't pulling "mystery weights" containing pickled malware or unknown licenses.
+
+| **3. Performance**
+| **Hardware Validated:** You don't waste weeks discovering a model is incompatible with your accelerator. If it's in the catalog with a profile, it *runs*.
+
+| **4. Speed**
+| **ModelCars:** OCI-based delivery means scaling out 10 replicas takes seconds (cached layers) rather than minutes (re-downloading 50GB files).
+|===
+
+== Conclusion
+
+You have successfully navigated the **Red Hat OpenShift AI Model Catalog**.
+
+* You explored the **Architecture** of ModelCars and OCI.
+* You mastered the **Deployment Wizard** and its guardrails.
+* You built a **Custom Supply Chain** using the CLI.
+* You prepared for **Day 2 Operations**.
+
+Your "Showroom" is now open for business.
+
+[.text-center]
+*Course Complete*

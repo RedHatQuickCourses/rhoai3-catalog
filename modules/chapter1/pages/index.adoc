@@ -1,49 +1,52 @@
-= Operationalizing Model Selection
+= The Model Catalog: Curating the AI Supply Chain
 :navtitle: Introduction & Value
 :toc: macro
 
 // Antora metadata
 :page-role: product-concept
-:description: Understanding the operational role of the Model Catalog in RHOAI for validated model selection, hardware alignment, and standardized deployment.
+:description: Understanding the business value of the Model Catalog: Validated models, quantization for TCO, and enterprise transparency.
 
 [.lead]
-*Standardize the selection process. Validate performance before deployment. Operationalize artifacts via OCI.*
+*Reduce guesswork. Optimize hardware. Deploy with confidence.*
 
-For Platform Engineers, the challenge of Generative AI is not model discovery—it is **model curation**. Allowing ad-hoc downloads of arbitrary weights from public hubs introduces significant operational risks: incompatible hardware requirements, unverified performance on specific accelerators, and inefficient artifact distribution ("Shadow AI").
+In the enterprise AI landscape, the challenge is no longer just *finding* a model—it is ensuring that model is safe, performant, and cost-effective.
 
-In **Red Hat OpenShift AI (RHOAI)**, the Model Catalog functions as a centralized control plane to solve these integration challenges. It provides a library of **Red Hat Validated Models**—curated, benchmarked, and packaged to ensure predictability in enterprise environments.
+While a **Model Registry** acts as a centralized repository for tracking and governing the lifecycle of your organization's specific assets (the "Title Office"), the **Red Hat OpenShift AI Model Catalog** serves a distinct, complementary purpose. It is a curated, secure library of pre-evaluated generative AI models from providers like Red Hat, IBM, Meta, NVIDIA, and Google (the "Showroom").
 
-This guide outlines how the Model Catalog accelerates the path from "selection" to "serving" by providing performance baselines, hardware-aligned quantization, and standardized deployment mechanics.
+The core business value of the catalog lies in reducing the time, cost, and operational risk associated with GenAI deployments through three key pillars.
 
-== The Solution: The Model Catalog
-
-In **Red Hat OpenShift AI (RHOAI) 3.x**, the Model Catalog is the centralized discovery hub for Generative AI models.
-
-It is not a replacement for the Model Registry.
-
-* **Model Catalog**: *Find and choose* models that are validated and deployment-ready.
-* **Model Registry**: *Track and govern* the specific models your organization has selected, versioned, and promoted through environments.
-
-The catalog is the “showroom.” The registry is the “title office.”
-
-[NOTE]
-.Context: Catalog vs. Registry
-====
-While similar in name, these components serve distinct phases of the lifecycle:
-
-* **The Model Catalog** is for **Inbound Discovery**: Bringing third-party, validated assets (like Red Hat Validated Models) into your environment.
-* **The Model Registry** is for **Outbound Control**: Versioning and governing the proprietary models your team creates, tunes, or adopts for the long term.
-====
+image::rhoai3-catalog.png[align="center", title="Model Catalog and Red Hat Validated AI Models for Generative AI"]
 
 
-== What You Will Do
+== 1. Validated & Enterprise-Ready
+Deploying raw, community-sourced models introduces "Shadow AI" risks. The models in the catalog are not just listed; they are **Red Hat Validated Models**.
 
-This module is designed to help you operationalize the Model Catalog within your RHOAI environment. You will learn to:
+* **Rigorously Tested:** Verified for accuracy using the Language Model Evaluation Harness and performance-benchmarked using GuideLLM.
+* **Secure Supply Chain:** Scanned for vulnerabilities and packaged in standardized OCI formats (ModelCars) to integrate seamlessly into managed software lifecycles.
+* **Lifecycle Management:** Integrated into a supported ecosystem for long-term updates, bypassing the complex integration hurdles of deploying raw, untested open-source models.
 
-1.  **Navigate the Architecture:** Understand how the catalog sources data and how it integrates with ModelCars (OCI).
-2.  **Deploy with Precision:** Use the deployment wizard to launch a validated model (e.g., Granite, Mistral), ensuring correct alignment of hardware profiles and runtimes. (arcade simulation)
-3.  **Configure & Curate:** Administer the catalog by managing `ConfigMap` sources to control which models are visible to your users.
-4.  **Troubleshoot:** Address common operational constraints, such as Kubernetes naming limits and storage configuration issues.
+== 2. Optimization & Quantization (TCO)
+Hardware availability is the primary constraint for GenAI. The catalog addresses this by offering models optimized via Red Hat’s LLM Compressor toolkit.
+
+* **Lower VRAM Requirements:** By applying advanced quantization techniques to compress model weights into lower-precision formats like **INT4**, **INT8**, and **FP8 Dynamic**, the catalog allows massive models to run on fewer or less expensive hardware accelerators.
+* **High Throughput:** These optimizations maintain accuracy while significantly increasing inference speed, directly lowering your Total Cost of Ownership (TCO) per token.
+
+== 3. Transparency via Model Cards
+To eliminate the "black box" of AI, every asset in the catalog is paired with a detailed **Model Card**.
+
+* **Performance Insights:** Access benchmark data that allows you to compare metrics across specific hardware configurations *before* deployment.
+* **Capacity Planning:** Use this data to accurately size your cluster, enabling highly accurate capacity planning and hardware selection.
+* **Clear Limitations:** Understand the model's architecture, intended use, and training parameters to ensure policy compliance.
 
 ---
-*Next: Explore the architecture of the Model Catalog and the technical details of ModelCars.*
+
+== Your Mission: Operationalize the Catalog
+
+In this module, you will move beyond simply browsing models. You will learn to use the catalog as a tool for architectural decision-making and supply chain management.
+
+**You will execute the following workflow:**
+
+1.  **Test Drive (Simulation):** Use an interactive Arcade simulation to navigate Model Cards, interpret performance benchmarks, and size hardware requirements.
+2.  **Extend the Supply Chain (Lab):** Take on the role of a Platform Engineer to inject a **Custom Private Source** into the catalog, making your organization's fine-tuned models discoverable alongside Red Hat's validated content.
+
+*Ready to explore? Let's start by entering the showroom.*

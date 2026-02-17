@@ -1,47 +1,50 @@
-= Architecture: Inside the Model Catalog
-:navtitle: Architecture Deep Dive
+= Architecture: The Engineering Behind the Catalog
+:navtitle: Architecture & Concepts
 :toc: macro
 
 // Antora metadata
 :page-role: architecture-concept
-:description: A technical deep dive into the Model Catalog's architecture, OCI-based artifact delivery (ModelCars), and Quantization strategies.
+:description: Technical deep dive into Red Hat Validated Models, OCI ModelCars, and Quantization strategies for TCO.
 
 [.lead]
-*Understand the machinery behind the dashboard. From OCI artifacts to Quantization profiles.*
+*To the user, it is a gallery. To the engineer, it is a supply chain.*
 
-To a user, the Model Catalog is a gallery. To a Platform Engineer, it is an integration engine that connects three distinct layers of the RHOAI platform:
- 
- 1. **The Supply Chain:** Validated external sources (Red Hat / IBM).
- 2. **The Artifact Store:** S3, URI, and OCI-compliant registries delivering standardized container images.
- 3. **The Infrastructure:** The compute resources (GPUs) and runtimes required to serve the models.
+Before you operate the catalog, you must understand the machinery that powers it. The Model Catalog is not just a list of hyperlinks; it is an integration engine that connects trusted content to your infrastructure using three specific technical primitives:
 
-This section breaks down how these components interact to enable safe, reproducible deployments.
+1.  **The Content:** Red Hat Validated Models (Risk Reduction).
+2.  **The Delivery:** ModelCars (OCI Artifacts).
+3.  **The Optimization:** Quantization Profiles (TCO Control).
 
-== 1. The Validation Layer (The "Trust" Engine)
 
-The primary value of the Model Catalog is the removal of integration guesswork. Unlike public repositories where models are uploaded "as-is," the **Red Hat Validated Models** available in the catalog undergo a rigorous qualification process using tools like GuideLLM and vLLM.
 
-* **Hardware Alignment:** Models are explicitly verified to run on specific accelerators (e.g., NVIDIA A100/H100, AMD MI300).
-* **Performance Baselines:** Red Hat provides metrics for throughput and latency, allowing you to evaluate if a model fits your Service Level Objectives (SLOs) *before* you commit resources.
-* **Quantization Clarity:** The catalog provides specific quantized variants (e.g., `w4a16`, `w8a8`, `FP8`) to match your available VRAM. This prevents the common failure mode of deploying a 70B parameter model to a GPU that physically cannot hold its weights.
+== 1. Red Hat Validated Models (The "Trust" Engine)
 
-== 2. The Artifact Layer: ModelCars (OCI)
+A raw model on a public hub is a black box. It might have malicious code in its tokenizer, or it might hallucinate excessively on your specific hardware.
 
-The most significant architectural shift in the RHOAI Model Catalog is the move away from "safetensors in S3 buckets" toward **ModelCars**.
+A **Red Hat Validated Model** is a known quantity. Before a model appears in the catalog with the "Red Hat" badge, it undergoes a rigorous qualification process:
+
+* **Security Scanning:** The model weights and code are scanned for known CVEs and malicious injection patterns.
+* **Hardware Verification:** The model is tested on specific hardware profiles (e.g., NVIDIA A100, L40S, AMD MI300) to ensure it does not fail with obscure CUDA errors.
+* **Performance Benchmarking:** Red Hat engineers run standard benchmarks (like *GuideLLM*) to establish baseline throughput (tokens/sec) and latency numbers.
+
+**The Engineering Value:** You don't have to waste weeks "qualifying" a model. If it's in the catalog, it runs.
+
+== 2. ModelCars: OCI-Based Delivery
+
+The most significant architectural shift in OpenShift AI is the move away from "safetensors in S3 buckets" toward **ModelCars**.
 
 A **ModelCar** is a Large Language Model (LLM) packaged as an OCI (Open Container Initiative) image. It treats model weights exactly like software binaries.
 
- * **Structure:** The model weights (safetensors, GGUF) are stored in the `root` layer of a container image.
- * **Delivery:** When a user deploys a model, the cluster pulls this image from `registry.redhat.io` using standard container runtimes (CRI-O).
- * **Operational Benefit:**
- ** **Deduplication:** Updates to a model family often share base layers, reducing storage costs.
- ** **Caching:** Once a node pulls a 70B model, it is cached locally. Subsequent deployments on that node are near-instant.
- ** **Security:** You can scan a ModelCar for vulnerabilities using the same tools (ACS/StackRox) you use for application images.
+* **Structure:** The model weights (`.safetensors`, `.gguf`) are stored in the filesystem layer of a container image.
+* **Delivery:** When a user deploys a model, the cluster pulls this image from `registry.redhat.io` using the standard container runtime (CRI-O).
+* **Operational Benefits:**
+    * **Deduplication:** Updates to a model family often share base layers, reducing storage costs.
+    * **Caching:** Once a node pulls a 70B model, it is cached locally. Subsequent deployments on that node are near-instant.
+    * **Air-Gap Friendly:** You can mirror these images to your private registry (Quay) using standard `oc mirror` commands.
 
+== 3. Quantization Strategies (The TCO Engine)
 
-== 3. Quantization Strategies (The "Hardware Fit" Engine)
-
-The catalog uses specific naming conventions to help you align models with your available hardware capacity (VRAM). Understanding these suffixes is critical for avoiding `OOMKilled` errors.
+This is the most critical concept for cost control. The catalog offers models in specific "Quantized" formats. Understanding these suffixes is the difference between a $50,000/year cluster and a $200,000/year cluster.
 
 [cols="1,1,2", options="header"]
 |===
@@ -49,7 +52,7 @@ The catalog uses specific naming conventions to help you align models with your 
 
 | **.w4a16**
 | **4-bit Weights / 16-bit Activations**
-| **Best for VRAM Constraints.** Allows larger models (e.g., 70B) to fit on standard enterprise GPUs while maintaining reasonable accuracy.
+| **Best for VRAM Constraints.** Allows larger models (e.g., 70B) to fit on standard enterprise GPUs (like A10g) while maintaining reasonable accuracy.
 
 | **.w8a8**
 | **8-bit Weights / 8-bit Activations**
@@ -60,15 +63,7 @@ The catalog uses specific naming conventions to help you align models with your 
 | **High Performance.** Designed for modern accelerators (NVIDIA H100, Ada Lovelace) that have native FP8 support. Offers the best balance of speed and accuracy if your hardware supports it.
 |===
 
-**Why this matters:** The catalog uses this metadata to filter the "Hardware Profile" list in the deployment wizard, preventing users from trying to deploy an FP8 model on older hardware that doesn't support it.
-
-== 4. Reducing Configuration Drift
-
-Manually configuring KServe InferenceServices requires precise alignment between the serving runtime, storage URI, and resource requests. The Model Catalog includes a **deployment wizard** that automates this configuration to prevent drift.
-
-* **Sensible Defaults:** The wizard pre-populates runtime arguments and environment variables known to work for the specific model variant.
-* **Hardware Profile Integration:** It automatically filters for compatible hardware profiles, preventing deployments that are destined to fail due to resource mismatches.
-* **Repeatability:** It enforces a standardized deployment structure, ensuring that every engineer on the team deploys models using the same architectural pattern.
+**The Takeaway:** When you select a model in the simulation, look at the suffix. If you are deploying to a smaller GPU, you *would* choose **w4a16**.
 
 ---
-
+*Next: Now that you understand the components, let's test drive them in the Simulation.*

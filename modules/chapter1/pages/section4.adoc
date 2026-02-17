@@ -1,25 +1,47 @@
-= Arcade Interactive Click Through Experience
-:navtitle: Architecture Deep Dive
+= Simulator: The Catalog Experience
+:navtitle: Simulator: Catalog UI
 :toc: macro
 
 // Antora metadata
-:page-role: architecture-concept
-:description: Technical deep dive into Model Catalog components, sources, and how catalog choices connect to deployment.
+:page-role: interactive-simulation
+:description: An interactive Arcade simulation demonstrating the Model Catalog UI, filtering, and the deployment wizard flow.
 
-=== 1.2 Catalog Click Through with Arcade
-**Task:** Explore the Model Catalog layout, default models, and how using these are baselines can validate hardware performance expections and provide default tuning options to accelerate your AI Model inference cost-efficient deployments. 
+[.lead]
+*See the end state before you build the supply chain.*
 
+Before we drop into the terminal to manipulate `ConfigMaps` and `SourceURIs`, it is critical to understand what the "Consumer" (the AI Engineer or Data Scientist) actually experiences.
+
+In this interactive simulation, you will walk through the **Red Hat OpenShift AI Model Catalog** from the perspective of a user trying to find and deploy a compliant model.
+
+== The Interactive Walkthrough
+
+[NOTE]
+.Instructions
+====
+Click **"Get Started"** in the window below. Follow the on-screen prompts to navigate the catalog filters, inspect a ModelCard, and launch the Deployment Wizard.
+====
+
+// ARCADE EMBED BLOCK
+// Replace the 'src' attribute below with your specific Arcade flow URL
 ++++
 <iframe src="https://demo.arcade.software/gIqDDO6ciH3R1hGQ8ZZx?embed&embed_mobile=inline&embed_desktop=inline&show_copy_link=true" width="100%" height="500px" frameborder="0" allowfullscreen webkitallowfullscreen mozallowfullscreen allow="clipboard-write" muted> </iframe>
 ++++
 
+== Key Observations
 
+As you clicked through the simulation, did you notice the following operational details?
 
-[.lead]
-*A catalog is not a database. It is a control surface.*
+=== 1. The "Provider" Filter 
+* **Observation:** In the sidebar, you saw options for "Red Hat," "Hugging Face," and "Community."
+* **The Backend Reality:** Each of these checkboxes corresponds to a specific entry in the `model-catalog-sources` ConfigMap. When you uncheck "Community," you are essentially filtering the JSON array returned by the catalog API.
 
-Platform engineers operate the Model Catalog like an air-traffic system:
+=== 2. The Model Card "Source"
+* **Observation:** When you opened the *Granite 7B* card, the "Source" field displayed `registry.redhat.io`.
+* **The Backend Reality:** This confirms the asset is a **ModelCar** (OCI artifact). If you had selected a community model, this field would likely show a `huggingface.co` URL, indicating a raw file download.
 
- * It must present the right options (curation).
- * It must guide users into safe defaults (deployment wizard).
- * It must reflect infrastructure reality (hardware profiles, quotas, and runtimes).
+=== 3. The Hardware Profile Match
+* **Observation:** In the Deployment Wizard, the "Hardware Profile" dropdown was pre-selected or filtered.
+* **The Backend Reality:** The catalog metadata includes a `hardware_profile` tag. The wizard uses this to query the cluster for `NodeResources`. If your cluster lacked GPUs, that dropdown would be empty, and the deployment would be blocked—protecting you from a pending pod failure.
+
+---
+*Now that you have seen the "Frontend" experience, let's go to the "Backend" and inject a custom source using the CLI.*
