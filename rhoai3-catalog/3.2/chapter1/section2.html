@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Lab: Injecting a Custom Source (The CLI Way) :: Red Hat OpenShift AI (RHOAI) Model Catalog</title>
-    <link rel="prev" href="section1.html">
+    <title>Lab: Customizing the Catalog :: Red Hat OpenShift AI (RHOAI) Model Catalog</title>
+    <link rel="prev" href="section4.html">
     <link rel="next" href="section3.html">
     <meta name="generator" content="Antora 3.1.3">
     <link rel="stylesheet" href="../../../_/css/site.css">
@@ -49,14 +49,14 @@
   <li class="nav-item" data-depth="1">
     <a class="nav-link" href="section1.html">Architecture Deep Dive</a>
   </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="section4.html">Simulator The Catalog Experience</a>
+  </li>
   <li class="nav-item is-current-page" data-depth="1">
     <a class="nav-link" href="section2.html">Catalog Customization</a>
   </li>
   <li class="nav-item" data-depth="1">
     <a class="nav-link" href="section3.html">Administration &amp; Troubleshooting</a>
-  </li>
-  <li class="nav-item" data-depth="1">
-    <a class="nav-link" href="section4.html">Catalog Simulation Arcade</a>
   </li>
 </ul>
   </li>
@@ -98,95 +98,55 @@
   <div class="toc-menu"></div>
 </aside>
 <article class="doc">
-<h1 class="page">Lab: Injecting a Custom Source (The CLI Way)</h1>
+<h1 class="page">Lab: Customizing the Catalog</h1>
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph lead">
-<p><strong>We don&#8217;t click buttons to add infrastructure. We apply code.</strong></p>
+<p><strong>This custimization method involes embedding the catalog selction directly in the configmap.</strong></p>
 </div>
 <div class="paragraph">
-<p>In this lab, you will simulate the workflow of a Platform Engineer at "Acme Corp." Your data science team has fine-tuned a model (<code>Acme-Finance-7B</code>) and stored it in a private S3 bucket.</p>
+<p>In strict enterprise environments, you often cannot point your Model Catalog to a public GitHub URL or an external HTTP server. The cluster might be air-gapped, or the firewall might block the request.</p>
 </div>
 <div class="paragraph">
-<p>Your task is to register this private model into the global <strong>Model Catalog</strong> so that authorized developers can deploy it using the standard wizard—without them knowing (or caring) that it comes from a private bucket.</p>
+<p>The most robust way to add a custom source is the <strong>"Embedded Strategy"</strong>.</p>
 </div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_prerequisites"><a class="anchor" href="#_prerequisites"></a>Prerequisites</h2>
-<div class="sectionbody">
-<div class="ulist">
-<ul>
-<li>
-<p>Access to the cluster with <code>cluster-admin</code> (or edit rights in <code>rhoai-model-registries</code>).</p>
-</li>
-<li>
-<p>The <code>oc</code> CLI tool.</p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_step_1_define_the_catalog_manifests"><a class="anchor" href="#_step_1_define_the_catalog_manifests"></a>Step 1: Define the Catalog Manifests</h2>
-<div class="sectionbody">
 <div class="paragraph">
-<p>We need to construct two objects to inject into the <code>model-catalog-sources</code> ConfigMap:</p>
+<p>In this lab, you will configure the <code>model-catalog-sources</code> ConfigMap to serve two roles simultaneously:</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p><strong>The Source Registration:</strong> Tells the catalog <strong>where</strong> to look for metadata.</p>
+<p><strong>The Pointer:</strong> It defines <strong>where</strong> to look for models.</p>
 </li>
 <li>
-<p><strong>The Model Metadata:</strong> The actual card data (Architecture, Quantization, URI).</p>
+<p><strong>The Database:</strong> It contains the actual model metadata itself.</p>
 </li>
 </ol>
 </div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_procedure"><a class="anchor" href="#_procedure"></a>Procedure</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_1_switch_to_the_registry_namespace"><a class="anchor" href="#_1_switch_to_the_registry_namespace"></a>1. Switch to the Registry Namespace</h3>
 <div class="paragraph">
-<p>Run the following command in your terminal to create the catalog definition file locally:</p>
+<p>First, ensure you are working in the correct namespace where the Model Registry components are running.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">cat &lt;&lt;EOF &gt; acme-catalog.yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: model-catalog-sources
-  namespace: rhoai-model-registries
-  labels:
-    model.catalog.sources: "true"
-data:
-  # 1. Register the new "file" source
-  sources.yaml: |
-    catalogs:
-      - name: "acme-corp-private"
-        id: "Acme Corp Private Models"
-        type: "yaml"
-        properties:
-          yamlCatalogPath: "/data/user-sources/acme-models.yaml"
-
-  # 2. Define the Model Metadata (The "Card")
-  acme-models.yaml:
-    models:
-      - name: "Acme-Finance-7B"
-        displayName: "Acme Finance 7B (v1.2)"
-        description: "Fine-tuned on quarterly reports. Optimized for summarization."
-        provider: "Acme AI Lab"
-        version: "1.2.0"
-        tags: ["finance", "summarization", "internal"]
-
-          # The Critical Part: Pointing to Private Storage
-        model_files:
-          - name: "safetensors-w4a16"
-            size: "4GB"
-            quantization: "w4a16"
-            uri: "s3://acme-private-models/finance-7b/v1.2/"
-
-          # Hardware Requirements (The Guardrails)
-        hardware_profile:
-          - "nvidia.com/gpu"
-EOF</code></pre>
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc project rhoai-model-registries</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_2_open_the_catalog_configuration"><a class="anchor" href="#_2_open_the_catalog_configuration"></a>2. Open the Catalog Configuration</h3>
+<div class="paragraph">
+<p>The Model Catalog does not use a database for configuration; it uses a Kubernetes <strong>ConfigMap</strong>. You will edit this object directly.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc edit configmap model-catalog-sources</code></pre>
 </div>
 </div>
 <div class="admonitionblock note">
@@ -196,107 +156,198 @@ EOF</code></pre>
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-<div class="title">The "Industrialized" Concept</div>
 <div class="paragraph">
-<p>In a real production environment, this <code>acme-models.yaml</code> would likely be a file in a Git repository. The <code>sources.yaml</code> would point to that Git URL (e.g., <code><a href="https://github.com/acme/catalog/archive/main.zip" class="bare">https://github.com/acme/catalog/archive/main.zip</a></code>).</p>
-</div>
-<div class="paragraph">
-<p>For this lab, we are using storing the .yaml files directly into the ConfigMap.</p>
+<p>You are editing a <strong>ConfigMap</strong>, not a local file. The file <code>sources.yaml</code> exists virtually inside the <code>data</code> section of this object.</p>
 </div>
 </td>
 </tr>
 </table>
 </div>
 </div>
-</div>
-<div class="sect1">
-<h2 id="_step_2_apply_the_configuration"><a class="anchor" href="#_step_2_apply_the_configuration"></a>Step 2: Apply the Configuration</h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="_3_configure_the_registry_and_add_models"><a class="anchor" href="#_3_configure_the_registry_and_add_models"></a>3. Configure the Registry and Add Models</h3>
 <div class="paragraph">
-<p>Inject the new configuration into the cluster. This overwrites the existing ConfigMap with your new definition.</p>
+<p>You need to define two logical "files" inside this ConfigMap:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong><code>sources.yaml</code></strong>: Registers your custom catalog path.</p>
+</li>
+<li>
+<p><strong><code>my-models.yaml</code></strong>: Contains the actual metadata for your models.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Copy and paste the following data segment of the block into the <code>data:</code> section of the ConfigMap.</p>
+</div>
+<div class="ulist">
+<div class="title">Understanding the Schema</div>
+<ul>
+<li>
+<p><strong>Top-Level Fields:</strong> Only <code>name</code>, <code>description</code>, <code>readme</code>, and <code>maturity</code> are allowed here.</p>
+</li>
+<li>
+<p><strong>customProperties:</strong> You <strong>must</strong> put <code>author</code>, <code>version</code>, <code>model_type</code>, and other metadata here to avoid errors.</p>
+</li>
+</ul>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc apply -f acme-catalog.yaml</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p><strong>Expected Output:</strong>
-<code>configmap/model-catalog-sources configured</code></p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_step_3_force_a_catalog_refresh"><a class="anchor" href="#_step_3_force_a_catalog_refresh"></a>Step 3: Force a Catalog Refresh</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>The Model Catalog service caches the configuration on startup. To see your changes immediately, you must restart the pod.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash"># 1. Delete the existing pod to force a rollout
-oc delete pod -l component=model-catalog -n rhoai-model-registries
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">cat &lt;&lt;EOF &gt; private-catalog.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: model-catalog-sources
+  namespace: rhoai-model-registries
+  labels:
+    model.catalog.sources: "true"
+data:
+  # KEY 1: The Registration (The "Pointer")
+  # This tells the catalog app to look at a local file for the actual inventory.
+  sources.yaml: |
+    sources:
+      - name: acme-corp-private
+        displayName: "Acme Finance 7B (v1.2)"
+        description: "Internal fine-tuned models for Finance and HR applications."
+        properties:
+          yamlCatalogPath: "/data/user-sources/acme-models.yaml"
 
-# 2. Wait for the new pod to be Ready
-oc wait --for=condition=Ready pod -l component=model-catalog -n rhoai-model-registries --timeout=60s</code></pre>
+  # KEY 2: The Inventory (The "Database")
+  # This key contains the actual ModelRegistry definition.
+  # Because of the volume mount, this key becomes the file referenced above.
+  acme-models.yaml: |
+    models:
+      # --- MODEL 1: Qwen/Qwen3-0.6B ---
+      - name: "Qwen3-0.6B"
+        provider: "Acme AI Lab"
+        description: "Qwen Small Language Model"
+        customProperties:
+          model_type:
+            metadataType: MetadataStringValue
+            string_value: "generative"
+          author:
+            metadataType: MetadataStringValue
+            string_value: "Qwen"
+          version:
+            metadataType: MetadataStringValue
+            string_value: "1.2.0"
+        artifacts:
+          - name: "model-artifact"
+            uri: "s3://private-models/Qwen3-0.6B"</code></pre>
+</div>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="title">YAML Indentation Warning</div>
+<div class="paragraph">
+<p>Notice the structure above. The <code>acme-models.yaml</code> content is a <strong>string block</strong> (using <code>|</code>) inside the <code>data</code> section. Ensure the indentation of the inner YAML is preserved exactly as shown, or the catalog parser will fail.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_4_save_and_exit"><a class="anchor" href="#_4_save_and_exit"></a>4. Save and Exit</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Vi/Vim Users:</strong> Press <code>Esc</code>, then type <code>:wq</code> and press <code>Enter</code>.</p>
+</li>
+<li>
+<p><strong>Nano Users:</strong> Press <code>Ctrl+O</code>, <code>Enter</code>, then <code>Ctrl+X</code>.</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_step_4_verification_the_arcade_moment"><a class="anchor" href="#_step_4_verification_the_arcade_moment"></a>Step 4: Verification (The "Arcade" Moment)</h2>
+<h2 id="_step_5_verification"><a class="anchor" href="#_step_5_verification"></a>Step 5: Verification</h2>
 <div class="sectionbody">
-<div class="paragraph">
-<p>Now that the backend is configured, the frontend should reflect the new reality.</p>
-</div>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
 <p>Open the <strong>OpenShift AI Dashboard</strong>.</p>
 </li>
 <li>
-<p>Navigate to <strong>Model Catalog</strong>.</p>
+<p>Navigate to <strong>AI Hub &#8594; Model Catalog</strong>.</p>
 </li>
 <li>
-<p>In the <strong>Provider</strong> filter on the left, you should now see a new checkbox: <strong>"Acme AI Lab"</strong>.</p>
+<p>Look at the <strong>Provider</strong> filter on the left sidebar.</p>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Success:</strong> You see a new checkbox: <strong>"Acme AI Lab"</strong>.</p>
+</li>
+</ul>
+</div>
 </li>
 <li>
-<p>Select it. You will see the <strong>"Acme Finance 7B"</strong> card.</p>
+<p>Select the <strong>"Acme AI Lab"</strong> provider.</p>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Success:</strong> The <strong>Acme Finance 7B</strong> card appears.</p>
+</li>
+</ul>
+</div>
 </li>
 <li>
-<p>Click the card. Verify that the <strong>Model Location</strong> points to your private S3 URI (<code>s3://acme-private-models&#8230;&#8203;</code>).</p>
+<p>Click the card.</p>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Success:</strong> The <strong>Model Location</strong> field displays <code>s3://acme-private-models&#8230;&#8203;</code>.</p>
+</li>
+</ul>
+</div>
 </li>
 </ol>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_summary_of_actions"><a class="anchor" href="#_summary_of_actions"></a>Summary of Actions</h2>
+<h2 id="_troubleshooting"><a class="anchor" href="#_troubleshooting"></a>Troubleshooting</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>You successfully performed a "Day 2" operation:</p>
+<p>If the catalog fails to load or shows "No models found":</p>
 </div>
-<div class="ulist">
-<ul>
+<div class="olist arabic">
+<ol class="arabic">
 <li>
-<p><strong>Bypassed the UI</strong> to modify the platform configuration as code.</p>
+<p><strong>Check the logs:</strong> The catalog pod logs will explicitly state if it failed to parse the YAML.
+[source,bash]
+----
+oc logs -l component=model-catalog -n rhoai-model-registries
+----
+<strong>Look for:</strong> <code>yaml.scanner.ScannerError</code> (indicates an indentation issue in your ConfigMap).</p>
 </li>
 <li>
-<p><strong>Injected a custom source</strong> (<code>acme-models.yaml</code>) representing a private asset.</p>
+<p><strong>Verify the Mount:</strong> Ensure the file actually exists inside the pod.
+[source,bash]
+----
+oc exec -n rhoai-model-registries -it $(oc get pods -n rhoai-model-registries -l component=model-catalog -o jsonpath='{.items[0].metadata.name}')&#8201;&#8212;&#8201;ls -l /etc/model-catalog-source/
+----
+<strong>Expected:</strong> You should see both <code>sources.yaml</code> and <code>acme-models.yaml</code>.</p>
 </li>
-<li>
-<p><strong>Operationalized the change</strong> by reloading the service.</p>
-</li>
-</ul>
+</ol>
 </div>
 <hr>
 <div class="paragraph">
-<p><strong>Next: We will conclude the module by reviewing the Audit and Governance implications.</strong></p>
+<p><strong>You have now successfully setup the catalog to serve private assets using a self-contained, air-gap friendly configuration method.</strong></p>
 </div>
 </div>
 </div>
 <nav class="pagination">
-  <span class="prev"><a href="section1.html">Architecture Deep Dive</a></span>
+  <span class="prev"><a href="section4.html">Simulator The Catalog Experience</a></span>
   <span class="next"><a href="section3.html">Administration &amp; Troubleshooting</a></span>
 </nav>
 </article>

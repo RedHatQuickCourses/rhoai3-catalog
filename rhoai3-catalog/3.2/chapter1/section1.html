@@ -3,9 +3,9 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Architecture: Inside the Model Catalog :: Red Hat OpenShift AI (RHOAI) Model Catalog</title>
+    <title>Architecture: The Engineering Behind the Catalog :: Red Hat OpenShift AI (RHOAI) Model Catalog</title>
     <link rel="prev" href="../index.html">
-    <link rel="next" href="section2.html">
+    <link rel="next" href="section4.html">
     <meta name="generator" content="Antora 3.1.3">
     <link rel="stylesheet" href="../../../_/css/site.css">
     <script>var uiRootPath = '../../../_'</script>
@@ -50,13 +50,13 @@
     <a class="nav-link" href="section1.html">Architecture Deep Dive</a>
   </li>
   <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="section4.html">Simulator The Catalog Experience</a>
+  </li>
+  <li class="nav-item" data-depth="1">
     <a class="nav-link" href="section2.html">Catalog Customization</a>
   </li>
   <li class="nav-item" data-depth="1">
     <a class="nav-link" href="section3.html">Administration &amp; Troubleshooting</a>
-  </li>
-  <li class="nav-item" data-depth="1">
-    <a class="nav-link" href="section4.html">Catalog Simulation Arcade</a>
   </li>
 </ul>
   </li>
@@ -98,59 +98,62 @@
   <div class="toc-menu"></div>
 </aside>
 <article class="doc">
-<h1 class="page">Architecture: Inside the Model Catalog</h1>
+<h1 class="page">Architecture: The Engineering Behind the Catalog</h1>
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph lead">
-<p><strong>Understand the machinery behind the dashboard. From OCI artifacts to Quantization profiles.</strong></p>
+<p><strong>To the user, it is a gallery. To the engineer, it is a supply chain.</strong></p>
 </div>
 <div class="paragraph">
-<p>To a user, the Model Catalog is a gallery. To a Platform Engineer, it is an integration engine that connects three distinct layers of the RHOAI platform:</p>
+<p>Before you operate the catalog, you must understand the machinery that powers it. The Model Catalog is not just a list of hyperlinks; it is an integration engine that connects trusted content to your infrastructure using three specific technical primitives:</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p><strong>The Supply Chain:</strong> Validated external sources (Red Hat / IBM).</p>
+<p><strong>The Content:</strong> Red Hat Validated Models (Risk Reduction).</p>
 </li>
 <li>
-<p><strong>The Artifact Store:</strong> S3, URI, and OCI-compliant registries delivering standardized container images.</p>
+<p><strong>The Delivery:</strong> ModelCars (OCI Artifacts).</p>
 </li>
 <li>
-<p><strong>The Infrastructure:</strong> The compute resources (GPUs) and runtimes required to serve the models.</p>
+<p><strong>The Optimization:</strong> Quantization Profiles (TCO Control).</p>
 </li>
 </ol>
-</div>
-<div class="paragraph">
-<p>This section breaks down how these components interact to enable safe, reproducible deployments.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_1_the_validation_layer_the_trust_engine"><a class="anchor" href="#_1_the_validation_layer_the_trust_engine"></a>1. The Validation Layer (The "Trust" Engine)</h2>
+<h2 id="_1_red_hat_validated_models_the_trust_engine"><a class="anchor" href="#_1_red_hat_validated_models_the_trust_engine"></a>1. Red Hat Validated Models (The "Trust" Engine)</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The primary value of the Model Catalog is the removal of integration guesswork. Unlike public repositories where models are uploaded "as-is," the <strong>Red Hat Validated Models</strong> available in the catalog undergo a rigorous qualification process using tools like GuideLLM and vLLM.</p>
+<p>A raw model on a public hub is a black box. It might have malicious code in its tokenizer, or it might hallucinate excessively on your specific hardware.</p>
+</div>
+<div class="paragraph">
+<p>A <strong>Red Hat Validated Model</strong> is a known quantity. Before a model appears in the catalog with the "Red Hat" badge, it undergoes a rigorous qualification process:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p><strong>Hardware Alignment:</strong> Models are explicitly verified to run on specific accelerators (e.g., NVIDIA A100/H100, AMD MI300).</p>
+<p><strong>Security Scanning:</strong> The model weights and code are scanned for known CVEs and malicious injection patterns.</p>
 </li>
 <li>
-<p><strong>Performance Baselines:</strong> Red Hat provides metrics for throughput and latency, allowing you to evaluate if a model fits your Service Level Objectives (SLOs) <strong>before</strong> you commit resources.</p>
+<p><strong>Hardware Verification:</strong> The model is tested on specific hardware profiles (e.g., NVIDIA A100, L40S, AMD MI300) to ensure it does not fail with obscure CUDA errors.</p>
 </li>
 <li>
-<p><strong>Quantization Clarity:</strong> The catalog provides specific quantized variants (e.g., <code>w4a16</code>, <code>w8a8</code>, <code>FP8</code>) to match your available VRAM. This prevents the common failure mode of deploying a 70B parameter model to a GPU that physically cannot hold its weights.</p>
+<p><strong>Performance Benchmarking:</strong> Red Hat engineers run standard benchmarks (like <strong>GuideLLM</strong>) to establish baseline throughput (tokens/sec) and latency numbers.</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p><strong>The Engineering Value:</strong> You don&#8217;t have to waste weeks "qualifying" a model. If it&#8217;s in the catalog, it runs.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_2_the_artifact_layer_modelcars_oci"><a class="anchor" href="#_2_the_artifact_layer_modelcars_oci"></a>2. The Artifact Layer: ModelCars (OCI)</h2>
+<h2 id="_2_modelcars_oci_based_delivery"><a class="anchor" href="#_2_modelcars_oci_based_delivery"></a>2. ModelCars: OCI-Based Delivery</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The most significant architectural shift in the RHOAI Model Catalog is the move away from "safetensors in S3 buckets" toward <strong>ModelCars</strong>.</p>
+<p>The most significant architectural shift in OpenShift AI is the move away from "safetensors in S3 buckets" toward <strong>ModelCars</strong>.</p>
 </div>
 <div class="paragraph">
 <p>A <strong>ModelCar</strong> is a Large Language Model (LLM) packaged as an OCI (Open Container Initiative) image. It treats model weights exactly like software binaries.</p>
@@ -158,15 +161,14 @@
 <div class="ulist">
 <ul>
 <li>
-<p><strong>Structure:</strong> The model weights (safetensors, GGUF) are stored in the <code>root</code> layer of a container image.</p>
+<p><strong>Structure:</strong> The model weights (<code>.safetensors</code>, <code>.gguf</code>) are stored in the filesystem layer of a container image.</p>
 </li>
 <li>
-<p><strong>Delivery:</strong> When a user deploys a model, the cluster pulls this image from <code>registry.redhat.io</code> using standard container runtimes (CRI-O).</p>
+<p><strong>Delivery:</strong> When a user deploys a model, the cluster pulls this image from <code>registry.redhat.io</code> using the standard container runtime (CRI-O).</p>
 </li>
 <li>
-<p><strong>Operational Benefit:</strong></p>
-<div class="ulist">
-<ul>
+<p><strong>Operational Benefits:</strong></p>
+</li>
 <li>
 <p><strong>Deduplication:</strong> Updates to a model family often share base layers, reducing storage costs.</p>
 </li>
@@ -174,20 +176,17 @@
 <p><strong>Caching:</strong> Once a node pulls a 70B model, it is cached locally. Subsequent deployments on that node are near-instant.</p>
 </li>
 <li>
-<p><strong>Security:</strong> You can scan a ModelCar for vulnerabilities using the same tools (ACS/StackRox) you use for application images.</p>
-</li>
-</ul>
-</div>
+<p><strong>Air-Gap Friendly:</strong> You can mirror these images to your private registry (Quay) using standard <code>oc mirror</code> commands.</p>
 </li>
 </ul>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_3_quantization_strategies_the_hardware_fit_engine"><a class="anchor" href="#_3_quantization_strategies_the_hardware_fit_engine"></a>3. Quantization Strategies (The "Hardware Fit" Engine)</h2>
+<h2 id="_3_quantization_strategies_the_tco_engine"><a class="anchor" href="#_3_quantization_strategies_the_tco_engine"></a>3. Quantization Strategies (The TCO Engine)</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The catalog uses specific naming conventions to help you align models with your available hardware capacity (VRAM). Understanding these suffixes is critical for avoiding <code>OOMKilled</code> errors.</p>
+<p>This is the most critical concept for cost control. The catalog offers models in specific "Quantized" formats. Understanding these suffixes is the difference between a $50,000/year cluster and a $200,000/year cluster.</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
@@ -206,7 +205,7 @@
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>.w4a16</strong></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>4-bit Weights / 16-bit Activations</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Best for VRAM Constraints.</strong> Allows larger models (e.g., 70B) to fit on standard enterprise GPUs while maintaining reasonable accuracy.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Best for VRAM Constraints.</strong> Allows larger models (e.g., 70B) to fit on standard enterprise GPUs (like A10g) while maintaining reasonable accuracy.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>.w8a8</strong></p></td>
@@ -221,35 +220,17 @@
 </tbody>
 </table>
 <div class="paragraph">
-<p><strong>Why this matters:</strong> The catalog uses this metadata to filter the "Hardware Profile" list in the deployment wizard, preventing users from trying to deploy an FP8 model on older hardware that doesn&#8217;t support it.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_4_reducing_configuration_drift"><a class="anchor" href="#_4_reducing_configuration_drift"></a>4. Reducing Configuration Drift</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Manually configuring KServe InferenceServices requires precise alignment between the serving runtime, storage URI, and resource requests. The Model Catalog includes a <strong>deployment wizard</strong> that automates this configuration to prevent drift.</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><strong>Sensible Defaults:</strong> The wizard pre-populates runtime arguments and environment variables known to work for the specific model variant.</p>
-</li>
-<li>
-<p><strong>Hardware Profile Integration:</strong> It automatically filters for compatible hardware profiles, preventing deployments that are destined to fail due to resource mismatches.</p>
-</li>
-<li>
-<p><strong>Repeatability:</strong> It enforces a standardized deployment structure, ensuring that every engineer on the team deploys models using the same architectural pattern.</p>
-</li>
-</ul>
+<p><strong>The Takeaway:</strong> When you select a model in the simulation, look at the suffix. If you are deploying to a smaller GPU, you <strong>would</strong> choose <strong>w4a16</strong>.</p>
 </div>
 <hr>
+<div class="paragraph">
+<p><strong>Next: Now that you understand the components, let&#8217;s test drive them in the Simulation.</strong></p>
+</div>
 </div>
 </div>
 <nav class="pagination">
   <span class="prev"><a href="../index.html">Introduction</a></span>
-  <span class="next"><a href="section2.html">Catalog Customization</a></span>
+  <span class="next"><a href="section4.html">Simulator The Catalog Experience</a></span>
 </nav>
 </article>
   </div>
