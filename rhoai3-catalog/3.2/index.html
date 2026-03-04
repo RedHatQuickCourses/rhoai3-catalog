@@ -54,9 +54,6 @@
   <li class="nav-item" data-depth="1">
     <a class="nav-link" href="chapter1/section2.html">Catalog Customization</a>
   </li>
-  <li class="nav-item" data-depth="1">
-    <a class="nav-link" href="chapter1/section3.html">Administration &amp; Troubleshooting</a>
-  </li>
 </ul>
   </li>
 </ul>
@@ -98,18 +95,28 @@
 </aside>
 <article class="doc">
 <h1 class="page">Making the RHOAI Model Catalog Work for You</h1>
-<h1 id="_the_model_catalog_curating_the_ai_supply_chain" class="sect0"><a class="anchor" href="#_the_model_catalog_curating_the_ai_supply_chain"></a>The Model Catalog: Curating the AI Supply Chain</h1>
+<h1 id="_from_showroom_to_production_operationalizing_the_openshift_ai_model_catalog" class="sect0"><a class="anchor" href="#_from_showroom_to_production_operationalizing_the_openshift_ai_model_catalog"></a>From Showroom to Production: Operationalizing the OpenShift AI Model Catalog</h1>
 <div class="paragraph lead">
 <p><strong>Reduce guesswork. Optimize hardware. Deploy with confidence.</strong></p>
 </div>
 <div class="paragraph">
-<p>In the enterprise AI landscape, the challenge is no longer just <strong>finding</strong> a model—it is ensuring that model is safe, performant, and cost-effective.</p>
+<p>In the enterprise AI landscape, the challenge is no longer just <strong>finding</strong> a generative AI model—it is ensuring that model is safe, performant, cost-effective, and easily accessible to your internal teams.</p>
 </div>
 <div class="paragraph">
-<p>While a <strong>Model Registry</strong> acts as a centralized repository for tracking and governing the lifecycle of your organization&#8217;s specific assets (the "Title Office"), the <strong>Red Hat OpenShift AI Model Catalog</strong> serves a distinct, complementary purpose. It is a curated, secure library of pre-evaluated generative AI models from providers like Red Hat, IBM, Meta, NVIDIA, and Google (the "Showroom").</p>
+<p>To understand the architecture of OpenShift AI, you must distinguish between two highly complementary components: the <strong>Model Registry</strong> and the <strong>Model Catalog</strong>.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>A <strong>Model Registry</strong> acts as your central repository and governance layer. It is where administrators and engineers version, track, and manage the complete lifecycle of ML models from development to deployment. Think of it as the "Title Office" for your AI assets.</p>
+</li>
+<li>
+<p>The <strong>Model Catalog</strong>, conversely, is the "Showroom." It provides a curated, centralized library where data scientists and AI engineers can discover, evaluate, and ultimately select the models they want to register and deploy.</p>
+</li>
+</ul>
 </div>
 <div class="paragraph">
-<p>The core business value of the catalog lies in reducing the time, cost, and operational risk associated with GenAI deployments through three key pillars.</p>
+<p>The core business value of the catalog lies in reducing the time, cost, and operational risk associated with GenAI deployments through four key pillars.</p>
 </div>
 <div class="imageblock text-center">
 <div class="content">
@@ -118,62 +125,65 @@
 <div class="title">Figure 1. Model Catalog and Red Hat Validated AI Models for Generative AI</div>
 </div>
 <div class="sect1">
-<h2 id="_1_validated_enterprise_ready"><a class="anchor" href="#_1_validated_enterprise_ready"></a>1. Validated &amp; Enterprise-Ready</h2>
+<h2 id="_1_validated_enterprise_ready_mitigating_shadow_ai"><a class="anchor" href="#_1_validated_enterprise_ready_mitigating_shadow_ai"></a>1. Validated &amp; Enterprise-Ready (Mitigating "Shadow AI")</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Deploying raw, community-sourced models introduces "Shadow AI" risks. The models in the catalog are not just listed; they are <strong>Red Hat Validated Models</strong>.</p>
+<p>Deploying raw, community-sourced models introduces severe "Shadow AI" risks, from malicious code to unsupported architectures. OpenShift AI provides a default catalog featuring models from providers like Red Hat, IBM, Meta, and Google.</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p><strong>Rigorously Tested:</strong> Verified for accuracy using the Language Model Evaluation Harness and performance-benchmarked using GuideLLM.</p>
-</li>
-<li>
-<p><strong>Secure Supply Chain:</strong> Scanned for vulnerabilities and packaged in standardized OCI formats (ModelCars) to integrate seamlessly into managed software lifecycles.</p>
-</li>
-<li>
-<p><strong>Lifecycle Management:</strong> Integrated into a supported ecosystem for long-term updates, bypassing the complex integration hurdles of deploying raw, untested open-source models.</p>
-</li>
-</ul>
+<div class="paragraph">
+<p>Models carrying the <strong>Red Hat Validated</strong> badge offer a secure supply chain. They are benchmarked for performance and quality using open-source evaluation datasets. Because they are packaged in standardized OCI formats (ModelCars), they integrate seamlessly into managed software lifecycles, bypassing the integration hurdles of untested open-source models.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_2_optimization_quantization_tco"><a class="anchor" href="#_2_optimization_quantization_tco"></a>2. Optimization &amp; Quantization (TCO)</h2>
+<h2 id="_2_custom_model_integration_your_private_showroom"><a class="anchor" href="#_2_custom_model_integration_your_private_showroom"></a>2. Custom Model Integration (Your Private Showroom)</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Hardware availability is the primary constraint for GenAI. The catalog addresses this by offering models optimized via Red Hat’s LLM Compressor toolkit.</p>
+<p>The Model Catalog is not a walled garden limited to Red Hat content. It is a flexible portal designed to expose your organization&#8217;s unique AI assets.</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p><strong>Lower VRAM Requirements:</strong> By applying advanced quantization techniques to compress model weights into lower-precision formats like <strong>INT4</strong>, <strong>INT8</strong>, and <strong>FP8 Dynamic</strong>, the catalog allows massive models to run on fewer or less expensive hardware accelerators.</p>
-</li>
-<li>
-<p><strong>High Throughput:</strong> These optimizations maintain accuracy while significantly increasing inference speed, directly lowering your Total Cost of Ownership (TCO) per token.</p>
-</li>
-</ul>
+<div class="paragraph">
+<p>Administrators can configure custom model catalog sources to expose fine-tuned or proprietary models. Whether these custom models are hosted in external storage locations (like secure S3 buckets) or are being pulled in alongside your Model Registry, the catalog standardizes their discovery. They appear in the catalog under specific labels or in an "Other models" category, allowing you to provide your data scientists with a single, unified interface for both trusted third-party foundation models and your own proprietary assets.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_3_transparency_via_model_cards"><a class="anchor" href="#_3_transparency_via_model_cards"></a>3. Transparency via Model Cards</h2>
+<h2 id="_3_optimization_quantization_controlling_tco"><a class="anchor" href="#_3_optimization_quantization_controlling_tco"></a>3. Optimization &amp; Quantization (Controlling TCO)</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>To eliminate the "black box" of AI, every asset in the catalog is paired with a detailed <strong>Model Card</strong>.</p>
+<p>Hardware availability is the primary constraint for GenAI. The catalog addresses this by offering models optimized via advanced quantization techniques.</p>
+</div>
+<div class="paragraph">
+<p>By compressing model weights into lower-precision formats (like <strong>INT4</strong>, <strong>INT8</strong>, and <strong>FP8 Dynamic</strong>), the catalog allows massive models to run on fewer or less expensive hardware accelerators. These optimizations maintain accuracy while significantly increasing inference speed, directly lowering your Total Cost of Ownership (TCO) per token.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_4_transparency_via_performance_insights"><a class="anchor" href="#_4_transparency_via_performance_insights"></a>4. Transparency via Performance Insights</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To eliminate the "black box" of AI performance, the catalog provides deep visibility into how a model will behave on your specific infrastructure <strong>before</strong> you deploy it.</p>
+</div>
+<div class="paragraph">
+<p>For validated models, engineers can access the <strong>Performance Insights</strong> tab to view benchmark data for specific hardware configurations. This allows for highly accurate capacity planning and hardware sizing by filtering and analyzing:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p><strong>Performance Insights:</strong> Access benchmark data that allows you to compare metrics across specific hardware configurations <strong>before</strong> deployment.</p>
+<p><strong>E2E (End-to-End Request Latency):</strong> The total time taken from submitting the request to receiving the final response.</p>
 </li>
 <li>
-<p><strong>Capacity Planning:</strong> Use this data to accurately size your cluster, enabling highly accurate capacity planning and hardware selection.</p>
+<p><strong>TTFT (Time to First Token):</strong> The critical wait time before a user sees the first output from the model.</p>
 </li>
 <li>
-<p><strong>Clear Limitations:</strong> Understand the model&#8217;s architecture, intended use, and training parameters to ensure policy compliance.</p>
+<p><strong>TPS (Tokens Per Second):</strong> The total number of tokens output per second, dictating overall throughput.</p>
+</li>
+<li>
+<p><strong>ITL (Inter-Token Latency):</strong> The average time between consecutive tokens.</p>
 </li>
 </ul>
+</div>
+<div class="paragraph">
+<p>Engineers can set their maximum acceptable latency or minimum requests per second (RPS) to immediately hide hardware configurations that will not meet their Service Level Agreements (SLAs).</p>
 </div>
 <hr>
 </div>
@@ -190,15 +200,15 @@
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p><strong>Test Drive (Simulation):</strong> Use an interactive Arcade simulation to navigate Model Cards, interpret performance benchmarks, and size hardware requirements.</p>
+<p><strong>Test Drive (Simulation):</strong> Navigate the UI to interpret Performance Insights, size hardware requirements, and explore deployment strategies (such as Rolling updates vs. Recreate).</p>
 </li>
 <li>
-<p><strong>Extend the Supply Chain (Lab):</strong> Take on the role of a Platform Engineer to inject a <strong>Custom Private Source</strong> into the catalog, making your organization&#8217;s fine-tuned models discoverable alongside Red Hat&#8217;s validated content.</p>
+<p><strong>Extend the Supply Chain (Lab):</strong> Take on the role of a Platform Engineer to inject a <strong>Custom Private Source</strong> into the catalog, making your organization&#8217;s fine-tuned models from external storage discoverable alongside validated content.</p>
 </li>
 </ol>
 </div>
 <div class="paragraph">
-<p><strong>Ready to explore? Let&#8217;s start by entering the showroom.</strong></p>
+<p><strong>Ready to explore? Let&#8217;s start by looking at the architecture that makes this possible.</strong></p>
 </div>
 </div>
 </div>

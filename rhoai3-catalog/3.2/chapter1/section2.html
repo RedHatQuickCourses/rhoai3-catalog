@@ -3,9 +3,8 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Lab: Customizing the Catalog :: Red Hat OpenShift AI (RHOAI) Model Catalog</title>
+    <title>Lab: Customizing the Catalog &amp; Supply Chain :: Red Hat OpenShift AI (RHOAI) Model Catalog</title>
     <link rel="prev" href="section4.html">
-    <link rel="next" href="section3.html">
     <meta name="generator" content="Antora 3.1.3">
     <link rel="stylesheet" href="../../../_/css/site.css">
     <script>var uiRootPath = '../../../_'</script>
@@ -55,9 +54,6 @@
   <li class="nav-item is-current-page" data-depth="1">
     <a class="nav-link" href="section2.html">Catalog Customization</a>
   </li>
-  <li class="nav-item" data-depth="1">
-    <a class="nav-link" href="section3.html">Administration &amp; Troubleshooting</a>
-  </li>
 </ul>
   </li>
 </ul>
@@ -98,40 +94,32 @@
   <div class="toc-menu"></div>
 </aside>
 <article class="doc">
-<h1 class="page">Lab: Customizing the Catalog</h1>
+<h1 class="page">Lab: Customizing the Catalog &amp; Supply Chain</h1>
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph lead">
-<p><strong>This custimization method involes embedding the catalog selction directly in the configmap.</strong></p>
+<p><strong>Your organization&#8217;s custom models deserve the same seamless deployment experience as third-party foundation models.</strong></p>
 </div>
 <div class="paragraph">
-<p>In strict enterprise environments, you often cannot point your Model Catalog to a public GitHub URL or an external HTTP server. The cluster might be air-gapped, or the firewall might block the request.</p>
+<p>In enterprise environments, you often have fine-tuned AI models stored in external storage locations (like secure S3 buckets) or tracked in your Model Registry. The Model Catalog is designed to expose these custom assets alongside Red Hat Validated models.</p>
 </div>
 <div class="paragraph">
-<p>The most robust way to add a custom source is the <strong>"Embedded Strategy"</strong>.</p>
+<p>As an OpenShift cluster administrator, you can configure a custom model catalog source by adding an entry to the <code>model-catalog-sources</code> config map. The most robust way to add a custom source, especially for air-gapped or strict firewall environments, is the <strong>"Embedded Strategy"</strong>.</p>
 </div>
 <div class="paragraph">
-<p>In this lab, you will configure the <code>model-catalog-sources</code> ConfigMap to serve two roles simultaneously:</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p><strong>The Pointer:</strong> It defines <strong>where</strong> to look for models.</p>
-</li>
-<li>
-<p><strong>The Database:</strong> It contains the actual model metadata itself.</p>
-</li>
-</ol>
+<p>In this lab, you will configure the ConfigMap to serve two roles simultaneously:
+ 1. <strong>The Pointer (<code>sources.yaml</code>):</strong> It defines the catalog name, ID, and where to look for the model definitions.
+ 2. <strong>The Database (e.g., <code>sample-catalog.yaml</code>):</strong> It contains the actual metadata and external storage URIs for your models.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_procedure"><a class="anchor" href="#_procedure"></a>Procedure</h2>
+<h2 id="_procedure_the_embedded_strategy"><a class="anchor" href="#_procedure_the_embedded_strategy"></a>Procedure: The Embedded Strategy</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_1_switch_to_the_registry_namespace"><a class="anchor" href="#_1_switch_to_the_registry_namespace"></a>1. Switch to the Registry Namespace</h3>
+<h3 id="_1_target_the_registry_namespace"><a class="anchor" href="#_1_target_the_registry_namespace"></a>1. Target the Registry Namespace</h3>
 <div class="paragraph">
-<p>First, ensure you are working in the correct namespace where the Model Registry components are running.</p>
+<p>First, ensure you are working in the correct project where the Model Registry components are running.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -142,7 +130,7 @@
 <div class="sect2">
 <h3 id="_2_open_the_catalog_configuration"><a class="anchor" href="#_2_open_the_catalog_configuration"></a>2. Open the Catalog Configuration</h3>
 <div class="paragraph">
-<p>The Model Catalog does not use a database for configuration; it uses a Kubernetes <strong>ConfigMap</strong>. You will edit this object directly.</p>
+<p>The Model Catalog uses a Kubernetes ConfigMap to define its sources. You will edit this object directly.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -157,7 +145,7 @@
 </td>
 <td class="content">
 <div class="paragraph">
-<p>You are editing a <strong>ConfigMap</strong>, not a local file. The file <code>sources.yaml</code> exists virtually inside the <code>data</code> section of this object.</p>
+<p>You are editing a <strong>ConfigMap</strong>, not a local file. The <code>sources.yaml</code> configuration and your custom model catalog file will exist as sibling entries inside the <code>data</code> section of this object.</p>
 </div>
 </td>
 </tr>
@@ -165,77 +153,45 @@
 </div>
 </div>
 <div class="sect2">
-<h3 id="_3_configure_the_registry_and_add_models"><a class="anchor" href="#_3_configure_the_registry_and_add_models"></a>3. Configure the Registry and Add Models</h3>
+<h3 id="_3_configure_the_source_and_add_models"><a class="anchor" href="#_3_configure_the_source_and_add_models"></a>3. Configure the Source and Add Models</h3>
 <div class="paragraph">
-<p>You need to define two logical "files" inside this ConfigMap:</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p><strong><code>sources.yaml</code></strong>: Registers your custom catalog path.</p>
-</li>
-<li>
-<p><strong><code>my-models.yaml</code></strong>: Contains the actual metadata for your models.</p>
-</li>
-</ol>
+<p>You need to define your custom source under the <code>catalogs</code> field in <code>sources.yaml</code>, and provide the actual model payload in a sibling file.</p>
 </div>
 <div class="paragraph">
-<p>Copy and paste the following data segment of the block into the <code>data:</code> section of the ConfigMap.</p>
-</div>
-<div class="ulist">
-<div class="title">Understanding the Schema</div>
-<ul>
-<li>
-<p><strong>Top-Level Fields:</strong> Only <code>name</code>, <code>description</code>, <code>readme</code>, and <code>maturity</code> are allowed here.</p>
-</li>
-<li>
-<p><strong>customProperties:</strong> You <strong>must</strong> put <code>author</code>, <code>version</code>, <code>model_type</code>, and other metadata here to avoid errors.</p>
-</li>
-</ul>
+<p>Carefully add the following structure into the <code>data:</code> section of the ConfigMap:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">cat &lt;&lt;EOF &gt; private-catalog.yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: model-catalog-sources
-  namespace: rhoai-model-registries
-  labels:
-    model.catalog.sources: "true"
-data:
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">data:
   # KEY 1: The Registration (The "Pointer")
-  # This tells the catalog app to look at a local file for the actual inventory.
-  sources.yaml: |
-    sources:
-      - name: acme-corp-private
-        displayName: "Acme Finance 7B (v1.2)"
-        description: "Internal fine-tuned models for Finance and HR applications."
-        properties:
-          yamlCatalogPath: "/data/user-sources/acme-models.yaml"
+  sources.yaml: |-
+    catalogs:
+    - name: Acme Corp Private    # The user-friendly name of the catalog source.
+      id: acme_custom_catalog    # The unique ID of the catalog source.
+      type: yaml                 # The catalog source type.
+      enabled: true              # Whether the catalog source is enabled.
+      properties:
+        yamlCatalogPath: acme-models.yaml # The location of your catalog source file.
+      labels:
+        - Acme AI Lab            # Optional labels for your catalog source to display in the catalog.
 
   # KEY 2: The Inventory (The "Database")
-  # This key contains the actual ModelRegistry definition.
-  # Because of the volume mount, this key becomes the file referenced above.
-  acme-models.yaml: |
+  # This key contains the actual Model definitions and external storage URIs.
+  acme-models.yaml: |-
     models:
-      # --- MODEL 1: Qwen/Qwen3-0.6B ---
-      - name: "Qwen3-0.6B"
+      - name: "Acme-Finance-7B"
         provider: "Acme AI Lab"
-        description: "Qwen Small Language Model"
+        description: "Internal fine-tuned model stored in secure S3."
         customProperties:
           model_type:
             metadataType: MetadataStringValue
             string_value: "generative"
           author:
             metadataType: MetadataStringValue
-            string_value: "Qwen"
-          version:
-            metadataType: MetadataStringValue
-            string_value: "1.2.0"
+            string_value: "Acme Data Science"
         artifacts:
           - name: "model-artifact"
-            uri: "s3://private-models/Qwen3-0.6B"</code></pre>
+            uri: "s3://acme-private-models/Finance-7B-v1.2"</code></pre>
 </div>
 </div>
 <div class="admonitionblock important">
@@ -247,7 +203,7 @@ data:
 <td class="content">
 <div class="title">YAML Indentation Warning</div>
 <div class="paragraph">
-<p>Notice the structure above. The <code>acme-models.yaml</code> content is a <strong>string block</strong> (using <code>|</code>) inside the <code>data</code> section. Ensure the indentation of the inner YAML is preserved exactly as shown, or the catalog parser will fail.</p>
+<p>Notice the structure above. The <code>acme-models.yaml</code> content is added in the same config map as a sibling of <code>sources.yaml</code>. Ensure the indentation of the inner YAML is preserved exactly as shown, or the catalog parser will fail.</p>
 </div>
 </td>
 </tr>
@@ -259,10 +215,7 @@ data:
 <div class="ulist">
 <ul>
 <li>
-<p><strong>Vi/Vim Users:</strong> Press <code>Esc</code>, then type <code>:wq</code> and press <code>Enter</code>.</p>
-</li>
-<li>
-<p><strong>Nano Users:</strong> Press <code>Ctrl+O</code>, <code>Enter</code>, then <code>Ctrl+X</code>.</p>
+<p><strong>Vi/Vim Users:</strong> Press <code>Esc</code>, then type <code>:wq</code> and press <code>Enter</code> to save the ConfigMap.</p>
 </li>
 </ul>
 </div>
@@ -270,85 +223,42 @@ data:
 </div>
 </div>
 <div class="sect1">
-<h2 id="_step_5_verification"><a class="anchor" href="#_step_5_verification"></a>Step 5: Verification</h2>
-<div class="sectionbody">
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Open the <strong>OpenShift AI Dashboard</strong>.</p>
-</li>
-<li>
-<p>Navigate to <strong>AI Hub &#8594; Model Catalog</strong>.</p>
-</li>
-<li>
-<p>Look at the <strong>Provider</strong> filter on the left sidebar.</p>
-<div class="ulist">
-<ul>
-<li>
-<p><strong>Success:</strong> You see a new checkbox: <strong>"Acme AI Lab"</strong>.</p>
-</li>
-</ul>
-</div>
-</li>
-<li>
-<p>Select the <strong>"Acme AI Lab"</strong> provider.</p>
-<div class="ulist">
-<ul>
-<li>
-<p><strong>Success:</strong> The <strong>Acme Finance 7B</strong> card appears.</p>
-</li>
-</ul>
-</div>
-</li>
-<li>
-<p>Click the card.</p>
-<div class="ulist">
-<ul>
-<li>
-<p><strong>Success:</strong> The <strong>Model Location</strong> field displays <code>s3://acme-private-models&#8230;&#8203;</code>.</p>
-</li>
-</ul>
-</div>
-</li>
-</ol>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_troubleshooting"><a class="anchor" href="#_troubleshooting"></a>Troubleshooting</h2>
+<h2 id="_step_5_verification_and_ui_categorization"><a class="anchor" href="#_step_5_verification_and_ui_categorization"></a>Step 5: Verification and UI Categorization</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>If the catalog fails to load or shows "No models found":</p>
+<p>These changes might take a few minutes to be displayed in the catalog on the dashboard.</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p><strong>Check the logs:</strong> The catalog pod logs will explicitly state if it failed to parse the YAML.
-[source,bash]
-----
-oc logs -l component=model-catalog -n rhoai-model-registries
-----
-<strong>Look for:</strong> <code>yaml.scanner.ScannerError</code> (indicates an indentation issue in your ConfigMap).</p>
+<p>Open the OpenShift AI dashboard and click <strong>AI hub → Catalog</strong>.</p>
 </li>
 <li>
-<p><strong>Verify the Mount:</strong> Ensure the file actually exists inside the pod.
-[source,bash]
-----
-oc exec -n rhoai-model-registries -it $(oc get pods -n rhoai-model-registries -l component=model-catalog -o jsonpath='{.items[0].metadata.name}')&#8201;&#8212;&#8201;ls -l /etc/model-catalog-source/
-----
-<strong>Expected:</strong> You should see both <code>sources.yaml</code> and <code>acme-models.yaml</code>.</p>
+<p>Look at the category menu bar at the top of the catalog:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>If you used the <code>labels</code> field (as we did with "Acme AI Lab"):</strong> Your models will appear in a custom category named <code>&lt;your-label-name&gt; models</code>.</p>
+</li>
+<li>
+<p><strong>If you omitted the <code>labels</code> field:</strong> Your custom models will be aggregated under the <strong>Other models</strong> category.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Click your custom model to view its details page. You will see that the deployment wizard is now ready to pull your custom asset directly from the external S3 storage URI you provided.</p>
 </li>
 </ol>
 </div>
 <hr>
 <div class="paragraph">
-<p><strong>You have now successfully setup the catalog to serve private assets using a self-contained, air-gap friendly configuration method.</strong></p>
+<p><strong>You have successfully engineered the supply chain to serve private assets. Next, we will cover the Day 2 Operations required to maintain this system.</strong></p>
 </div>
 </div>
 </div>
 <nav class="pagination">
   <span class="prev"><a href="section4.html">Simulator The Catalog Experience</a></span>
-  <span class="next"><a href="section3.html">Administration &amp; Troubleshooting</a></span>
 </nav>
 </article>
   </div>
