@@ -1,47 +1,60 @@
-= Simulator: The Catalog Experience
+= Simulator: The Catalog Experience & Data-Driven Provisioning
 :navtitle: Simulator: Catalog UI
 :toc: macro
 
 // Antora metadata
 :page-role: interactive-simulation
-:description: An interactive Arcade simulation demonstrating the Model Catalog UI, filtering, and the deployment wizard flow.
+:description: An interactive Arcade simulation demonstrating the Model Catalog UI, Performance Insights, and the deployment wizard flow.
 
 [.lead]
-*See the end state before you build the supply chain.*
+*See the end state before you build the supply chain. Hope is not an infrastructure strategy; data-driven capacity planning is.*
 
-Before we drop into the terminal to manipulate `ConfigMaps` and `SourceURIs`, it is critical to understand what the "Consumer" (the AI Engineer or Data Scientist) actually experiences.
+Before we drop into the terminal to manipulate custom catalog sources, it is critical to understand what the "Consumer" (the AI Engineer or Data Scientist) actually experiences. 
 
-In this interactive simulation, you will walk through the **Red Hat OpenShift AI Model Catalog** from the perspective of a user trying to find and deploy a compliant model.
+In this interactive simulation, you will walk through the **Red Hat OpenShift AI Model Catalog** from the perspective of a user trying to find, evaluate, and deploy a compliant model. You will see how the catalog replaces trial-and-error with a mathematical, data-driven workflow.
 
 == The Interactive Walkthrough
 
 [NOTE]
 .Instructions
 ====
-Click **"Get Started"** in the window below. Follow the on-screen prompts to navigate the catalog filters, inspect a ModelCard, and launch the Deployment Wizard.
+Click **"Get Started"** in the window below. Follow the on-screen prompts to navigate the catalog filters, inspect the Performance Insights, and launch the Deployment Wizard.
 ====
 
 // ARCADE EMBED BLOCK
-// Replace the 'src' attribute below with your specific Arcade flow URL
 ++++
 <iframe src="https://demo.arcade.software/gIqDDO6ciH3R1hGQ8ZZx?embed&embed_mobile=inline&embed_desktop=inline&show_copy_link=true" width="100%" height="500px" frameborder="0" allowfullscreen webkitallowfullscreen mozallowfullscreen allow="clipboard-write" muted> </iframe>
 ++++
 
 == Key Observations
 
-As you clicked through the simulation, did you notice the following operational details?
+As you clicked through the simulation, did you notice how the UI enforces operational guardrails? Here is the backend reality of what you just experienced:
 
 === 1. The "Provider" Filter 
-* **Observation:** In the sidebar, you saw options for "Red Hat," "Hugging Face," and "Community."
-* **The Backend Reality:** Each of these checkboxes corresponds to a specific entry in the `model-catalog-sources` ConfigMap. When you uncheck "Community," you are essentially filtering the JSON array returned by the catalog API.
+* **Observation:** In the sidebar, you saw options for different providers, tasks, and licenses.
+* **The Backend Reality:** Each of these checkboxes corresponds to specific metadata labels in the catalog sources. This allows administrators to seamlessly blend third-party validated models with their own internal, custom-trained models pulled from external storage.
 
 === 2. The Model Card "Source"
-* **Observation:** When you opened the *Granite 7B* card, the "Source" field displayed `registry.redhat.io`.
-* **The Backend Reality:** This confirms the asset is a **ModelCar** (OCI artifact). If you had selected a community model, this field would likely show a `huggingface.co` URL, indicating a raw file download.
+* **Observation:** When you opened a Red Hat validated model card, the "Source" field displayed an OCI registry path.
+* **The Backend Reality:** This confirms the asset is delivered as a **ModelCar** (OCI artifact). It will be cached locally on the node, enabling near-instant scaling and avoiding brittle, massive file downloads. 
 
-=== 3. The Hardware Profile Match
-* **Observation:** In the Deployment Wizard, the "Hardware Profile" dropdown was pre-selected or filtered.
-* **The Backend Reality:** The catalog metadata includes a `hardware_profile` tag. The wizard uses this to query the cluster for `NodeResources`. If your cluster lacked GPUs, that dropdown would be empty, and the deployment would be blocked—protecting you from a pending pod failure.
+=== 3. Data-Driven Evaluation (Performance Insights)
+* **Observation:** The **Performance Insights** tab provided detailed benchmark data for specific hardware types.
+* **The Backend Reality:** Instead of guessing how a model will perform, users can filter the data by:
+  * **TTFT (Time to First Token) & TPS (Tokens Per Second):** To ensure chatbot responsiveness and overall throughput capabilities.
+  * **E2E & ITL:** To understand total end-to-end request latency and inter-token speeds.
+  * **SLA Enforcement Sliders:** By setting the maximum acceptable latency or minimum RPS sliders, users instantly hide hardware configurations that fail to meet their Service Level Agreements. 
+
+=== 4. Intelligent Runtime & Hardware Matching
+* **Observation:** In the Deployment Wizard, the "Hardware Profile" and "Serving Runtime" were intelligently filtered or auto-selected.
+* **The Backend Reality:** The system analyzes the model framework and your available hardware profiles to automatically recommend the best serving runtime. If your cluster lacks the required GPUs to run a specific model, it prevents deployment—protecting you from a pending pod failure.
+
+=== 5. Deployment Strategies (Rolling vs. Recreate)
+* **Observation:** The wizard required a choice between "Rolling update" and "Recreate" deployment strategies.
+* **The Backend Reality:** This puts uptime controls directly in the UI. **Rolling updates** ensure zero downtime by starting new inference pods before terminating old ones. **Recreate** saves resources by terminating old pods first—a crucial guardrail when a cluster is tightly constrained on expensive GPU resources and cannot support overlapping compute capacity.
 
 ---
-*Now that you have seen the "Frontend" experience, let's go to the "Backend" and inject a custom source using the CLI.*
+
+== Next Steps
+
+Now that you have seen the "Frontend" experience and understand how it enforces safe, data-driven deployments, let's go to the "Backend" and inject a custom source using the CLI.

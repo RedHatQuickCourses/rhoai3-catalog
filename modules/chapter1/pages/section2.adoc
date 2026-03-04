@@ -1,28 +1,26 @@
-= Lab: Customizing the Catalog
+= Lab: Customizing the Catalog & Supply Chain
 :navtitle: Lab: Customizing the Catalog
 :toc: macro
 
 // Antora metadata
 :page-role: hands-on-lab
-:description: How to inject private models into the RHOAI Model Catalog using the embedded ConfigMap strategy for air-gapped stability.
+:description: How to inject private models from external storage into the RHOAI Model Catalog using the embedded ConfigMap strategy.
 
 [.lead]
-*This custimization method involes embedding the catalog selction directly in the configmap.*
+*Your organization's custom models deserve the same seamless deployment experience as third-party foundation models.*
 
-In strict enterprise environments, you often cannot point your Model Catalog to a public GitHub URL or an external HTTP server. The cluster might be air-gapped, or the firewall might block the request.
+In enterprise environments, you often have fine-tuned AI models stored in external storage locations (like secure S3 buckets) or tracked in your Model Registry. The Model Catalog is designed to expose these custom assets alongside Red Hat Validated models. 
 
-The most robust way to add a custom source is the **"Embedded Strategy"**.
+As an OpenShift cluster administrator, you can configure a custom model catalog source by adding an entry to the `model-catalog-sources` config map. The most robust way to add a custom source, especially for air-gapped or strict firewall environments, is the **"Embedded Strategy"**.
 
-In this lab, you will configure the `model-catalog-sources` ConfigMap to serve two roles simultaneously:
+In this lab, you will configure the ConfigMap to serve two roles simultaneously:
+ 1. **The Pointer (`sources.yaml`):** It defines the catalog name, ID, and where to look for the model definitions.
+ 2. **The Database (e.g., `sample-catalog.yaml`):** It contains the actual metadata and external storage URIs for your models.
 
- 1.  **The Pointer:** It defines *where* to look for models.
- 2.  **The Database:** It contains the actual model metadata itself.
+== Procedure: The Embedded Strategy
 
-== Procedure
-
-=== 1. Switch to the Registry Namespace
-
-First, ensure you are working in the correct namespace where the Model Registry components are running.
+=== 1. Target the Registry Namespace
+First, ensure you are working in the correct project where the Model Registry components are running.
 
 [source,bash]
 ----
@@ -30,8 +28,7 @@ oc project rhoai-model-registries
 ----
 
 === 2. Open the Catalog Configuration
-
-The Model Catalog does not use a database for configuration; it uses a Kubernetes **ConfigMap**. You will edit this object directly.
+The Model Catalog uses a Kubernetes ConfigMap to define its sources. You will edit this object directly.
 
 [source,bash]
 ----
@@ -40,108 +37,66 @@ oc edit configmap model-catalog-sources
 
 [NOTE]
 ====
-You are editing a **ConfigMap**, not a local file. The file `sources.yaml` exists virtually inside the `data` section of this object.
+You are editing a **ConfigMap**, not a local file. The `sources.yaml` configuration and your custom model catalog file will exist as sibling entries inside the `data` section of this object.
 ====
 
-=== 3. Configure the Registry and Add Models
+=== 3. Configure the Source and Add Models
+You need to define your custom source under the `catalogs` field in `sources.yaml`, and provide the actual model payload in a sibling file. 
 
-You need to define two logical "files" inside this ConfigMap:
-
- 1.  **`sources.yaml`**: Registers your custom catalog path.
- 2.  **`my-models.yaml`**: Contains the actual metadata for your models.
-
-Copy and paste the following data segment of the block into the `data:` section of the ConfigMap.
-
-.Understanding the Schema
-* **Top-Level Fields:** Only `name`, `description`, `readme`, and `maturity` are allowed here.
-* **customProperties:** You **must** put `author`, `version`, `model_type`, and other metadata here to avoid errors.
+Carefully add the following structure into the `data:` section of the ConfigMap:
 
 [source,yaml]
 ----
-cat <<EOF > private-catalog.yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: model-catalog-sources
-  namespace: rhoai-model-registries
-  labels:
-    model.catalog.sources: "true"
 data:
   # KEY 1: The Registration (The "Pointer")
-  # This tells the catalog app to look at a local file for the actual inventory.
-  sources.yaml: |
-    sources:
-      - name: acme-corp-private
-        displayName: "Acme Finance 7B (v1.2)"
-        description: "Internal fine-tuned models for Finance and HR applications."
-        properties:
-          yamlCatalogPath: "/data/user-sources/acme-models.yaml"
-
+  sources.yaml: |-
+    catalogs:
+    - name: Acme Corp Private    # The user-friendly name of the catalog source.
+      id: acme_custom_catalog    # The unique ID of the catalog source.
+      type: yaml                 # The catalog source type.
+      enabled: true              # Whether the catalog source is enabled.
+      properties:
+        yamlCatalogPath: acme-models.yaml # The location of your catalog source file.
+      labels:
+        - Acme AI Lab            # Optional labels for your catalog source to display in the catalog.
+  
   # KEY 2: The Inventory (The "Database")
-  # This key contains the actual ModelRegistry definition. 
-  # Because of the volume mount, this key becomes the file referenced above.
-  acme-models.yaml: |
+  # This key contains the actual Model definitions and external storage URIs.
+  acme-models.yaml: |-
     models:
-      # --- MODEL 1: Qwen/Qwen3-0.6B ---
-      - name: "Qwen3-0.6B"
+      - name: "Acme-Finance-7B"
         provider: "Acme AI Lab"
-        description: "Qwen Small Language Model"
+        description: "Internal fine-tuned model stored in secure S3."
         customProperties:
           model_type:
             metadataType: MetadataStringValue
             string_value: "generative"
           author:
             metadataType: MetadataStringValue
-            string_value: "Qwen"
-          version:
-            metadataType: MetadataStringValue
-            string_value: "1.2.0"
+            string_value: "Acme Data Science"
         artifacts:
           - name: "model-artifact"
-            uri: "s3://private-models/Qwen3-0.6B"
+            uri: "s3://acme-private-models/Finance-7B-v1.2"
 ----
 
 [IMPORTANT]
 .YAML Indentation Warning
 ====
-Notice the structure above. The `acme-models.yaml` content is a **string block** (using `|`) inside the `data` section. Ensure the indentation of the inner YAML is preserved exactly as shown, or the catalog parser will fail.
+Notice the structure above. The `acme-models.yaml` content is added in the same config map as a sibling of `sources.yaml`. Ensure the indentation of the inner YAML is preserved exactly as shown, or the catalog parser will fail.
 ====
 
 === 4. Save and Exit
+* **Vi/Vim Users:** Press `Esc`, then type `:wq` and press `Enter` to save the ConfigMap.
 
-* **Vi/Vim Users:** Press `Esc`, then type `:wq` and press `Enter`.
-* **Nano Users:** Press `Ctrl+O`, `Enter`, then `Ctrl+X`.
+== Step 5: Verification and UI Categorization
 
+These changes might take a few minutes to be displayed in the catalog on the dashboard.
 
-
-== Step 5: Verification
-
-1.  Open the **OpenShift AI Dashboard**.
-2.  Navigate to **AI Hub -> Model Catalog**.
-3.  Look at the **Provider** filter on the left sidebar.
-    * *Success:* You see a new checkbox: **"Acme AI Lab"**.
-4.  Select the **"Acme AI Lab"** provider.
-    * *Success:* The **Acme Finance 7B** card appears.
-5.  Click the card.
-    * *Success:* The **Model Location** field displays `s3://acme-private-models...`.
-
-== Troubleshooting
-
-If the catalog fails to load or shows "No models found":
-
-1.  **Check the logs:** The catalog pod logs will explicitly state if it failed to parse the YAML.
-    [source,bash]
-    ----
-    oc logs -l component=model-catalog -n rhoai-model-registries
-    ----
-    *Look for:* `yaml.scanner.ScannerError` (indicates an indentation issue in your ConfigMap).
-
-2.  **Verify the Mount:** Ensure the file actually exists inside the pod.
-    [source,bash]
-    ----
-    oc exec -n rhoai-model-registries -it $(oc get pods -n rhoai-model-registries -l component=model-catalog -o jsonpath='{.items[0].metadata.name}') -- ls -l /etc/model-catalog-source/
-    ----
-    *Expected:* You should see both `sources.yaml` and `acme-models.yaml`.
+1. Open the OpenShift AI dashboard and click **AI hub → Catalog**.
+2. Look at the category menu bar at the top of the catalog:
+   * **If you used the `labels` field (as we did with "Acme AI Lab"):** Your models will appear in a custom category named `<your-label-name> models`.
+   * **If you omitted the `labels` field:** Your custom models will be aggregated under the **Other models** category.
+3. Click your custom model to view its details page. You will see that the deployment wizard is now ready to pull your custom asset directly from the external S3 storage URI you provided.
 
 ---
-*You have now successfully setup the catalog to serve private assets using a self-contained, air-gap friendly configuration method.*
+*You have successfully engineered the supply chain to serve private assets. Next, we will cover the Day 2 Operations required to maintain this system.*
