@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Lab: Customizing the Catalog &amp; Supply Chain :: Red Hat OpenShift AI (RHOAI) Model Catalog</title>
     <link rel="prev" href="section4.html">
+    <link rel="next" href="section3.html">
     <meta name="generator" content="Antora 3.1.3">
     <link rel="stylesheet" href="../../../_/css/site.css">
     <script>var uiRootPath = '../../../_'</script>
@@ -52,7 +53,10 @@
     <a class="nav-link" href="section4.html">Simulator The Catalog Experience</a>
   </li>
   <li class="nav-item is-current-page" data-depth="1">
-    <a class="nav-link" href="section2.html">Catalog Customization</a>
+    <a class="nav-link" href="section2.html">Catalog Customization CLI</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="section3.html">Administration &amp; Troubleshooting</a>
   </li>
 </ul>
   </li>
@@ -85,7 +89,7 @@
 <nav class="breadcrumbs" aria-label="breadcrumbs">
   <ul>
     <li><a href="../index.html">Red Hat OpenShift AI (RHOAI) Model Catalog</a></li>
-    <li><a href="section2.html">Catalog Customization</a></li>
+    <li><a href="section2.html">Catalog Customization CLI</a></li>
   </ul>
 </nav>
 </div>
@@ -101,25 +105,33 @@
 <p><strong>Your organization&#8217;s custom models deserve the same seamless deployment experience as third-party foundation models.</strong></p>
 </div>
 <div class="paragraph">
-<p>In enterprise environments, you often have fine-tuned AI models stored in external storage locations (like secure S3 buckets) or tracked in your Model Registry. The Model Catalog is designed to expose these custom assets alongside Red Hat Validated models.</p>
+<p>In OpenShift AI 3.3, administrators have the option to manage catalog sources directly through the new Dashboard UI. However, for true enterprise scale, Platform Engineers must understand how to manage these sources declaratively. This allows for strict "GitOps" workflows where every model approved for deployment is tracked as code.</p>
 </div>
 <div class="paragraph">
-<p>As an OpenShift cluster administrator, you can configure a custom model catalog source by adding an entry to the <code>model-catalog-sources</code> config map. The most robust way to add a custom source, especially for air-gapped or strict firewall environments, is the <strong>"Embedded Strategy"</strong>.</p>
+<p>As an OpenShift cluster administrator, you configure a custom model catalog source by adding an entry to the <code>model-catalog-sources</code> config map.</p>
 </div>
 <div class="paragraph">
-<p>In this lab, you will configure the ConfigMap to serve two roles simultaneously:
- 1. <strong>The Pointer (<code>sources.yaml</code>):</strong> It defines the catalog name, ID, and where to look for the model definitions.
- 2. <strong>The Database (e.g., <code>sample-catalog.yaml</code>):</strong> It contains the actual metadata and external storage URIs for your models.</p>
+<p>In this lab, you will use the <strong>"Embedded Strategy"</strong>. This is the most robust method for air-gapped or strict firewall environments. You will configure the ConfigMap to serve two roles simultaneously:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>The Pointer (<code>sources.yaml</code>):</strong> It defines the catalog name, ID, and where to look for the model definitions.</p>
+</li>
+<li>
+<p><strong>The Database (e.g., <code>acme-models.yaml</code>):</strong> It contains the actual metadata and external storage URIs for your proprietary models.</p>
+</li>
+</ol>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_procedure_the_embedded_strategy"><a class="anchor" href="#_procedure_the_embedded_strategy"></a>Procedure: The Embedded Strategy</h2>
+<h2 id="_procedure_the_declarative_gitops_strategy"><a class="anchor" href="#_procedure_the_declarative_gitops_strategy"></a>Procedure: The Declarative GitOps Strategy</h2>
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="_1_target_the_registry_namespace"><a class="anchor" href="#_1_target_the_registry_namespace"></a>1. Target the Registry Namespace</h3>
 <div class="paragraph">
-<p>First, ensure you are working in the correct project where the Model Registry components are running.</p>
+<p>First, ensure you are working in the correct project where the Model Registry and Catalog components are running.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -253,12 +265,13 @@
 </div>
 <hr>
 <div class="paragraph">
-<p><strong>You have successfully engineered the supply chain to serve private assets. Next, we will cover the Day 2 Operations required to maintain this system.</strong></p>
+<p><strong>You have successfully engineered the supply chain to serve private assets declaratively. Next, we will cover the Day 2 Operations required to maintain, secure, and govern this system.</strong></p>
 </div>
 </div>
 </div>
 <nav class="pagination">
   <span class="prev"><a href="section4.html">Simulator The Catalog Experience</a></span>
+  <span class="next"><a href="section3.html">Administration &amp; Troubleshooting</a></span>
 </nav>
 </article>
   </div>
