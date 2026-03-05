@@ -1,20 +1,27 @@
-= Day 2 Operations & Value Realization
-:navtitle: Ops & Summary
+= Day 2 Operations & Enterprise Governance
+:navtitle: Ops & Governance
 :toc: macro
 
 // Antora metadata
 :page-role: troubleshooting-guide
-:description: A consolidated guide to Model Catalog troubleshooting, operational guardrails, and the final business value summary.
+:description: A consolidated guide to OpenShift AI 3.3 Model Catalog governance, operational guardrails, and upgrade troubleshooting.
 
 [.lead]
-*A catalog that doesn't load delivers zero value. A catalog that works delivers a competitive advantage.*
+*A catalog that doesn't load delivers zero value. A catalog that is governed delivers a competitive advantage.*
 
-You have built the supply chain. You have learned how to inject custom sources and deploy with hardware-aligned profiles. Now, we turn to **Day 2 Operations**: keeping the lights on and articulating the value of what you have built.
+You have built the supply chain. You have learned how to inject custom sources declaratively and deploy with hardware-aligned profiles. Now, we turn to **Day 2 Operations**: enforcing corporate governance, handling upgrades, and articulating the value of what you have built.
 
+== 1. Curation and Compliance (The Allow/Disallow Engine)
 
-== 1. Managing Availability (The "Kill Switch")
+One of the most powerful Day 2 capabilities introduced in OpenShift AI 3.3 is the ability to actively govern the showroom. Curation is not a one-time event; it is an ongoing operational requirement.
 
-There will be times—during upgrades, security audits, or huge re-indexing operations—when you need to temporarily close the showroom. You control visibility via the `OdhDashboardConfig` resource.
+If your security team flags a specific model license, or if corporate policy dictates that only internally fine-tuned models can be used for a specific period, you do not need to tear down your infrastructure. The model catalog now provides an administrative capability in the OpenShift AI dashboard to selectively hide, disallow list, or remove specific models from the visible catalog. 
+
+This ensures rapid compliance with internal security, policy, or regulatory restrictions without requiring deep CLI intervention.
+
+== 2. Managing Availability (The "Kill Switch")
+
+There will be times—during massive cluster upgrades, critical security audits, or backend storage migrations—when you need to temporarily close the showroom entirely. You control visibility via the `OdhDashboardConfig` custom resource.
 
 **To hide the catalog from the UI:**
 
@@ -26,46 +33,17 @@ oc patch odhdashboardconfig odh-dashboard-config \
   -p '{"spec": {"dashboardConfig": {"disableModelCatalog": true}}}'
 ----
 
-* **True:** Catalog tab disappears.
-* **False:** Catalog tab reappears.
+* **True:** The AI hub → Catalog menu item disappears from the dashboard navigation menu.
+* **False:** The Catalog tab reappears.
 
-== 2. The Troubleshooting Playbook (RHOAI 3.2)
+== 3. The Troubleshooting Playbook: The 3.x Upgrade Gotcha
 
-Even a validated platform has edge cases. These are the three most common "Gotchas" you will encounter as a Platform Engineer, and exactly how to fix them.
+Even a validated platform has edge cases during major architectural shifts. If you are migrating a cluster to the 3.x architecture, this is the most critical operational "gotcha" you will encounter.
 
-=== Issue A: The Upgrade Hang
-
- * **Symptom:** After an OpenShift AI upgrade, the Catalog UI is blank or displays *"Request access to model catalog."*
- * **Root Cause:** The `model-catalog-sources` ConfigMap schema changed, and the operator failed to reconcile the old state.
- * **The Fix:** Force a clean regeneration.
-
-[source,bash]
-----
-# Delete the config and the pod; the operator will recreate them with defaults
-oc delete configmap model-catalog-sources -n rhoai-model-registries
-oc delete pod -l component=model-catalog -n rhoai-model-registries
-----
-
-=== Issue B: The "Missing Storage" Loop
-* **Symptom:** In the Deployment Wizard, the **"Existing Cluster Storage"** radio button is hidden, forcing you to create a new connection even if you already have PVCs.
-* **Root Cause:** The Wizard UI logic proactively hides the option if it detects *zero* `DataConnections` in the project.
-* **The Fix:**
-    1.  Go to **Settings -> Data Connections**.
-    2.  Create a "Dummy" S3 connection (it doesn't need to be real).
-    3.  Refresh the Wizard. The "Existing Cluster Storage" option will appear.
-
-=== Issue C: DNS Name Collisions (The 63-Char Limit)
-* **Symptom:** Deployment status hangs in "Unknown" or fails with internal service errors.
-* **Root Cause:** You accepted a long default name (e.g., `mistral-7b-instruct-v0.1-quantized-w4a16`). KServe appends suffixes (e.g., `-predictor-default`), pushing the string over the Kubernetes 63-character DNS label limit.
-* **The Fix:** **Always rename.** Use short aliases like `mistral-7b-prod`.
-
-== 3. Operational Guardrails Summary
-
-To keep your catalog healthy, commit to these three rules:
-
-1.  **Prefer ModelCars:** Ensure your cluster has pull secrets for `registry.redhat.io` . This moves model distribution from "slow file downloads" to "fast container caching."
-2.  **GitOps Your Sources:** Never edit the `model-catalog-sources` ConfigMap manually in production. Manage it in Git so you have an audit trail of every model added or removed.
-3.  **Quantization Matching:** Monitor your `ClusterResourceQuotas`. Ensure you aren't approving `.FP8` models (High Performance) if your nodes only have older GPUs that can only handle `.w4a16` (High Efficiency).
+=== Issue: Dashboard URLs Return 404 Errors
+* **Symptom:** After upgrading to OpenShift AI 3.x, users complain that their bookmarks to the OpenShift AI dashboard (and by extension, the catalog) are returning 404 Page Not Found errors.
+* **Root Cause:** The transition to using the Gateway API in version 3.x changed the underlying URL structure. The dashboard URL subdomain changed from `rhods-dashboard-redhat-ods-applications.apps.<cluster>` to `data-science-gateway.apps.<cluster>`. Existing bookmarks using the old format will no longer function.
+* **The Fix:** Cluster administrators must provide the new dashboard URL (`data-science-gateway.apps.<cluster>`) to all users and update internal documentation. To ease the transition, administrators can deploy an nginx-based redirect solution that recreates the old route name and redirects traffic to the new gateway URL.
 
 == 4. The Payoff: Business Value & ROI
 
@@ -78,26 +56,26 @@ You now have the answer. The Model Catalog is not just a UI; it is a **Risk Cont
 | Value Pillar | The Engineering Reality
 
 | **1. ROI & Cost**
-| **Quantization Aware:** By filtering for `.w4a16` or `.w8a8` models, you fit 70B parameter models onto cheaper GPUs (e.g., A10g vs A100), potentially lowering hardware TCO by **40-60%**.
+| **Hardware Mapping:** By utilizing the Performance Insights and quantization matching, you fit massive models onto cheaper GPUs, preventing expensive over-provisioning.
 
-| **2. Security**
-| **Supply Chain Trust:** Red Hat Validated Models are scanned and signed. You aren't pulling "mystery weights" containing pickled malware or unknown licenses.
+| **2. Security & Compliance**
+| **Supply Chain Trust:** Red Hat Validated Models are scanned and benchmarked. The 3.3 Allow/Disallow UI capabilities give you the ultimate veto power over what enters your environment.
 
 | **3. Performance**
-| **Hardware Validated:** You don't waste weeks discovering a model is incompatible with your accelerator. If it's in the catalog with a profile, it *runs*.
+| **Hardware Validated:** You don't waste weeks discovering a model is incompatible with your accelerator. If it's in the catalog with a profile (including IBM Spyre and AMD), it runs.
 
 | **4. Speed**
-| **ModelCars:** OCI-based delivery means scaling out 10 replicas takes seconds (cached layers) rather than minutes (re-downloading 50GB files).
+| **ModelCars:** OCI-based delivery means scaling out replicas takes seconds (cached layers) rather than minutes (re-downloading massive files).
 |===
 
 == Conclusion
 
 You have successfully navigated the **Red Hat OpenShift AI Model Catalog**.
 
-* You explored the **Architecture** of ModelCars and OCI.
-* You mastered the **Deployment Wizard** and its guardrails.
-* You built a **Custom Supply Chain** using the CLI.
-* You prepared for **Day 2 Operations**.
+ * You explored the **Architecture** of ModelCars and Quantization.
+ * You mastered the **Performance Insights** and Deployment guardrails.
+ * You built a **Custom Supply Chain** using the declarative CLI.
+ * You prepared for **Day 2 Governance and Operations**.
 
 Your "Showroom" is now open for business.
 

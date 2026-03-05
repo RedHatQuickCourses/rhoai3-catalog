@@ -1,60 +1,94 @@
-= Simulator: The Catalog Experience & Data-Driven Provisioning
-:navtitle: Simulator: Catalog UI
+= Evaluating & Deploying: The Interactive Workflows
+:navtitle: Interactive Workflows
 :toc: macro
 
 // Antora metadata
 :page-role: interactive-simulation
-:description: An interactive Arcade simulation demonstrating the Model Catalog UI, Performance Insights, and the deployment wizard flow.
+:description: Interactive micro-simulations demonstrating catalog discovery, performance evaluation, deployment guardrails, and 3.3 governance.
 
 [.lead]
-*See the end state before you build the supply chain. Hope is not an infrastructure strategy; data-driven capacity planning is.*
+*Hope is not an infrastructure strategy; data-driven capacity planning is. Experience the workflows that make this possible.*
 
-Before we drop into the terminal to manipulate custom catalog sources, it is critical to understand what the "Consumer" (the AI Engineer or Data Scientist) actually experiences. 
+To truly understand the value of the OpenShift AI Model Catalog, you must experience how it replaces trial-and-error with mathematical, governed workflows. 
 
-In this interactive simulation, you will walk through the **Red Hat OpenShift AI Model Catalog** from the perspective of a user trying to find, evaluate, and deploy a compliant model. You will see how the catalog replaces trial-and-error with a mathematical, data-driven workflow.
+Below are four focused, interactive simulations. Step into the shoes of both the AI Engineer and the Platform Administrator to see how OpenShift AI secures the supply chain from discovery to deployment.
 
-== The Interactive Walkthrough
+== Workflow 1: The Showroom (Discovery & Filtering)
+
+**The Goal:** Find a compliant, Red Hat Validated model while filtering out unsupported community assets.
+**The Value:** Mitigating "Shadow AI" by ensuring data scientists only use approved, secure foundation models.
 
 [NOTE]
-.Instructions
+.Simulation 1: Filtering the Catalog
 ====
-Click **"Get Started"** in the window below. Follow the on-screen prompts to navigate the catalog filters, inspect the Performance Insights, and launch the Deployment Wizard.
+* **Click through the simulation below.** * Notice how the left sidebar allows users to filter models by specific tasks, providers, and licenses. 
+* Observe how Red Hat Validated models are clearly badged, separating them from untested community options.
 ====
 
-// ARCADE EMBED BLOCK
+// ARCADE EMBED 1 (Filtering & Discovery)
 ++++
-<iframe src="https://demo.arcade.software/gIqDDO6ciH3R1hGQ8ZZx?embed&embed_mobile=inline&embed_desktop=inline&show_copy_link=true" width="100%" height="500px" frameborder="0" allowfullscreen webkitallowfullscreen mozallowfullscreen allow="clipboard-write" muted> </iframe>
+<iframe src="[INSERT_ARCADE_1_URL]" width="100%" height="400px" frameborder="0" allowfullscreen> </iframe>
 ++++
 
-== Key Observations
+== Workflow 2: Data-Driven Provisioning (Performance Insights)
 
-As you clicked through the simulation, did you notice how the UI enforces operational guardrails? Here is the backend reality of what you just experienced:
+**The Goal:** Determine the exact hardware required to meet a specific Service Level Agreement (SLA).
+**The Value:** Preventing expensive over-provisioning and avoiding under-resourced pod crashes.
 
-=== 1. The "Provider" Filter 
-* **Observation:** In the sidebar, you saw options for different providers, tasks, and licenses.
-* **The Backend Reality:** Each of these checkboxes corresponds to specific metadata labels in the catalog sources. This allows administrators to seamlessly blend third-party validated models with their own internal, custom-trained models pulled from external storage.
+[NOTE]
+.Simulation 2: Sizing the Hardware
+====
+* **Click through the simulation below.**
+* Open the **Performance Insights** tab for a validated model.
+* Adjust the **Max Latency** and **Min RPS** sliders. Watch how hardware configurations (like the H200 or A100) that fail to meet these thresholds are instantly hidden, removing the guesswork from capacity planning.
+====
 
-=== 2. The Model Card "Source"
-* **Observation:** When you opened a Red Hat validated model card, the "Source" field displayed an OCI registry path.
-* **The Backend Reality:** This confirms the asset is delivered as a **ModelCar** (OCI artifact). It will be cached locally on the node, enabling near-instant scaling and avoiding brittle, massive file downloads. 
+// ARCADE EMBED 2 (Performance Insights)
+++++
+<iframe src="[INSERT_ARCADE_2_URL]" width="100%" height="400px" frameborder="0" allowfullscreen> </iframe>
+++++
 
-=== 3. Data-Driven Evaluation (Performance Insights)
-* **Observation:** The **Performance Insights** tab provided detailed benchmark data for specific hardware types.
-* **The Backend Reality:** Instead of guessing how a model will perform, users can filter the data by:
-  * **TTFT (Time to First Token) & TPS (Tokens Per Second):** To ensure chatbot responsiveness and overall throughput capabilities.
-  * **E2E & ITL:** To understand total end-to-end request latency and inter-token speeds.
-  * **SLA Enforcement Sliders:** By setting the maximum acceptable latency or minimum RPS sliders, users instantly hide hardware configurations that fail to meet their Service Level Agreements. 
+== Workflow 3: The Guardrailed Deployment
 
-=== 4. Intelligent Runtime & Hardware Matching
-* **Observation:** In the Deployment Wizard, the "Hardware Profile" and "Serving Runtime" were intelligently filtered or auto-selected.
-* **The Backend Reality:** The system analyzes the model framework and your available hardware profiles to automatically recommend the best serving runtime. If your cluster lacks the required GPUs to run a specific model, it prevents deployment—protecting you from a pending pod failure.
+**The Goal:** Deploy the selected model to the cluster without causing an outage or selecting the wrong runtime.
+**The Value:** Protecting cluster uptime and enforcing infrastructure guardrails.
 
-=== 5. Deployment Strategies (Rolling vs. Recreate)
-* **Observation:** The wizard required a choice between "Rolling update" and "Recreate" deployment strategies.
-* **The Backend Reality:** This puts uptime controls directly in the UI. **Rolling updates** ensure zero downtime by starting new inference pods before terminating old ones. **Recreate** saves resources by terminating old pods first—a crucial guardrail when a cluster is tightly constrained on expensive GPU resources and cannot support overlapping compute capacity.
+[NOTE]
+.Simulation 3: Deploying the Model
+====
+* **Click through the simulation below.**
+* Notice how the wizard automatically selects the best Serving Runtime based on the model framework.
+* Pay attention to the **Deployment Strategy** selection. You must explicitly choose between a **Rolling update** (zero downtime, requires overlapping GPU capacity) or **Recreate** (brief downtime, saves GPU resources).
+====
+
+// ARCADE EMBED 3 (Deployment Wizard)
+++++
+<iframe src="[INSERT_ARCADE_3_URL]" width="100%" height="400px" frameborder="0" allowfullscreen> </iframe>
+++++
+
+== Workflow 4: Enterprise Governance (New in 3.3)
+
+**The Goal:** Take control of the catalog as a Platform Administrator.
+**The Value:** Enforcing strict corporate compliance and injecting proprietary assets.
+
+[NOTE]
+.Simulation 4: Catalog Management
+====
+* **Click through the simulation below.**
+* Explore the new 3.3 Catalog Management UI. 
+* See how administrators can quickly inject custom catalog sources to expose fine-tuned, internal models.
+* Observe the **Allow/Disallow** capabilities, allowing admins to selectively hide or remove specific models to comply with internal security or regulatory restrictions.
+====
+
+// ARCADE EMBED 4 (3.3 UI Management)
+++++
+<iframe src="[INSERT_ARCADE_4_URL]" width="100%" height="400px" frameborder="0" allowfullscreen> </iframe>
+++++
 
 ---
 
 == Next Steps
 
-Now that you have seen the "Frontend" experience and understand how it enforces safe, data-driven deployments, let's go to the "Backend" and inject a custom source using the CLI.
+You have now experienced the UI-driven workflows for discovery, evaluation, deployment, and curation. For enterprise-scale environments, however, Platform Engineers often prefer to manage these configurations as code. 
+
+Next, we will shift to a hands-on lab where you will learn the declarative, GitOps approach to injecting custom catalog sources using Kubernetes ConfigMaps.

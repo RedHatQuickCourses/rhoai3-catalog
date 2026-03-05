@@ -4,23 +4,24 @@
 
 // Antora metadata
 :page-role: hands-on-lab
-:description: How to inject private models from external storage into the RHOAI Model Catalog using the embedded ConfigMap strategy.
+:description: How to inject private models from external storage into the RHOAI Model Catalog using the declarative ConfigMap strategy.
 
 [.lead]
 *Your organization's custom models deserve the same seamless deployment experience as third-party foundation models.*
 
-In enterprise environments, you often have fine-tuned AI models stored in external storage locations (like secure S3 buckets) or tracked in your Model Registry. The Model Catalog is designed to expose these custom assets alongside Red Hat Validated models. 
+In OpenShift AI 3.3, administrators have the option to manage catalog sources directly through the new Dashboard UI. However, for true enterprise scale, Platform Engineers must understand how to manage these sources declaratively. This allows for strict "GitOps" workflows where every model approved for deployment is tracked as code.
 
-As an OpenShift cluster administrator, you can configure a custom model catalog source by adding an entry to the `model-catalog-sources` config map. The most robust way to add a custom source, especially for air-gapped or strict firewall environments, is the **"Embedded Strategy"**.
+As an OpenShift cluster administrator, you configure a custom model catalog source by adding an entry to the `model-catalog-sources` config map. 
 
-In this lab, you will configure the ConfigMap to serve two roles simultaneously:
+In this lab, you will use the **"Embedded Strategy"**. This is the most robust method for air-gapped or strict firewall environments. You will configure the ConfigMap to serve two roles simultaneously:
+
  1. **The Pointer (`sources.yaml`):** It defines the catalog name, ID, and where to look for the model definitions.
- 2. **The Database (e.g., `sample-catalog.yaml`):** It contains the actual metadata and external storage URIs for your models.
+ 2. **The Database (e.g., `acme-models.yaml`):** It contains the actual metadata and external storage URIs for your proprietary models.
 
-== Procedure: The Embedded Strategy
+== Procedure: The Declarative GitOps Strategy
 
 === 1. Target the Registry Namespace
-First, ensure you are working in the correct project where the Model Registry components are running.
+First, ensure you are working in the correct project where the Model Registry and Catalog components are running.
 
 [source,bash]
 ----
@@ -99,4 +100,4 @@ These changes might take a few minutes to be displayed in the catalog on the das
 3. Click your custom model to view its details page. You will see that the deployment wizard is now ready to pull your custom asset directly from the external S3 storage URI you provided.
 
 ---
-*You have successfully engineered the supply chain to serve private assets. Next, we will cover the Day 2 Operations required to maintain this system.*
+*You have successfully engineered the supply chain to serve private assets declaratively. Next, we will cover the Day 2 Operations required to maintain, secure, and govern this system.*

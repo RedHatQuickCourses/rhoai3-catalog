@@ -4,48 +4,42 @@
 
 // Antora metadata
 :page-role: product-concept
-:description: Understanding the business value of the Model Catalog: Validated models, custom model integration, quantization for TCO, and performance transparency.
+:description: Understanding the business value of the Model Catalog: Validated models, compliance controls, Model-as-a-Service, and performance transparency.
 
 [.lead]
-*Reduce guesswork. Optimize hardware. Deploy with confidence.*
+*Reduce guesswork. Enforce compliance. Deploy with confidence.*
 
-In the enterprise AI landscape, the challenge is no longer just *finding* a generative AI model—it is ensuring that model is safe, performant, cost-effective, and easily accessible to your internal teams.
+In the enterprise AI landscape, the challenge is no longer just *finding* a generative AI model—it is ensuring that model is safe, performant, compliant with corporate policy, and easily accessible to your internal teams.
 
 To understand the architecture of OpenShift AI, you must distinguish between two highly complementary components: the **Model Registry** and the **Model Catalog**. 
 
-* A **Model Registry** acts as your central repository and governance layer. It is where administrators and engineers version, track, and manage the complete lifecycle of ML models from development to deployment. Think of it as the "Title Office" for your AI assets.
-* The **Model Catalog**, conversely, is the "Showroom." It provides a curated, centralized library where data scientists and AI engineers can discover, evaluate, and ultimately select the models they want to register and deploy. 
+* A **Model Registry** acts as a central repository for administrators and engineers to register, version, and manage the lifecycle of AI models before configuring them for deployment. Think of it as the "Title Office" for your AI assets.
+* The **Model Catalog**, conversely, is the "Showroom." It provides a curated library where data scientists and AI engineers can discover and evaluate the available generative AI models to find the best fit for their use cases. 
 
-The core business value of the catalog lies in reducing the time, cost, and operational risk associated with GenAI deployments through four key pillars.
+The core business value of the catalog lies in reducing the time, cost, and operational risk associated with GenAI deployments through five key pillars.
 
 image::rhoai3-catalog.png[align="center", title="Model Catalog and Red Hat Validated AI Models for Generative AI"]
 
-== 1. Validated & Enterprise-Ready (Mitigating "Shadow AI")
-Deploying raw, community-sourced models introduces severe "Shadow AI" risks, from malicious code to unsupported architectures. OpenShift AI provides a default catalog featuring models from providers like Red Hat, IBM, Meta, and Google.
+== 1. Validated Content & Strict Compliance (Mitigating "Shadow AI")
+Deploying raw, community-sourced models introduces severe "Shadow AI" risks. OpenShift AI provides a default catalog featuring models from providers like Red Hat, IBM, Meta, Nvidia, Mistral AI, and Google. Models carrying the **Red Hat Validated** badge are benchmarked by Red Hat for performance and quality using open-source evaluation datasets. 
 
-Models carrying the **Red Hat Validated** badge offer a secure supply chain. They are benchmarked for performance and quality using open-source evaluation datasets. Because they are packaged in standardized OCI formats (ModelCars), they integrate seamlessly into managed software lifecycles, bypassing the integration hurdles of untested open-source models.
+**New in 3.3:** Curation is not just about what is provided; it is about what is permitted. The model catalog now provides an administrative capability to selectively hide, disallow list, or remove specific models from the visible catalog. This critical feature ensures compliance with internal security, policy, or regulatory restrictions.
 
 == 2. Custom Model Integration (Your Private Showroom)
-The Model Catalog is not a walled garden limited to Red Hat content. It is a flexible portal designed to expose your organization's unique AI assets. 
+The Model Catalog is a flexible portal designed to expose your organization's unique AI assets. OpenShift cluster administrators can configure a custom model catalog source by adding an entry to the `model-catalog-sources` config map. This allows you to provide your data scientists with a single, unified interface for both trusted third-party foundation models and your own proprietary, fine-tuned assets.
 
-Administrators can configure custom model catalog sources to expose fine-tuned or proprietary models. Whether these custom models are hosted in external storage locations (like secure S3 buckets) or are being pulled in alongside your Model Registry, the catalog standardizes their discovery. They appear in the catalog under specific labels or in an "Other models" category, allowing you to provide your data scientists with a single, unified interface for both trusted third-party foundation models and your own proprietary assets.
+== 3. Optimization & Hardware Breadth (Controlling TCO)
+Hardware availability is the primary constraint for GenAI. The catalog addresses this by offering models optimized via advanced quantization techniques (like INT4 and FP8), allowing massive models to run on fewer or less expensive hardware accelerators.
 
-== 3. Optimization & Quantization (Controlling TCO)
-Hardware availability is the primary constraint for GenAI. The catalog addresses this by offering models optimized via advanced quantization techniques.
+**New in 3.3:** OpenShift AI continues to expand its enterprise hardware validation. Model serving with IBM Spyre AI accelerators is now Generally Available (GA) on the IBM Power platform , and models are validated for use with IBM Z systems.
 
-By compressing model weights into lower-precision formats (like **INT4**, **INT8**, and **FP8 Dynamic**), the catalog allows massive models to run on fewer or less expensive hardware accelerators. These optimizations maintain accuracy while significantly increasing inference speed, directly lowering your Total Cost of Ownership (TCO) per token.
+== 4. Transparency via Advanced Performance Insights
+To eliminate the "black box" of AI performance, the model catalog provides comprehensive model validation data, including performance benchmarks and hardware compatibility. 
 
-== 4. Transparency via Performance Insights
-To eliminate the "black box" of AI performance, the catalog provides deep visibility into how a model will behave on your specific infrastructure *before* you deploy it. 
+**New in 3.3:** You can now use advanced search and filtering, for example, on throughput and latency for benchmarked hardware profiles, so users can quickly find validated models for their use case and available resources. Engineers can evaluate critical metrics like End-to-End Latency (E2E), Time to First Token (TTFT), and Tokens Per Second (TPS) *before* provisioning expensive compute.
 
-For validated models, engineers can access the **Performance Insights** tab to view benchmark data for specific hardware configurations. This allows for highly accurate capacity planning and hardware sizing by filtering and analyzing:
-
- * **E2E (End-to-End Request Latency):** The total time taken from submitting the request to receiving the final response.
- * **TTFT (Time to First Token):** The critical wait time before a user sees the first output from the model.
- * **TPS (Tokens Per Second):** The total number of tokens output per second, dictating overall throughput.
- * **ITL (Inter-Token Latency):** The average time between consecutive tokens.
-
-Engineers can set their maximum acceptable latency or minimum requests per second (RPS) to immediately hide hardware configurations that will not meet their Service Level Agreements (SLAs).
+== 5. The Future of Governance: Model-as-a-Service (MaaS)
+**New in 3.3 (Technology Preview):** OpenShift AI now includes Model-as-a-Service (MaaS) to address resource consumption and governance challenges associated with serving large language models (LLMs). MaaS provides centralized control over model access and resource usage by exposing models through managed API endpoints, allowing administrators to enforce consumption policies and usage tracking across teams.
 
 ---
 
@@ -55,7 +49,8 @@ In this module, you will move beyond simply browsing models. You will learn to u
 
 **You will execute the following workflow:**
 
-1. **Test Drive (Simulation):** Navigate the UI to interpret Performance Insights, size hardware requirements, and explore deployment strategies (such as Rolling updates vs. Recreate).
-2. **Extend the Supply Chain (Lab):** Take on the role of a Platform Engineer to inject a **Custom Private Source** into the catalog, making your organization's fine-tuned models from external storage discoverable alongside validated content.
+1. **Test Drive (Simulation):** Navigate the UI to interpret advanced Performance Insights, size hardware requirements, and explore deployment strategies.
+2. **Extend the Supply Chain (Lab):** Take on the role of a Platform Engineer to inject a **Custom Private Source** into the catalog.
+3. **Enforce Governance:** Learn how to utilize the new Allow/Disallow capabilities to secure your AI supply chain.
 
 *Ready to explore? Let's start by looking at the architecture that makes this possible.*

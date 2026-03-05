@@ -4,73 +4,78 @@
 
 // Antora metadata
 :page-role: architecture-concept
-:description: Technical deep dive into Red Hat Validated Models, OCI ModelCars, and Quantization strategies for predictable performance.
+:description: Technical deep dive into Red Hat Validated Models, catalog management UI, OCI ModelCars, and hardware-specific Quantization mapping.
 
 [.lead]
-*To the user, the catalog is a gallery. To the platform engineer, it is a highly optimized, secure supply chain.*
+*To the user, the catalog is a gallery. To the platform engineer, it is a highly optimized, dynamically managed supply chain.*
 
-Before you can confidently operationalize the catalog and manage Day 2 operations, you must understand the machinery that powers it. The Model Catalog is not merely a list of hyperlinks pointing to external storage; it is an integration engine that connects trusted content to your OpenShift infrastructure using three specific technical primitives: **Red Hat Validation**, **ModelCars**, and **Quantization Profiles**.
+Before you can confidently operationalize the catalog and manage Day 2 operations, you must understand the machinery that powers it. The Model Catalog is an integration engine that connects a vast ecosystem of content to your OpenShift infrastructure using specific technical primitives: **Validation & Benchmarking**, **ModelCars**, and **Hardware-Mapped Quantization Profiles**.
 
-Understanding these primitives is how you transition from simply "deploying AI" to "deploying AI securely and profitably."
+Understanding these primitives is how you transition from simply "deploying AI" to "deploying AI securely, profitably, and predictably."
 
-== 1. Red Hat Validated Models (The Trust Engine)
+== 1. The Content Ecosystem: Validated, Community, and Tuning Models
 
-A raw model downloaded from a public AI hub is a massive liability. It is a black box that might contain malicious code in its tokenizer, carry unknown CVEs, or fail catastrophically on your specific enterprise hardware due to obscure CUDA errors. 
+The OpenShift AI Model Catalog is not restricted solely to Red Hat curated content; it is a comprehensive ecosystem designed to support the entire AI lifecycle, from raw experimentation to production deployment.
 
-The most critical feature of the OpenShift AI Model Catalog is the **Red Hat Validated Model** badge. Before a model earns this badge and appears in the catalog, it undergoes a rigorous qualification process:
+* **Red Hat Validated Models (The Trust Engine):** These models undergo a rigorous qualification process. The detailed Model Cards for these assets include comprehensive benchmarks, performance testing on specific NVIDIA and AMD hardware, along with exact configuration parameters and reproduction examples. If a model has this badge, it is safe, it is known, and its performance is mathematically documented.
+* **Community & Tuning Models:** In addition to validated models, the catalog provides popular models from other vendors and base models specifically prepped for fine-tuning. This allows your data scientists to deploy these models and establish their own performance baselines on your specific hardware, comparing their custom tuning results directly against the Red Hat published benchmarks.
 
-* **Security Scanning:** The model weights and associated code are deeply scanned for known vulnerabilities and malicious injection patterns. You are not importing mystery code into your secure environments.
-* **Hardware Verification:** The model is tested against specific enterprise hardware profiles (e.g., NVIDIA A100, L40S, AMD MI300). This ensures the model actually compiles and runs on the accelerators you own.
-* **Performance Benchmarking:** Red Hat engineers run standard benchmarks (like GuideLLM) against the model to establish baseline throughput (tokens/sec) and latency numbers. 
+== 2. Catalog UI Management & Curation (New in 3.3)
 
-**The Business Value:** Your engineering teams do not have to waste weeks downloading, securing, and "qualifying" community models. If a model has the Red Hat Validated badge, it is safe, it is known, and it runs.
+In previous versions, managing the catalog required cluster administrators to manually edit Kubernetes ConfigMaps. OpenShift AI 3.3 introduces a powerful new UI for catalog administration, putting supply chain control directly into the dashboard.
 
-== 2. ModelCars: OCI-Based Delivery (The Speed Engine)
+* **Adding Custom Sources via UI:** Platform engineers can now seamlessly add new custom catalog sources directly through the OpenShift AI interface. This allows you to instantly expose your organization's fine-tuned models from external storage alongside public foundation models.
+* **Granular Curation:** If your enterprise operates in a highly regulated environment, you now have the ability to explicitly disable or hide the default Red Hat model options from the catalog. This ensures that your users only see and deploy the exact proprietary or community models that your security team has explicitly approved.
 
-Historically, deploying a Large Language Model (LLM) meant downloading massive `.safetensors` or `.bin` files from public hubs directly into a pod's temporary storage. This is slow, uncacheable, and brittle.
+== 3. ModelCars: OCI-Based Delivery (The Speed Engine)
 
-OpenShift AI shifts this paradigm by delivering Red Hat Validated models as **ModelCars**. A ModelCar is an LLM packaged as a standard OCI (Open Container Initiative) image. It treats multi-gigabyte model weights exactly like standard software binaries.
+Deploying a Large Language Model (LLM) traditionally meant downloading massive file sets from public hubs directly into a pod's temporary storage. This is slow, uncacheable, and brittle.
 
-* **Operational Benefits:**
-  * **Rapid Scaling via Caching:** When a user deploys a massive model, the OpenShift cluster pulls this image using standard container runtimes. Once a node pulls the image, it is cached locally. If you need to scale from 1 replica to 10 replicas to handle a spike in inference requests, subsequent deployments on that node are near-instantaneous.
-  * **Storage Deduplication:** Updates to a model family often share base layers in the OCI image, significantly reducing your storage footprint.
-  * **Air-Gap and Disconnected Support:** Because they are standard OCI artifacts, you can mirror these model images to your private, behind-the-firewall registry (like Red Hat Quay) using standard container mirroring commands.
+OpenShift AI shifts this paradigm by delivering Red Hat Validated models as **ModelCars**. A ModelCar is an LLM packaged as a standard OCI (Open Container Initiative) container image. 
 
-== 3. Quantization Strategies (The TCO Engine)
+* **Rapid Scaling via Caching:** When a user deploys a massive model, the OpenShift cluster pulls this image using standard container runtimes. Once a node pulls the image, it is cached locally. If you need to scale from 1 replica to 10 replicas, subsequent deployments on that node are near-instantaneous.
 
-This is the most critical concept for cost control and capacity planning. 
+== 4. Quantization & Hardware Architecture Mapping (The TCO Engine)
 
-Generative AI models require massive amounts of VRAM (Video RAM). The catalog addresses this by offering models in specific "Quantized" formats. Quantization compresses the model's weights into lower-precision mathematical formats. 
+Generative AI models require massive amounts of VRAM. The catalog addresses this by offering models in specific "Quantized" variants. Quantization compresses the model's weights into lower-precision mathematical formats. 
 
-Understanding the suffixes on the models in the catalog is the difference between a $50,000/year compute footprint and a $200,000/year footprint.
+However, not all quantization formats perform equally across all video cards. To truly architect for performance and control Total Cost of Ownership (TCO), you must map the quantization precision directly to the underlying hardware architecture.
 
-[cols="1,1,2", options="header"]
+[cols="1,2,2", options="header"]
 |===
-| Catalog Suffix | Precision format | Business & Operational Impact
+| Quantization Precision | Best Suited Hardware Architecture | Operational Impact & Use Case
 
-| **.w4a16**
-| **4-bit Weights / 16-bit Activations**
-| **Maximum VRAM Efficiency.** Allows massive models (e.g., Llama 3 70B) to fit on standard, widely available enterprise GPUs (like the NVIDIA A10G) while maintaining acceptable accuracy. Choose this when hardware availability is your primary bottleneck.
+| **.w4a16** +
+*(4-bit Weights / 16-bit Activations)*
+| **Older/Standard Enterprise GPUs** +
+(e.g., NVIDIA Ampere A10G, A100, L40S)
+| **Maximum VRAM Efficiency.** Allows massive models (like a 70B parameter model) to fit on standard, widely available GPUs while maintaining acceptable accuracy. Crucial when high-end hardware availability is constrained.
 
-| **.w8a8**
-| **8-bit Weights / 8-bit Activations**
-| **Balanced Performance.** Offers excellent memory savings with slightly higher precision than 4-bit. Widely supported on most modern GPUs, making it the standard choice for general-purpose enterprise chatbots and summarization tasks.
+| **.w8a8** +
+*(8-bit Weights / 8-bit Activations)*
+| **Broad Hardware Support** +
+(e.g., NVIDIA Ampere/Ada Lovelace, standard AMD cards)
+| **Balanced Performance.** Offers excellent memory savings and broad compatibility. Note: AMD GPUs natively support FP8 (W8A8) and GGUF quantization variant models.
 
-| **.FP8**
-| **8-bit Floating Point**
-| **Maximum Throughput.** Designed specifically for cutting-edge accelerators (like the NVIDIA H100 or AMD MI300) that feature native FP8 hardware support. Offers the absolute best balance of speed and accuracy, but requires premium hardware.
+| **.FP8 / .NVFP4** +
+*(8-bit / 4-bit Floating Point)*
+| **Cutting-Edge Accelerators** +
+(e.g., NVIDIA Hopper H100 / H200, AMD Instinct MI300X)
+| **Maximum Throughput.** Designed specifically for cutting-edge accelerators that feature native hardware support for FP8 math operations. Offers the absolute best balance of extreme inference speed and accuracy.
+
+| **.FP16** +
+*(16-bit Floating Point)*
+| **IBM Power & IBM Z** +
+(e.g., IBM Spyre AI Accelerators)
+| **Platform Specific.** IBM Spyre AI accelerator cards support FP16 format exclusively. The Red Hat AI Inference Server automatically converts compatible weights to FP16 at startup.
 |===
 
-=== Tying it to Performance Insights
+=== Tying it Together
 
-Because the catalog maps these specific quantization profiles to validated hardware types, OpenShift AI can accurately predict performance. 
-
-When a user looks at the **Performance Insights** tab for a `.w4a16` quantized model, the system can confidently display the projected **TPS (Tokens Per Second)** and **E2E (End-to-end latency)** because the variables of delivery, compression, and hardware compatibility have already been standardized by Red Hat. Engineers can use sliders to hide hardware configurations that fail to meet their minimum SLAs, ensuring they only provision exactly what they need.
+By combining the detailed reproduction benchmarks found in the Model Cards with the hardware mapping chart above, your engineering teams no longer have to guess. They can provision the exact AMD, NVIDIA, or IBM accelerator required for the specific quantization format, deploy the model via a high-speed ModelCar, and immediately validate their own baseline performance.
 
 ---
 
 == Next Steps
 
-Now that you understand the architectural primitives of trust, delivery, and optimization, it is time to put them into practice. 
-
-In the next section, we will look at the exact workflow a Data Scientist uses to evaluate these metrics and deploy a model directly from the catalog.
+Now that you understand the architectural primitives of trust, delivery, optimization, and hardware mapping, it is time to put them into practice. In the next section, we will look at the exact workflow a Data Scientist uses to evaluate these metrics and deploy a model directly from the catalog.

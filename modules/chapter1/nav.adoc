@@ -1,5 +1,5 @@
 // * xref:index.adoc[Introduction]
 * xref:section1.adoc[Architecture Deep Dive]
 * xref:section4.adoc[Simulator The Catalog Experience]
-* xref:section2.adoc[Catalog Customization]
-// * xref:section3.adoc[Administration & Troubleshooting]
+* xref:section2.adoc[Catalog Customization CLI]
+* xref:section3.adoc[Administration & Troubleshooting]
