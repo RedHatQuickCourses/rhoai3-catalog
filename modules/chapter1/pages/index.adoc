@@ -18,7 +18,7 @@ To understand the architecture of OpenShift AI, you must distinguish between two
 
 The core business value of the catalog lies in reducing the time, cost, and operational risk associated with GenAI deployments through five key pillars.
 
-image::rhoai3-catalog.png[align="center", title="Model Catalog and Red Hat Validated AI Models for Generative AI"]
+image::rhoai3-catalogv2.png[align="center", title="Model Catalog and Red Hat Validated AI Models for Generative AI"]
 
 == 1. Validated Content & Strict Compliance (Mitigating "Shadow AI")
 Deploying raw, community-sourced models introduces severe "Shadow AI" risks. OpenShift AI provides a default catalog featuring models from providers like Red Hat, IBM, Meta, Nvidia, Mistral AI, and Google. Models carrying the **Red Hat Validated** badge are benchmarked by Red Hat for performance and quality using open-source evaluation datasets. 
