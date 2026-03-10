@@ -5,7 +5,9 @@
 > **The Problem:** Users can find models anywhere. They cannot safely deploy them everywhere.  
 > **The Solution:** The Model Catalog provides a curated, validated “showroom” with a streamlined deployment wizard and enterprise-ready artifacts (ModelCars).
 
-This repository contains a complete **Course-in-a-Box** that teaches platform engineers and administrators how to operate the **Model Catalog** in **Red Hat OpenShift AI 3.2**: architecture, deployment workflow, source configuration, and known constraints.
+This repository contains a complete **Course-in-a-Box** that teaches platform engineers and administrators how to operate the **Model Catalog** in **Red Hat OpenShift AI 3.3**: architecture, deployment workflow, source configuration, and known constraints.
+
+📚 **Full course documentation:** The complete Antora course (architecture, labs, troubleshooting) is in this repository—see **Option 1: View the Full Course** below to build and view it. Use the course when you need more detail than this runbook.
 
 ---
 
@@ -35,9 +37,10 @@ If you already know the concepts and just need the operational commands, use thi
 
 ### Prerequisites
 
-* **Cluster:** OpenShift AI 3.2 installed and accessible
-* **Access:** permissions to view/edit resources in `rhoai-model-registries` (or `cluster-admin`)
+* **Cluster:** OpenShift AI 3.3 installed and accessible
+* **Access:** Permissions to view/edit resources in `rhoai-model-registries` (or `cluster-admin`)
 * **CLI:** `oc` installed and authenticated (`oc login`)
+* **Repository (optional):** Clone this repo to apply config as code: `git clone https://github.com/RedHatQuickCourses/rhoai3-catalog.git && cd rhoai3-catalog`
 
 ---
 
@@ -70,7 +73,12 @@ The catalog reads sources from:
 oc get configmap model-catalog-sources -n rhoai-model-registries -o yaml
 ```
 
-If you manage sources as code, apply your ConfigMap YAML:
+**Managing sources as code:** The ConfigMap YAML is not in this repo—you create or obtain it in one of these ways:
+
+* **Export from the cluster** (if the ConfigMap already exists):  
+  `oc get configmap model-catalog-sources -n rhoai-model-registries -o yaml > model-catalog-sources.yaml`  
+  Edit the file, then apply: `oc apply -f model-catalog-sources.yaml`
+* **Use a template for a new setup:** The Antora course in this repo and the [rhoai3-registry](https://github.com/RedHatQuickCourses/rhoai3-registry) repo (`deploy/catalog/catalog-source.yaml`) show the required ConfigMap structure and example entries. Create your own file (e.g. `model-catalog-sources.yaml`) from that, then:
 
 ```bash
 oc apply -f model-catalog-sources.yaml
@@ -87,7 +95,7 @@ oc get pods -l component=model-catalog -n rhoai-model-registries -w
 
 ## Step 3: Deploy from the Catalog (Wizard Guardrails)
 
-When deploying from **AI hub → Catalog** in RHOAI 3.2:
+When deploying from **AI hub → Catalog** in RHOAI 3.3:
 
 * **Prefer ModelCars:** OCI artifacts hosted on `registry.redhat.io` start faster than raw downloads and match enterprise supply chain patterns.
 * **Shorten names:** keep deployment names under ~30–40 characters to avoid Kubernetes 63-character limits.
@@ -95,7 +103,9 @@ When deploying from **AI hub → Catalog** in RHOAI 3.2:
 
 ---
 
-## Known Issues (RHOAI 3.2)
+## Troubleshooting
+
+### Known Issues (RHOAI 3.2)
 
 ### 1) “Request access to model catalog” after upgrade (2.24 → 3.2)
 
@@ -119,7 +129,7 @@ Workaround: create a Data Connection in the target project, then retry the wizar
 
 ## Repository Structure
 
-```text
+```
 /
 ├── modules/                     # Antora course content (AsciiDoc)
 │   ├── ROOT/pages/index.adoc     # Home (includes chapter content)
@@ -138,3 +148,9 @@ Workaround: create a Data Connection in the target project, then retry the wizar
 * Align catalog deployments with Hardware Profiles to prevent “wrong GPU” deployments.
 * Prefer ModelCars when available to reduce cold-start time and improve reliability.
 
+---
+
+## Additional Resources
+
+* **Full course:** Antora course in this repository (see **Option 1: View the Full Course** above).
+* **OpenShift AI:** [Red Hat OpenShift AI Documentation](https://access.redhat.com/documentation/en-us/red_hat_openshift_ai/).
