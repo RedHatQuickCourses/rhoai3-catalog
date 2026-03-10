@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Industrializing GenAI: Operationalizing the RHOAI Model Catalog :: Industrializing GenAI Operationalizing the RHOAI Model Catalog</title>
+    <meta name="generator" content="Antora 3.1.3">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">Industrializing GenAI Operationalizing the RHOAI Model Catalog</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/REPLACEREPONAME/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="rhoai3-catalog" data-version="3.3">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">Industrializing GenAI Operationalizing the RHOAI Model Catalog</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Introduction</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="section1.html">Architecture Deep Dive</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="section4.html">Simulate the Catalog Experience</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="section2.html">Catalog Customization CLI</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="section3.html">Administration &amp; Troubleshooting</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Industrializing GenAI Operationalizing the RHOAI Model Catalog</span>
+    <span class="version">3.3</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">Industrializing GenAI Operationalizing the RHOAI Model Catalog</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">3.3</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">Industrializing GenAI Operationalizing the RHOAI Model Catalog</a></li>
+    <li><a href="index.html">Industrializing GenAI: Operationalizing the RHOAI Model Catalog</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Industrializing GenAI: Operationalizing the RHOAI Model Catalog</h1>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph lead">
+<p><strong>Reduce guesswork. Enforce compliance. Deploy with confidence.</strong></p>
+</div>
+<div class="paragraph">
+<p>In the enterprise AI landscape, the challenge is no longer just <strong>finding</strong> a generative AI model—it is ensuring that model is safe, performant, compliant with corporate policy, and easily accessible to your internal teams.</p>
+</div>
+<div class="paragraph">
+<p>To understand the architecture of OpenShift AI, you must distinguish between two highly complementary components: the <strong>Model Registry</strong> and the <strong>Model Catalog</strong>.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>A <strong>model registry</strong> acts as a central repository for administrators and engineers to register, version, and manage the lifecycle of AI models before configuring them for deployment. Think of it as the "title office" for your AI assets.</p>
+</li>
+<li>
+<p>The <strong>model catalog</strong>, conversely, is the "showroom." It provides a curated library where data scientists and AI engineers can discover and evaluate the available generative AI models to find the best fit for their use cases.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The core business value of the catalog lies in reducing the time, cost, and operational risk associated with GenAI deployments through five key pillars.</p>
+</div>
+<div class="imageblock text-center unresolved">
+<div class="content">
+<img src="rhoai3-catalogv3.png" alt="rhoai3 catalogv3">
+</div>
+<div class="title">Figure 1. Model Catalog and Red Hat Validated AI Models for Generative AI</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_1_validated_content_strict_compliance_mitigating_shadow_ai"><a class="anchor" href="#_1_validated_content_strict_compliance_mitigating_shadow_ai"></a>1. Validated Content &amp; Strict Compliance (Mitigating "Shadow AI")</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Deploying raw, community-sourced models introduces severe "Shadow AI" risks. OpenShift AI provides a default catalog featuring models from providers like Red Hat, IBM, Meta, Nvidia, Mistral AI, and Google. Models carrying the <strong>Red Hat Validated</strong> badge are benchmarked by Red Hat for performance and quality using open-source evaluation datasets.</p>
+</div>
+<div class="paragraph">
+<p><strong>New in 3.3:</strong> Curation is not just about what is provided; it is about what is permitted. The model catalog now provides an administrative capability to selectively hide, disallow list, or remove specific models from the visible catalog. This critical feature ensures compliance with internal security, policy, or regulatory restrictions.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_2_custom_model_integration_your_private_showroom"><a class="anchor" href="#_2_custom_model_integration_your_private_showroom"></a>2. Custom Model Integration (Your Private Showroom)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The model catalog is a flexible portal designed to expose your organization&#8217;s unique AI assets. OpenShift cluster administrators can configure a custom model catalog source by adding an entry to the <code>model-catalog-sources</code> config map. This allows you to provide your data scientists with a single, unified interface for both trusted third-party foundation models and your own proprietary, fine-tuned assets.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_3_optimization_hardware_breadth_controlling_tco"><a class="anchor" href="#_3_optimization_hardware_breadth_controlling_tco"></a>3. Optimization &amp; Hardware Breadth (Controlling TCO)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Hardware availability is the primary constraint for GenAI. The catalog addresses this by offering models optimized via advanced quantization techniques (like INT4 and FP8), allowing massive models to run on fewer or less expensive hardware accelerators.</p>
+</div>
+<div class="paragraph">
+<p><strong>New in 3.3:</strong> OpenShift AI continues to expand its enterprise hardware validation. Model serving with IBM Spyre AI accelerators is now Generally Available (GA) on the IBM Power platform , and models are validated for use with IBM Z systems.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_4_transparency_via_advanced_performance_insights"><a class="anchor" href="#_4_transparency_via_advanced_performance_insights"></a>4. Transparency via Advanced Performance Insights</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To eliminate the "black box" of AI performance, the model catalog provides comprehensive model validation data, including performance benchmarks and hardware compatibility.</p>
+</div>
+<div class="paragraph">
+<p><strong>New in 3.3:</strong> You can now use advanced search and filtering, for example, on throughput and latency for benchmarked hardware profiles, so users can quickly find validated models for their use case and available resources. Engineers can evaluate critical metrics like End-to-End Latency (E2E), Time to First Token (TTFT), and Tokens Per Second (TPS) <strong>before</strong> provisioning expensive compute.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_5_the_future_of_governance_model_as_a_service_maas"><a class="anchor" href="#_5_the_future_of_governance_model_as_a_service_maas"></a>5. The Future of Governance: Model-as-a-Service (MaaS)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><strong>New in 3.3 (Technology Preview):</strong> OpenShift AI now includes Model-as-a-Service (MaaS) to address resource consumption and governance challenges associated with serving large language models (LLMs). MaaS provides centralized control over model access and resource usage by exposing models through managed API endpoints, allowing administrators to enforce consumption policies and usage tracking across teams.</p>
+</div>
+<hr>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_your_mission_operationalize_the_catalog"><a class="anchor" href="#_your_mission_operationalize_the_catalog"></a>Your Mission: Operationalize the Catalog</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In this module, you will move beyond simply browsing models. You will learn to use the catalog as a tool for architectural decision-making and supply chain management.</p>
+</div>
+<div class="paragraph">
+<p><strong>You will execute the following workflow:</strong></p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Test Drive (Simulation):</strong> Navigate the UI to interpret advanced Performance Insights, size hardware requirements, and explore deployment strategies.</p>
+</li>
+<li>
+<p><strong>Extend the Supply Chain (Lab):</strong> Take on the role of a Platform Engineer to inject a <strong>Custom Private Source</strong> into the catalog.</p>
+</li>
+<li>
+<p><strong>Enforce Governance:</strong> Learn how to utilize the new Allow/Disallow capabilities to secure your AI supply chain.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p><strong>Ready to explore? Let&#8217;s start by looking at the architecture that makes this possible.</strong></p>
+</div>
+</div>
+</div>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

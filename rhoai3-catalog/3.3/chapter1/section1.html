@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>The Engineering Machinery: Trust, Delivery, and Optimization :: Industrializing GenAI Operationalizing the RHOAI Model Catalog</title>
+    <link rel="prev" href="../index.html">
+    <link rel="next" href="section4.html">
+    <meta name="generator" content="Antora 3.1.3">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">Industrializing GenAI Operationalizing the RHOAI Model Catalog</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/REPLACEREPONAME/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="rhoai3-catalog" data-version="3.3">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">Industrializing GenAI Operationalizing the RHOAI Model Catalog</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Introduction</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item is-current-page" data-depth="1">
+    <a class="nav-link" href="section1.html">Architecture Deep Dive</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="section4.html">Simulate the Catalog Experience</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="section2.html">Catalog Customization CLI</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="section3.html">Administration &amp; Troubleshooting</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Industrializing GenAI Operationalizing the RHOAI Model Catalog</span>
+    <span class="version">3.3</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">Industrializing GenAI Operationalizing the RHOAI Model Catalog</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">3.3</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">Industrializing GenAI Operationalizing the RHOAI Model Catalog</a></li>
+    <li><a href="section1.html">Architecture Deep Dive</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">The Engineering Machinery: Trust, Delivery, and Optimization</h1>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph lead">
+<p><strong>To the user, the catalog is a gallery. To the platform engineer, it is a highly optimized, dynamically managed supply chain.</strong></p>
+</div>
+<div class="paragraph">
+<p>Before you can confidently operationalize the catalog and manage Day 2 operations, you must understand the machinery that powers it. The model catalog is an integration engine that connects a vast ecosystem of content to your OpenShift infrastructure using specific technical primitives: <strong>Validation &amp; Benchmarking</strong>, <strong>ModelCars</strong>, and <strong>Hardware-Mapped Quantization Profiles</strong>.</p>
+</div>
+<div class="paragraph">
+<p>Understanding these primitives is how you transition from simply "deploying AI" to "deploying AI securely, profitably, and predictably."</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_1_the_content_ecosystem_validated_community_and_tuning_models"><a class="anchor" href="#_1_the_content_ecosystem_validated_community_and_tuning_models"></a>1. The Content Ecosystem: Validated, Community, and Tuning Models</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The OpenShift AI model catalog is not restricted solely to Red Hat curated content; it is a comprehensive ecosystem designed to support the entire AI lifecycle, from raw experimentation to production deployment.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Red Hat Validated Models (The Trust Engine):</strong> These models undergo a rigorous qualification process. The detailed model cards for these assets include comprehensive benchmarks, performance testing on specific NVIDIA and AMD hardware, along with exact configuration parameters and reproduction examples. If a model has this badge, it is safe, it is known, and its performance is mathematically documented.</p>
+</li>
+<li>
+<p><strong>Community &amp; Tuning Models:</strong> In addition to validated models, the catalog provides popular models from other vendors and base models specifically prepped for fine-tuning. This allows your data scientists to deploy these models and establish their own performance baselines on your specific hardware, comparing their custom tuning results directly against the Red Hat published benchmarks.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_2_catalog_ui_management_curation_new_in_3_3"><a class="anchor" href="#_2_catalog_ui_management_curation_new_in_3_3"></a>2. Catalog UI Management &amp; Curation (New in 3.3)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In previous versions, managing the catalog required cluster administrators to manually edit Kubernetes ConfigMaps. OpenShift AI 3.3 introduces a powerful new UI for catalog administration, putting supply chain control directly into the dashboard.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Adding Custom Sources via UI:</strong> Platform engineers can now seamlessly add new custom catalog sources directly through the OpenShift AI interface. This allows you to instantly expose your organization&#8217;s fine-tuned models from external storage alongside public foundation models.</p>
+</li>
+<li>
+<p><strong>Granular Curation:</strong> If your enterprise operates in a highly regulated environment, you now have the ability to explicitly disable or hide the default Red Hat model options from the catalog. This ensures that your users only see and deploy the exact proprietary or community models that your security team has explicitly approved.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_3_modelcars_oci_based_delivery_the_speed_engine"><a class="anchor" href="#_3_modelcars_oci_based_delivery_the_speed_engine"></a>3. ModelCars: OCI-Based Delivery (The Speed Engine)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Deploying a Large Language Model (LLM) traditionally meant downloading massive file sets from public hubs directly into a pod&#8217;s temporary storage. This is slow, uncacheable, and brittle.</p>
+</div>
+<div class="paragraph">
+<p>OpenShift AI shifts this paradigm by delivering Red Hat Validated models as <strong>ModelCars</strong>. A ModelCar is an LLM packaged as a standard OCI (Open Container Initiative) container image.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Rapid Scaling via Caching:</strong> When a user deploys a massive model, the OpenShift cluster pulls this image using standard container runtimes. Once a node pulls the image, it is cached locally. If you need to scale from 1 replica to 10 replicas, subsequent deployments on that node are near-instantaneous.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_4_quantization_hardware_architecture_mapping_the_tco_engine"><a class="anchor" href="#_4_quantization_hardware_architecture_mapping_the_tco_engine"></a>4. Quantization &amp; Hardware Architecture Mapping (The TCO Engine)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Generative AI models require massive amounts of VRAM. The catalog addresses this by offering models in specific "Quantized" variants. Quantization compresses the model&#8217;s weights into lower-precision mathematical formats.</p>
+</div>
+<div class="paragraph">
+<p>However, not all quantization formats perform equally across all video cards. To truly architect for performance and control Total Cost of Ownership (TCO), you must map the quantization precision directly to the underlying hardware architecture.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Quantization Precision</th>
+<th class="tableblock halign-left valign-top">Best Suited Hardware Architecture</th>
+<th class="tableblock halign-left valign-top">Operational Impact &amp; Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>.w4a16</strong><br>
+<strong>(4-bit Weights / 16-bit Activations)</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Older/Standard Enterprise GPUs</strong><br>
+(e.g., NVIDIA Ampere A10G, A100, L40S)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Maximum VRAM Efficiency.</strong> Allows massive models (like a 70B parameter model) to fit on standard, widely available GPUs while maintaining acceptable accuracy. Crucial when high-end hardware availability is constrained.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>.w8a8</strong><br>
+<strong>(8-bit Weights / 8-bit Activations)</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Broad Hardware Support</strong><br>
+(e.g., NVIDIA Ampere/Ada Lovelace, standard AMD cards)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Balanced Performance.</strong> Offers excellent memory savings and broad compatibility. Note: AMD GPUs natively support FP8 (W8A8) and GGUF quantization variant models.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>.FP8 / .NVFP4</strong><br>
+<strong>(8-bit / 4-bit Floating Point)</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Cutting-Edge Accelerators</strong><br>
+(e.g., NVIDIA Hopper H100 / H200, AMD Instinct MI300X)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Maximum Throughput.</strong> Designed specifically for cutting-edge accelerators that feature native hardware support for FP8 math operations. Offers the absolute best balance of extreme inference speed and accuracy.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>.FP16</strong><br>
+<strong>(16-bit Floating Point)</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>IBM Power &amp; IBM Z</strong><br>
+(e.g., IBM Spyre AI Accelerators)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Platform Specific.</strong> IBM Spyre AI accelerator cards support FP16 format exclusively. The Red Hat AI Inference Server automatically converts compatible weights to FP16 at startup.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="sect2">
+<h3 id="_tying_it_together"><a class="anchor" href="#_tying_it_together"></a>Tying it Together</h3>
+<div class="paragraph">
+<p>By combining the detailed reproduction benchmarks found in the model cards with the hardware mapping chart above, your engineering teams no longer have to guess. They can provision the exact AMD, NVIDIA, or IBM accelerator required for the specific quantization format, deploy the model via a high-speed ModelCar, and immediately validate their own baseline performance.</p>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_next_steps"><a class="anchor" href="#_next_steps"></a>Next Steps</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Now that you understand the architectural primitives of trust, delivery, optimization, and hardware mapping, it is time to put them into practice. In the next section, we will look at the exact workflow a Data Scientist uses to evaluate these metrics and deploy a model directly from the catalog.</p>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="../index.html">Introduction</a></span>
+  <span class="next"><a href="section4.html">Simulate the Catalog Experience</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

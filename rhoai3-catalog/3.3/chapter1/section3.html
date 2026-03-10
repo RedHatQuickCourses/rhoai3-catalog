@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Day 2 Operations &amp; Enterprise Governance :: Industrializing GenAI Operationalizing the RHOAI Model Catalog</title>
+    <link rel="prev" href="section2.html">
+    <meta name="generator" content="Antora 3.1.3">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">Industrializing GenAI Operationalizing the RHOAI Model Catalog</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/REPLACEREPONAME/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="rhoai3-catalog" data-version="3.3">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">Industrializing GenAI Operationalizing the RHOAI Model Catalog</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Introduction</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="section1.html">Architecture Deep Dive</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="section4.html">Simulate the Catalog Experience</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="section2.html">Catalog Customization CLI</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="1">
+    <a class="nav-link" href="section3.html">Administration &amp; Troubleshooting</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Industrializing GenAI Operationalizing the RHOAI Model Catalog</span>
+    <span class="version">3.3</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">Industrializing GenAI Operationalizing the RHOAI Model Catalog</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">3.3</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">Industrializing GenAI Operationalizing the RHOAI Model Catalog</a></li>
+    <li><a href="section3.html">Administration &amp; Troubleshooting</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Day 2 Operations &amp; Enterprise Governance</h1>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph lead">
+<p><strong>A catalog that doesn&#8217;t load delivers zero value. A catalog that is governed delivers a competitive advantage.</strong></p>
+</div>
+<div class="paragraph">
+<p>You have built the supply chain. You have learned how to inject custom sources declaratively and deploy with hardware-aligned profiles. Now, we turn to <strong>Day 2 Operations</strong>: enforcing corporate governance, handling upgrades, and articulating the value of what you have built.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_1_curation_and_compliance_the_allowdisallow_engine"><a class="anchor" href="#_1_curation_and_compliance_the_allowdisallow_engine"></a>1. Curation and Compliance (The Allow/Disallow Engine)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>One of the most powerful Day 2 capabilities introduced in OpenShift AI 3.3 is the ability to actively govern the showroom. Curation is not a one-time event; it is an ongoing operational requirement.</p>
+</div>
+<div class="paragraph">
+<p>If your security team flags a specific model license, or if corporate policy dictates that only internally fine-tuned models can be used for a specific period, you do not need to tear down your infrastructure. The model catalog now provides an administrative capability in the OpenShift AI dashboard to selectively hide, disallow list, or remove specific models from the visible catalog.</p>
+</div>
+<div class="paragraph">
+<p>This ensures rapid compliance with internal security, policy, or regulatory restrictions without requiring deep CLI intervention.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_2_managing_availability_the_kill_switch"><a class="anchor" href="#_2_managing_availability_the_kill_switch"></a>2. Managing Availability (The "Kill Switch")</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>There will be times—during massive cluster upgrades, critical security audits, or backend storage migrations—when you need to temporarily close the showroom entirely. You control visibility via the <code>OdhDashboardConfig</code> custom resource.</p>
+</div>
+<div class="paragraph">
+<p><strong>To hide the catalog from the UI:</strong></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc patch odhdashboardconfig odh-dashboard-config \
+  -n redhat-ods-applications \
+  --type merge \
+  -p '{"spec": {"dashboardConfig": {"disableModelCatalog": true}}}'</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>True:</strong> The AI hub → Catalog menu item disappears from the dashboard navigation menu.</p>
+</li>
+<li>
+<p><strong>False:</strong> The Catalog tab reappears.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_3_the_troubleshooting_playbook_the_3_x_upgrade_gotcha"><a class="anchor" href="#_3_the_troubleshooting_playbook_the_3_x_upgrade_gotcha"></a>3. The Troubleshooting Playbook: The 3.x Upgrade Gotcha</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Even a validated platform has edge cases during major architectural shifts. If you are migrating a cluster to the 3.x architecture, this is the most critical operational "gotcha" you will encounter.</p>
+</div>
+<div class="sect2">
+<h3 id="_issue_dashboard_urls_return_404_errors"><a class="anchor" href="#_issue_dashboard_urls_return_404_errors"></a>Issue: Dashboard URLs Return 404 Errors</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Symptom:</strong> After upgrading to OpenShift AI 3.x, users complain that their bookmarks to the OpenShift AI dashboard (and by extension, the catalog) are returning 404 Page Not Found errors.</p>
+</li>
+<li>
+<p><strong>Root Cause:</strong> The transition to using the Gateway API in version 3.x changed the underlying URL structure. The dashboard URL subdomain changed from <code>rhods-dashboard-redhat-ods-applications.apps.&lt;cluster&gt;</code> to <code>data-science-gateway.apps.&lt;cluster&gt;</code>. Existing bookmarks using the old format will no longer function.</p>
+</li>
+<li>
+<p><strong>The Fix:</strong> Cluster administrators must provide the new dashboard URL (<code>data-science-gateway.apps.&lt;cluster&gt;</code>) to all users and update internal documentation. To ease the transition, administrators can deploy an nginx-based redirect solution that recreates the old route name and redirects traffic to the new gateway URL.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_4_the_payoff_business_value_roi"><a class="anchor" href="#_4_the_payoff_business_value_roi"></a>4. The Payoff: Business Value &amp; ROI</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>You started this course with a question: <strong>"Why should we use this instead of just downloading files from the internet?"</strong></p>
+</div>
+<div class="paragraph">
+<p>You now have the answer. The model catalog is not just a UI; it is a <strong>Risk Control Plane</strong>.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Value Pillar</th>
+<th class="tableblock halign-left valign-top">The Engineering Reality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>1. ROI &amp; Cost</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Hardware Mapping:</strong> By utilizing the Performance Insights and quantization matching, you fit massive models onto cheaper GPUs, preventing expensive over-provisioning.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>2. Security &amp; Compliance</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Supply Chain Trust:</strong> Red Hat Validated Models are scanned and benchmarked. The 3.3 Allow/Disallow UI capabilities give you the ultimate veto power over what enters your environment.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>3. Performance</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Hardware Validated:</strong> You don&#8217;t waste weeks discovering a model is incompatible with your accelerator. If it&#8217;s in the catalog with a profile (including IBM Spyre and AMD), it runs.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>4. Speed</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>ModelCars:</strong> OCI-based delivery means scaling out replicas takes seconds (cached layers) rather than minutes (re-downloading massive files).</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_conclusion"><a class="anchor" href="#_conclusion"></a>Conclusion</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>You have successfully navigated the <strong>Red Hat OpenShift AI Model Catalog</strong>.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>You explored the <strong>Architecture</strong> of ModelCars and Quantization.</p>
+</li>
+<li>
+<p>You mastered the <strong>Performance Insights</strong> and Deployment guardrails.</p>
+</li>
+<li>
+<p>You built a <strong>Custom Supply Chain</strong> using the declarative CLI.</p>
+</li>
+<li>
+<p>You prepared for <strong>Day 2 Governance and Operations</strong>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Your "Showroom" is now open for business.</p>
+</div>
+<div class="paragraph text-center">
+<p><strong>Course Complete</strong></p>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="section2.html">Catalog Customization CLI</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

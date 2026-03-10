@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Lab: Customizing the Catalog &amp; Supply Chain :: Industrializing GenAI Operationalizing the RHOAI Model Catalog</title>
+    <link rel="prev" href="section4.html">
+    <link rel="next" href="section3.html">
+    <meta name="generator" content="Antora 3.1.3">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://www.redhat.com" target="_blank"><img src="../../../_/img/redhat-logo.png" height="40px" alt="Red Hat"></a>
+      <a class="navbar-item" style="font-size: 24px; color: white" href="../../..">Industrializing GenAI Operationalizing the RHOAI Model Catalog</a>
+      <button class="navbar-burger" data-target="topbar-nav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div id="topbar-nav" class="navbar-menu">
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/RedHatQuickCourses/REPLACEREPONAME/issues" target="_blank">Report Issues</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="rhoai3-catalog" data-version="3.3">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../index.html">Industrializing GenAI Operationalizing the RHOAI Model Catalog</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../index.html">Introduction</a>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="section1.html">Architecture Deep Dive</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="section4.html">Simulate the Catalog Experience</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="1">
+    <a class="nav-link" href="section2.html">Catalog Customization CLI</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="section3.html">Administration &amp; Troubleshooting</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">Industrializing GenAI Operationalizing the RHOAI Model Catalog</span>
+    <span class="version">3.3</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../index.html">Industrializing GenAI Operationalizing the RHOAI Model Catalog</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../index.html">3.3</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../index.html" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../index.html">Industrializing GenAI Operationalizing the RHOAI Model Catalog</a></li>
+    <li><a href="section2.html">Catalog Customization CLI</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="2">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Lab: Customizing the Catalog &amp; Supply Chain</h1>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph lead">
+<p><strong>Your organization&#8217;s custom models deserve the same seamless deployment experience as third-party foundation models.</strong></p>
+</div>
+<div class="paragraph">
+<p>In OpenShift AI 3.3, administrators have the option to manage catalog sources directly through the new Dashboard UI. However, for true enterprise scale, Platform Engineers must understand how to manage these sources declaratively. This allows for strict "GitOps" workflows where every model approved for deployment is tracked as code.</p>
+</div>
+<div class="paragraph">
+<p>As an OpenShift cluster administrator, you configure a custom model catalog source by adding an entry to the <code>model-catalog-sources</code> config map.</p>
+</div>
+<div class="paragraph">
+<p>In this lab, you will use the <strong>"Embedded Strategy"</strong>. This is the most robust method for air-gapped or strict firewall environments. You will configure the ConfigMap to serve two roles simultaneously:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>The Pointer (<code>sources.yaml</code>):</strong> It defines the catalog name, ID, and where to look for the model definitions.</p>
+</li>
+<li>
+<p><strong>The Database (e.g., <code>acme-models.yaml</code>):</strong> It contains the actual metadata and external storage URIs for your proprietary models.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_procedure_the_declarative_gitops_strategy"><a class="anchor" href="#_procedure_the_declarative_gitops_strategy"></a>Procedure: The Declarative GitOps Strategy</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_1_target_the_registry_namespace"><a class="anchor" href="#_1_target_the_registry_namespace"></a>1. Target the Registry Namespace</h3>
+<div class="paragraph">
+<p>First, ensure you are working in the correct project where the Model Registry and Catalog components are running.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc project rhoai-model-registries</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_2_open_the_catalog_configuration"><a class="anchor" href="#_2_open_the_catalog_configuration"></a>2. Open the Catalog Configuration</h3>
+<div class="paragraph">
+<p>The Model Catalog uses a Kubernetes ConfigMap to define its sources. You will edit this object directly.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">oc edit configmap model-catalog-sources</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>You are editing a <strong>ConfigMap</strong>, not a local file. The <code>sources.yaml</code> configuration and your custom model catalog file will exist as sibling entries inside the <code>data</code> section of this object.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_3_configure_the_source_and_add_models"><a class="anchor" href="#_3_configure_the_source_and_add_models"></a>3. Configure the Source and Add Models</h3>
+<div class="paragraph">
+<p>You need to define your custom source under the <code>catalogs</code> field in <code>sources.yaml</code>, and provide the actual model payload in a sibling file.</p>
+</div>
+<div class="paragraph">
+<p>Carefully add the following structure into the <code>data:</code> section of the ConfigMap:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">data:
+  # KEY 1: The Registration (The "Pointer")
+  sources.yaml: |-
+    catalogs:
+    - name: Acme Corp Private    # The user-friendly name of the catalog source.
+      id: acme_custom_catalog    # The unique ID of the catalog source.
+      type: yaml                 # The catalog source type.
+      enabled: true              # Whether the catalog source is enabled.
+      properties:
+        yamlCatalogPath: acme-models.yaml # The location of your catalog source file.
+      labels:
+        - Acme AI Lab            # Optional labels for your catalog source to display in the catalog.
+
+  # KEY 2: The Inventory (The "Database")
+  # This key contains the actual Model definitions and external storage URIs.
+  acme-models.yaml: |-
+    models:
+      - name: "Acme-Finance-7B"
+        provider: "Acme AI Lab"
+        description: "Internal fine-tuned model stored in secure S3."
+        customProperties:
+          model_type:
+            metadataType: MetadataStringValue
+            string_value: "generative"
+          author:
+            metadataType: MetadataStringValue
+            string_value: "Acme Data Science"
+        artifacts:
+          - name: "model-artifact"
+            uri: "s3://acme-private-models/Finance-7B-v1.2"</code></pre>
+</div>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="title">YAML Indentation Warning</div>
+<div class="paragraph">
+<p>Notice the structure above. The <code>acme-models.yaml</code> content is added in the same config map as a sibling of <code>sources.yaml</code>. Ensure the indentation of the inner YAML is preserved exactly as shown, or the catalog parser will fail.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_4_save_and_exit"><a class="anchor" href="#_4_save_and_exit"></a>4. Save and Exit</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Vi/Vim Users:</strong> Press <code>Esc</code>, then type <code>:wq</code> and press <code>Enter</code> to save the ConfigMap.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_step_5_verification_and_ui_categorization"><a class="anchor" href="#_step_5_verification_and_ui_categorization"></a>Step 5: Verification and UI Categorization</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>These changes might take a few minutes to be displayed in the catalog on the dashboard.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Open the OpenShift AI dashboard and click <strong>AI hub → Catalog</strong>.</p>
+</li>
+<li>
+<p>Look at the category menu bar at the top of the catalog:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>If you used the <code>labels</code> field (as we did with "Acme AI Lab"):</strong> Your models will appear in a custom category named <code>&lt;your-label-name&gt; models</code>.</p>
+</li>
+<li>
+<p><strong>If you omitted the <code>labels</code> field:</strong> Your custom models will be aggregated under the <strong>Other models</strong> category.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Click your custom model to view its details page. You will see that the deployment wizard is now ready to pull your custom asset directly from the external S3 storage URI you provided.</p>
+</li>
+</ol>
+</div>
+<hr>
+<div class="paragraph">
+<p><strong>You have successfully engineered the supply chain to serve private assets declaratively. Next, we will cover the Day 2 Operations required to maintain, secure, and govern this system.</strong></p>
+</div>
+</div>
+</div>
+<nav class="pagination">
+  <span class="prev"><a href="section4.html">Simulate the Catalog Experience</a></span>
+  <span class="next"><a href="section3.html">Administration &amp; Troubleshooting</a></span>
+</nav>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+  <img src="../../../_/img/rhl-logo-red.png" height="40px" alt="Red Hat"  href="https://redhat.com" >
+</footer><script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>
