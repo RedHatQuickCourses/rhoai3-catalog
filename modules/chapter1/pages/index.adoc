@@ -1,4 +1,4 @@
-= From Showroom to Production: Operationalizing the OpenShift AI Model Catalog
+= Industrializing GenAI: Operationalizing the RHOAI Model Catalog
 :navtitle: Introduction & Value
 :toc: macro
 

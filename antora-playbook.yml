@@ -1,5 +1,5 @@
 site:
-  title: Red Hat OpenShift AI (RHOAI) Model Catalog
+  title: Industrializing GenAI Operationalizing the RHOAI Model Catalog
   start_page: rhoai3-catalog::index.adoc
 
 content:
