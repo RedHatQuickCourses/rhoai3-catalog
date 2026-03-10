@@ -49,7 +49,7 @@ Even a validated platform has edge cases during major architectural shifts. If y
 
 You started this course with a question: *"Why should we use this instead of just downloading files from the internet?"*
 
-You now have the answer. The Model Catalog is not just a UI; it is a **Risk Control Plane**.
+You now have the answer. The model catalog is not just a UI; it is a **Risk Control Plane**.
 
 [cols="1,3", options="header"]
 |===

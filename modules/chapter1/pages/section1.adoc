@@ -9,13 +9,13 @@
 [.lead]
 *To the user, the catalog is a gallery. To the platform engineer, it is a highly optimized, dynamically managed supply chain.*
 
-Before you can confidently operationalize the catalog and manage Day 2 operations, you must understand the machinery that powers it. The Model Catalog is an integration engine that connects a vast ecosystem of content to your OpenShift infrastructure using specific technical primitives: **Validation & Benchmarking**, **ModelCars**, and **Hardware-Mapped Quantization Profiles**.
+Before you can confidently operationalize the catalog and manage Day 2 operations, you must understand the machinery that powers it. The model catalog is an integration engine that connects a vast ecosystem of content to your OpenShift infrastructure using specific technical primitives: **Validation & Benchmarking**, **ModelCars**, and **Hardware-Mapped Quantization Profiles**.
 
 Understanding these primitives is how you transition from simply "deploying AI" to "deploying AI securely, profitably, and predictably."
 
 == 1. The Content Ecosystem: Validated, Community, and Tuning Models
 
-The OpenShift AI Model Catalog is not restricted solely to Red Hat curated content; it is a comprehensive ecosystem designed to support the entire AI lifecycle, from raw experimentation to production deployment.
+The OpenShift AI model catalog is not restricted solely to Red Hat curated content; it is a comprehensive ecosystem designed to support the entire AI lifecycle, from raw experimentation to production deployment.
 
 * **Red Hat Validated Models (The Trust Engine):** These models undergo a rigorous qualification process. The detailed model cards for these assets include comprehensive benchmarks, performance testing on specific NVIDIA and AMD hardware, along with exact configuration parameters and reproduction examples. If a model has this badge, it is safe, it is known, and its performance is mathematically documented.
 * **Community & Tuning Models:** In addition to validated models, the catalog provides popular models from other vendors and base models specifically prepped for fine-tuning. This allows your data scientists to deploy these models and establish their own performance baselines on your specific hardware, comparing their custom tuning results directly against the Red Hat published benchmarks.
