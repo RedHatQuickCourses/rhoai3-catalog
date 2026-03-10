@@ -17,7 +17,7 @@ Understanding these primitives is how you transition from simply "deploying AI" 
 
 The OpenShift AI Model Catalog is not restricted solely to Red Hat curated content; it is a comprehensive ecosystem designed to support the entire AI lifecycle, from raw experimentation to production deployment.
 
-* **Red Hat Validated Models (The Trust Engine):** These models undergo a rigorous qualification process. The detailed Model Cards for these assets include comprehensive benchmarks, performance testing on specific NVIDIA and AMD hardware, along with exact configuration parameters and reproduction examples. If a model has this badge, it is safe, it is known, and its performance is mathematically documented.
+* **Red Hat Validated Models (The Trust Engine):** These models undergo a rigorous qualification process. The detailed model cards for these assets include comprehensive benchmarks, performance testing on specific NVIDIA and AMD hardware, along with exact configuration parameters and reproduction examples. If a model has this badge, it is safe, it is known, and its performance is mathematically documented.
 * **Community & Tuning Models:** In addition to validated models, the catalog provides popular models from other vendors and base models specifically prepped for fine-tuning. This allows your data scientists to deploy these models and establish their own performance baselines on your specific hardware, comparing their custom tuning results directly against the Red Hat published benchmarks.
 
 == 2. Catalog UI Management & Curation (New in 3.3)
@@ -72,7 +72,7 @@ However, not all quantization formats perform equally across all video cards. To
 
 === Tying it Together
 
-By combining the detailed reproduction benchmarks found in the Model Cards with the hardware mapping chart above, your engineering teams no longer have to guess. They can provision the exact AMD, NVIDIA, or IBM accelerator required for the specific quantization format, deploy the model via a high-speed ModelCar, and immediately validate their own baseline performance.
+By combining the detailed reproduction benchmarks found in the model cards with the hardware mapping chart above, your engineering teams no longer have to guess. They can provision the exact AMD, NVIDIA, or IBM accelerator required for the specific quantization format, deploy the model via a high-speed ModelCar, and immediately validate their own baseline performance.
 
 ---
 

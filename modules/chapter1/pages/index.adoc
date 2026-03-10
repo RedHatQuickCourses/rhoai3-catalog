@@ -13,8 +13,8 @@ In the enterprise AI landscape, the challenge is no longer just *finding* a gene
 
 To understand the architecture of OpenShift AI, you must distinguish between two highly complementary components: the **Model Registry** and the **Model Catalog**. 
 
-* A **Model Registry** acts as a central repository for administrators and engineers to register, version, and manage the lifecycle of AI models before configuring them for deployment. Think of it as the "Title Office" for your AI assets.
-* The **Model Catalog**, conversely, is the "Showroom." It provides a curated library where data scientists and AI engineers can discover and evaluate the available generative AI models to find the best fit for their use cases. 
+* A **model registry** acts as a central repository for administrators and engineers to register, version, and manage the lifecycle of AI models before configuring them for deployment. Think of it as the "title office" for your AI assets.
+* The **model catalog**, conversely, is the "showroom." It provides a curated library where data scientists and AI engineers can discover and evaluate the available generative AI models to find the best fit for their use cases. 
 
 The core business value of the catalog lies in reducing the time, cost, and operational risk associated with GenAI deployments through five key pillars.
 
@@ -26,7 +26,7 @@ Deploying raw, community-sourced models introduces severe "Shadow AI" risks. Ope
 **New in 3.3:** Curation is not just about what is provided; it is about what is permitted. The model catalog now provides an administrative capability to selectively hide, disallow list, or remove specific models from the visible catalog. This critical feature ensures compliance with internal security, policy, or regulatory restrictions.
 
 == 2. Custom Model Integration (Your Private Showroom)
-The Model Catalog is a flexible portal designed to expose your organization's unique AI assets. OpenShift cluster administrators can configure a custom model catalog source by adding an entry to the `model-catalog-sources` config map. This allows you to provide your data scientists with a single, unified interface for both trusted third-party foundation models and your own proprietary, fine-tuned assets.
+The model catalog is a flexible portal designed to expose your organization's unique AI assets. OpenShift cluster administrators can configure a custom model catalog source by adding an entry to the `model-catalog-sources` config map. This allows you to provide your data scientists with a single, unified interface for both trusted third-party foundation models and your own proprietary, fine-tuned assets.
 
 == 3. Optimization & Hardware Breadth (Controlling TCO)
 Hardware availability is the primary constraint for GenAI. The catalog addresses this by offering models optimized via advanced quantization techniques (like INT4 and FP8), allowing massive models to run on fewer or less expensive hardware accelerators.

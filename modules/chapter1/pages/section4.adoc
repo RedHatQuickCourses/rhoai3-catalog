@@ -9,7 +9,7 @@
 [.lead]
 *Experience the workflows that make this possible.*
 
-To truly understand the value of the OpenShift AI Model Catalog, you must experience how it replaces trial-and-error with mathematical, governed workflows. 
+To truly understand the value of the OpenShift AI model catalog, you must experience how it replaces trial-and-error with mathematical, governed workflows. 
 
 Below are focused, interactive simulations. Step into the shoes of both the AI Engineer and the Platform Administrator to see how OpenShift AI secures the supply chain from discovery to deployment.
 
@@ -21,9 +21,10 @@ Below are focused, interactive simulations. Step into the shoes of both the AI E
 [NOTE]
 .Simulation 1: The Model Card Walkthrough
 ====
-* **Click through the simulation below.** * Observe how the catalog separates Red Hat Validated models from community options.
-* Explore the Model Card to review the Model Overview, optimization details (like Quantization), and embedded deployment examples.
-* Review the benchmark data to see how the quantized model performed against the original model.
+
+ * Observe how the catalog separates Red Hat Validated models from community options.
+ * Explore the model card to review the Model Overview, optimization details (like Quantization), and embedded deployment examples.
+ * Review the benchmark data to see how the quantized model performed against the original model.
 ====
 
 // ARCADE EMBED 1 (Model Card Walkthrough)
@@ -35,15 +36,15 @@ Below are focused, interactive simulations. Step into the shoes of both the AI E
 == Workflow 2: Data-Driven Provisioning (Performance Insights)
 
 **The Goal:** Determine the exact hardware required to meet a specific Service Level Agreement (SLA).
+
 **The Value:** Preventing expensive over-provisioning and avoiding under-resourced pod crashes.
 
 [NOTE]
 .Simulation 2: Sizing the Hardware
 ====
-* **Click through the simulation below.**
-* Navigate to the **Performance Insights** tab for the Llama 3 model.
-* Adjust the **Max Latency** and **Min RPS** sliders. 
-* Watch how hardware configurations (like the H200 or A100) that fail to meet your specific token generation requirements are instantly hidden, removing the guesswork from capacity planning.
+ * Navigate to the **Performance Insights** tab for the Llama 3 model.
+ * Adjust the **Max Latency** and **Min RPS** sliders. 
+ * Watch how hardware configurations (like the H200 or A100) that fail to meet your specific token generation requirements are instantly hidden, removing the guesswork from capacity planning.
 ====
 
 // ARCADE EMBED 2 (Performance View)
