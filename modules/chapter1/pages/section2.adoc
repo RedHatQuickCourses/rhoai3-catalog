@@ -86,10 +86,8 @@ data:
 Notice the structure above. The `acme-models.yaml` content is added in the same config map as a sibling of `sources.yaml`. Ensure the indentation of the inner YAML is preserved exactly as shown, or the catalog parser will fail.
 ====
 
-=== 4. Save and Exit
-* **Vi/Vim Users:** Press `Esc`, then type `:wq` and press `Enter` to save the ConfigMap.
 
-== Step 5: Verification and UI Categorization
+== Step 4: Verification and UI Categorization
 
 These changes might take a few minutes to be displayed in the catalog on the dashboard.
 
